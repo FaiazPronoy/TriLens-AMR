@@ -1,0 +1,49 @@
+# Large arrays and datasets are not committed -- see docs/DATA.md
+# (anchored with a leading slash: a bare "data/" would also drop src/data/, which is code)
+/data/*
+!/data/README.md
+*.npz
+*.npy
+*.pkl
+*.pkl.sha256
+*.h5
+*.pt
+*.pth
+*.ckpt
+*.parquet
+
+# Results: keep only small text outputs
+/results/**/*
+!/results/**/
+!/results/**/*.csv
+!/results/**/*.json
+!/results/**/*.md
+!/results/**/*.yaml
+!/results/**/*.txt
+
+# Hydra / logging run folders
+/experiments/
+/outputs/
+/multirun/
+.hydra/
+logs/
+wandb/
+lightning_logs/
+*.log
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+.ipynb_checkpoints/
+.pytest_cache/
+
+# OS and editors
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/

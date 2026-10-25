@@ -1,0 +1,98 @@
+# Locked parameters. Every value here is either (a) taken directly from a
+# notebook's own config block (cited in a comment) or (b) a new parameter
+# introduced by this refactor, marked NEW. Changing any (a) value would
+# violate Rule 1 (docs/CHANGELOG_NUMBERS.md) unless done deliberately and
+# documented there.
+
+seed: 42  # global seed used by every split, every stochastic model fit
+
+vcf_to_snp:
+  # Phase A cell 3 config block
+  min_maf: 0.01
+  snp_only: true
+  missing_handling: "ref"  # missing genotype -> reference allele (0)
+  progress_interval: 100000
+
+labels:
+  # accepted tokens for encode_phenotype() -- the PERMISSIVE union of Phase B
+  # cell 3's and cell 5's two encoders (B2). Intermediate counted as resistant,
+  # following the source study's convention (see labels.py docstring).
+  resistant_tokens: ["r", "res", "resistant", "i", "int", "intermediate"]
+  susceptible_tokens: ["s", "sus", "susceptible"]
+  antibiotics: ["AMP", "CIP", "AMC", "SXT", "GEN", "CTX", "CAZ"]
+  antibiotic_column_map:
+    AMP: "ampicillin"
+    CIP: "ciprofloxacin"
+    AMC: "amoxicillin/clavulanic acid"
+    SXT: "trimethoprim/sulfamethoxazole"
+    GEN: "gentamicin"
+    CTX: "cefotaxime"
+    CAZ: "ceftazidime"
+
+splits:
+  test_size: 0.15
+  val_size_of_remainder: 0.17647058823529413  # 0.15 / 0.85, Phase B's own value
+  # NEW (B1): grouping variable for the genuine lineage holdout.
+  lineage_holdout:
+    default_group_source: "phylogroup"  # {"phylogroup", "mlst", "precomputed"}
+    unassigned_mlst_policy: "singleton"  # each ST-less strain is its own group
+    min_group_size_warn: 1
+
+gene_filter:
+  # Stage 1.5 locked formula, from configs/experiment/stage1_5_gene_filtering.yaml
+  # in the existing (untouched) src/experiments pipeline
+  min_snps_per_gene: 5
+  final_gene_cap: 5000
+  prefilter_chi2_top_k: 50000
+  prefilter_min_variance: 1.0e-6
+  xgb_params:
+    n_estimators: 500
+    max_depth: 4
+    learning_rate: 0.1
+    subsample: 0.8
+    colsample_bytree: 1.0
+    colsample_bynode: 0.5
+    min_child_weight: 1
+    tree_method: "hist"
+    early_stopping_rounds: 30
+    eval_metric: "aucpr"
+
+gene_pa:
+  # B4: hardcoded, not configurable -- this is the one and only verified-correct
+  # orientation. A config toggle here would let the S1 bug come back silently.
+  encoding_rule: "present_if_plink_value_equals_zero"
+  plausibility_range: [2000, 8000]  # B4 hard assertion bounds (genes/strain)
+  min_gene_id_overlap_with_filtered: 4000  # B5 hard assertion
+  unmatched_strain_policy: "zero"  # {"zero", "drop", "nan_mask"} -- B6
+
+pca_baseline:
+  search_dims: [128, 256, 512, 1024, 2048]
+  chosen_dim: 1024  # argmax by mean val PR-AUC, see docs manifest E7
+  xgb_params:
+    n_estimators: 300
+    max_depth: 5
+    learning_rate: 0.08
+    tree_method: "hist"
+
+giessen:
+  # Ren et al. 2022, 10.1093/bioinformatics/btab681
+  antibiotic_name_map:  # NORMALIZE: Giessen's own column name -> canonical
+    CIP: "CIP"
+    CTX: "CTX"
+    CTZ: "CAZ"   # Giessen calls ceftazidime CTZ; Arcadia/thesis calls it CAZ
+    GEN: "GEN"
+  shared_antibiotics_with_arcadia: ["CIP", "CTX", "CAZ", "GEN"]
+  split:
+    test_size: 0.30   # -> further 50/50 into val/test, matching the notebook
+    stratify_on: "auto_most_balanced"  # picks CIP in practice (rate closest to 0.5)
+  bootstrap:
+    n_boot: 1000
+    seed: 42
+    method: "percentile"
+  amr_ensemblenet:
+    attribution: "Siddiqui & Tarannum (2025), arXiv:2509.23552"
+    source_repo: "github.com/Saiful185/AMR-EnsembleNet"
+
+evaluation:
+  bootstrap_n: 1000
+  bootstrap_seed: 42

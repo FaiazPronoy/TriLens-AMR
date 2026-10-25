@@ -1,0 +1,61 @@
+# configs/experiment/gene_attention_v2.yaml
+#
+# GeneAttentionNetV2 — E0-E6 ablation sweep config
+#
+# IMPORTANT:
+#   - Flat YAML: NO @package _global_, NO defaults:, NO experiment: wrapper
+#   - Fields at root level, used directly by run_gene_attention_v2.run(cfg)
+#   - DO NOT change hidden_dim/lr/dropout/batch_size across variants;
+#     the ablation isolates pool_type, multi_task, n_layers, n_genes only.
+#
+# Run:
+#   python src/run_experiment.py +experiment=gene_attention_v2
+#
+# Dispatch line to add to src/run_experiment.py _DISPATCH dict:
+#   "gene_attention_v2": "src.experiments.run_gene_attention_v2",
+#
+# Dependency note:
+#   pip install entmax    # required for E2 (entmax multi-task) and E6 (sparse lean)
+
+name: gene_attention_v2        # ← ETA ADD KORO (first field)
+description: "GeneAttentionNetV2 ablation sweep E0-E6"
+
+# ── Paths ──────────────────────────────────────────────────────────────────
+output_dir: results/gene_attention_v2
+data_pkl:   data/processed/arcadia_v2_gene_filtered.pkl
+
+# ── Model hyperparameters (FIXED across all E0-E6 variants) ────────────────
+hidden_dim: 128
+n_heads:    4
+ffn_mult:   2
+dropout:    0.3
+attn_dim:   64         # gated pool projection dimension (Ilse et al. 2018)
+
+# ── Training hyperparameters ───────────────────────────────────────────────
+lr:           0.001
+weight_decay: 0.0001
+batch_size:   16
+max_epochs:   25
+patience:     5        # early stopping on val avg PR-AUC
+use_amp:      true     # AMP mixed precision — REQUIRED for RTX 4070 Ti speed
+seed:         42
+
+# ── Evaluation ────────────────────────────────────────────────────────────
+n_bootstrap:    1000
+bootstrap_seed: 42
+
+# ── Experiment selection (subset to re-run individual experiments) ─────────
+# Comment out IDs to skip; E2 and E6 require: pip install entmax
+experiments_to_run:
+  - E0    # softmax,  multi-task,  2 layers, 5000 genes  (v1 control)
+  - E1    # gated,    multi-task,  2 layers, 5000 genes  (H2: gated MT)
+  - E2    # entmax,   multi-task,  2 layers, 5000 genes  (H2: sparse MT)
+  - E3    # softmax,  single-task, 2 layers, 5000 genes  (H1: ST)
+  - E4    # gated,    single-task, 2 layers, 5000 genes  (H1+H2: primary bet)
+  - E5    # gated,    single-task, 0 layers, 5000 genes  (lean attn-MIL)
+  - E6    # entmax,   single-task, 0 layers, 1000 genes  (sparse lean top-1000)
+
+# ── WandB logging (optional) ──────────────────────────────────────────────
+use_wandb:      false
+wandb_project:  amr_gan_v2
+wandb_entity:   null   # set to your WandB username/team if use_wandb: true

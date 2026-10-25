@@ -1,0 +1,38 @@
+% ---------------------------------------------------------------
+%  How the fourteen predictive studies of Table 2.1 test their models.
+%  Counts are the verified tally in Section 2.2.6: 2 + 5 + 3 + 4 = 14.
+%  Horizontal bars rather than one stacked bar, so each label has a
+%  row to itself and nothing can collide.
+%  Pure TikZ - needs no package beyond what main.tex already loads.
+% ---------------------------------------------------------------
+\begin{tikzpicture}[x=1.5cm, y=1.05cm]
+
+% ---- one row per evaluation design: y / count / fill / edge / label ----
+% One series, so one colour. Only the row the caption singles out is
+% highlighted; the other three are neutral.
+\foreach \y/\n/\f/\e/\lab in {%
+  0/2/redfill/rededge/{Partition by population structure},
+  -1/5/grayfill/neutralc/{Cross-validation or holdout, plus an independent external collection},
+  -2/3/grayfill/neutralc/{Cross-validation alone},
+  -3/4/grayfill/neutralc/{Random or stratified holdout, no external set}}{
+    \fill[\f] (0,\y-0.28) rectangle (\n,\y+0.28);
+    \draw[\e,line width=0.9pt] (0,\y-0.28) rectangle (\n,\y+0.28);
+    % count, just past the end of the bar
+    \node[anchor=west,font=\large\bfseries,text=black] at (\n+0.12,\y) {\n};
+    % label, right-aligned in its own column so rows never touch
+    \node[anchor=east,font=\small,text=black,align=right,text width=6.2cm]
+      at (-0.20,\y) {\lab};
+}
+
+% ---- baseline ----
+\draw[black,line width=0.9pt] (0,0.40) -- (0,-3.40);
+
+% ---- brace marking the twelve that do not hold a lineage out by design ----
+\draw[black!55,line width=0.9pt]
+  (5.75,-0.72) -- (6.00,-0.72) -- (6.00,-3.28) -- (5.75,-3.28);
+\node[anchor=west,font=\small,text=black,align=left,text width=3.5cm]
+  at (6.12,-2.00) {twelve of the fourteen do not hold a lineage out as their
+  primary design {\footnotesize(two of these report a supplementary
+  structure-aware check)}};
+
+\end{tikzpicture}

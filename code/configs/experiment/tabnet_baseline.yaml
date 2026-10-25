@@ -1,0 +1,35 @@
+# configs/experiment/tabnet_baseline.yaml
+#
+# TabNet baseline (Iftu Sir) — same gene-aggregated features and random_split
+# as every other classical baseline (stage2_gene_xgb, CascadeStack v9's
+# XGB-gene/LGBM-gene/RF-gene/LogReg-gene) so PR-AUC is directly comparable.
+#
+# FLAT config — loaded/merged manually (not via Hydra dispatch) by
+# src/experiments/run_tabnet_baseline.py, same pattern as
+# configs/experiment/pillar2_layer_ablation.yaml.
+#
+# Run (GPU, ~5-15 min/antibiotic on an RTX-3060/4070-class GPU — not run yet):
+#   conda activate amr
+#   python -m src.experiments.run_tabnet_baseline
+
+name: tabnet_baseline
+gene_stats: [mean, var, n_nonref, max]
+split_key: random_split
+
+# ── TabNet architecture (pytorch-tabnet defaults, lightly tuned) ─────────────
+tabnet:
+  n_d: 16
+  n_a: 16
+  n_steps: 4
+  gamma: 1.3
+  lambda_sparse: 1.0e-3
+  seed: 42
+
+# ── Training ──────────────────────────────────────────────────────────────────
+training:
+  max_epochs: 150
+  patience: 20
+  batch_size: 256
+  virtual_batch_size: 128
+
+output_dir: ${paths.results_dir}/tabnet_baseline

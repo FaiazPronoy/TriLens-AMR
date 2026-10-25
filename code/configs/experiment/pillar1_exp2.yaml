@@ -1,0 +1,35 @@
+# configs/experiment/pillar1_exp2.yaml
+# Pillar 1 Experiment 1.2 — Contig-aware CNN recovers Arcadia performance.
+# Hypothesis: respecting contig boundaries via per-contig pooling recovers
+# ≥0.05 PR-AUC on Arcadia, confirming the cause of locality mismatch failure.
+
+name: pillar1_exp2
+description: "Pillar 1 Exp 1.2 — Contig-aware vs naive CNN on Arcadia"
+
+antibiotics: [CIP, CTX, GEN, CAZ]
+dataset: arcadia
+models: [cnn_1d_naive, cnn_1d_contig_aware]
+contig_aware_variant: A
+output_dir: ${paths.results_dir}/pillar1/exp2
+
+training:
+  max_epochs: 30
+  min_epochs: 5
+  early_stop_patience: 8
+  early_stop_metric: "val/pr_auc"
+  early_stop_mode: "max"
+  batch_size: 16
+  num_workers: 4
+  learning_rate: 1.0e-3
+  weight_decay: 1.0e-4
+  gradient_clip: 1.0
+  precision: "16-mixed"
+  scheduler_t_max: 30
+
+evaluation:
+  bootstrap_n: 1000
+  bootstrap_seed: 42
+
+wandb:
+  project: amr-phylogene-mtl
+  tags: [pillar1, exp2, boundary_aware]

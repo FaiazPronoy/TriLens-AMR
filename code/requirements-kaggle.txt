@@ -1,0 +1,7 @@
+# Extra packages a Kaggle GPU notebook needs on top of its preinstalled stack.
+#   !pip install -q -r /kaggle/working/code/requirements-kaggle.txt
+hydra-core==1.3.2
+omegaconf==2.3.0
+lightning
+pytorch-tabnet
+entmax

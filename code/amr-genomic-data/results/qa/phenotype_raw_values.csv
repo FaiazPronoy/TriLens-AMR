@@ -1,0 +1,29 @@
+antibiotic,column,raw_token,count
+AMP,ampicillin,resistant,2440
+AMP,ampicillin,susceptible,2430
+AMP,ampicillin,nan,2109
+AMP,ampicillin,intermediate,4
+CIP,ciprofloxacin,susceptible,4657
+CIP,ciprofloxacin,resistant,1291
+CIP,ciprofloxacin,nan,944
+CIP,ciprofloxacin,intermediate,91
+AMC,amoxicillin/clavulanic acid,nan,3204
+AMC,amoxicillin/clavulanic acid,susceptible,2598
+AMC,amoxicillin/clavulanic acid,resistant,1122
+AMC,amoxicillin/clavulanic acid,intermediate,59
+SXT,trimethoprim/sulfamethoxazole,nan,3559
+SXT,trimethoprim/sulfamethoxazole,susceptible,2360
+SXT,trimethoprim/sulfamethoxazole,resistant,1026
+SXT,trimethoprim/sulfamethoxazole,intermediate,38
+GEN,gentamicin,susceptible,5330
+GEN,gentamicin,nan,940
+GEN,gentamicin,resistant,594
+GEN,gentamicin,intermediate,119
+CTX,cefotaxime,susceptible,4587
+CTX,cefotaxime,nan,1568
+CTX,cefotaxime,resistant,789
+CTX,cefotaxime,intermediate,39
+CAZ,ceftazidime,susceptible,5195
+CAZ,ceftazidime,nan,1002
+CAZ,ceftazidime,resistant,563
+CAZ,ceftazidime,intermediate,223

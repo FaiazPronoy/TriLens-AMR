@@ -1,0 +1,33 @@
+# configs/experiment/stage2_gene_xgb.yaml
+# Stage 2 (lite) — XGBoost on gene-aggregated features.
+
+name: stage2_gene_xgb
+description: "Stage 2 — XGBoost on gene-aggregated features (5K genes × 4 stats)"
+
+antibiotics: [AMP, CIP, AMC, SXT, GEN, CTX, CAZ]
+gene_stats: [mean, var, n_nonref, max]   # per-gene summary statistics
+phylogroup_variants: [false, true]       # run both, compare directly
+
+xgb_params:
+  n_estimators: 4000
+  max_depth: 4
+  learning_rate: 0.05
+  subsample: 0.7
+  colsample_bytree: 0.7
+  reg_alpha: 0.01
+  reg_lambda: 1.0
+  min_child_weight: 10
+  tree_method: hist
+  device: cuda
+  early_stopping_rounds: 200
+  eval_metric: aucpr
+
+evaluation:
+  bootstrap_n: 1000
+  bootstrap_seed: 42
+
+output_dir: ${paths.results_dir}/stage2_gene_xgb
+
+wandb:
+  project: amr-phylogene-mtl
+  tags: [stage2, gene_xgb]

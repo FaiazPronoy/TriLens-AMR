@@ -1,0 +1,79 @@
+# configs/experiment/stage3_cascadestack_v9.yaml
+# CascadeStack v9 — v8 + GeneAttentionNet (6 base learners total)
+
+name: stage3_cascadestack_v9
+description: "CascadeStack v9 — 5 classical bases + multi-task GeneAttentionNet, K-fold OOF, LogReg meta"
+
+antibiotics: [AMP, CIP, AMC, SXT, GEN, CTX, CAZ]
+gene_stats: [mean, var, n_nonref, max]
+
+n_folds: 5
+use_lgbm: true
+
+# ── 6th base: multi-task GeneAttentionNet (K-fold OOF retrained, leak-free) ───
+gan:
+  max_epochs: 15            # 15 epochs/fold × 5 folds (reduced from 50 in solo training)
+  batch_size: 16
+  learning_rate: 1.0e-3
+  hidden_dim: 128
+  n_heads: 4
+  n_layers: 2
+  ffn_mult: 2
+  dropout: 0.3
+
+# ── Classical bases (same as v8) ──────────────────────────────────────────────
+xgb_params:
+  n_estimators: 1500
+  max_depth: 5
+  min_child_weight: 5
+  learning_rate: 0.05
+  subsample: 0.8
+  colsample_bytree: 0.7
+  reg_alpha: 0.1
+  reg_lambda: 1.0
+  gamma: 0.1
+  tree_method: hist
+  device: cuda
+  early_stopping_rounds: 150
+
+lgbm_params:
+  num_leaves: 63
+  max_depth: 6
+  min_child_samples: 20
+  learning_rate: 0.05
+  subsample: 0.8
+  subsample_freq: 1
+  colsample_bytree: 0.7
+  reg_alpha: 0.1
+  reg_lambda: 1.0
+  early_stopping_rounds: 150
+
+rf_params:
+  n_estimators: 200
+  max_depth: 12
+  min_samples_leaf: 10
+
+prefilter_top_k: 50000
+prefilter_min_variance: 1.0e-6
+xgb_raw_params:
+  n_estimators: 1500
+  max_depth: 5
+  learning_rate: 0.05
+  subsample: 0.8
+  colsample_bytree: 1.0
+  colsample_bynode: 0.5
+  reg_alpha: 0.1
+  reg_lambda: 1.0
+  tree_method: hist
+  device: cuda
+  early_stopping_rounds: 150
+
+meta_C: 1.0
+
+evaluation:
+  bootstrap_n: 1000
+  bootstrap_seed: 42
+
+output_dir: ${paths.results_dir}/stage3_cascadestack_v9
+
+split_key: random_split   # default; set to phylogeny_split for EXP-1

@@ -1,0 +1,60 @@
+# configs/experiment/pillar4_giessen_transfer.yaml
+# Pillar 4 — Cross-dataset generalization (Arcadia v9.1 → Giessen).
+# Runs v9.1 stacking architecture on Giessen with identical hyperparameters.
+
+name: pillar4_giessen_transfer
+description: "Pillar 4 — apply CascadeStack v9.1 methodology to Giessen dataset for 4 shared antibiotics (CIP, CTX, CAZ, GEN) without hyperparameter tuning. Reports generalization gap vs Arcadia v9."
+
+# Giessen data
+giessen_dir: ${paths.data_dir}/Giessen_dataset
+giessen_genotype_csv: cip_ctx_ctz_gen_multi_data.csv
+giessen_phenotype_csv: cip_ctx_ctz_gen_pheno.csv
+
+shared_antibiotics: [CIP, CTX, CAZ, GEN]
+
+# v9 stacking knobs — IDENTICAL to v9
+n_folds: 5
+use_lgbm: true
+meta_C: 1.0
+
+# chi² prefilter — capped to Giessen size (60K)
+prefilter_top_k: 20000
+prefilter_min_variance: 1.0e-6
+
+# XGB / LGBM / RF — IDENTICAL to v9
+xgb_params:
+  n_estimators: 1500
+  max_depth: 5
+  min_child_weight: 5
+  learning_rate: 0.05
+  subsample: 0.8
+  colsample_bytree: 0.7
+  reg_alpha: 0.1
+  reg_lambda: 1.0
+  gamma: 0.1
+  tree_method: hist
+  device: cuda
+  early_stopping_rounds: 150
+
+lgbm_params:
+  num_leaves: 63
+  max_depth: 6
+  min_child_samples: 20
+  learning_rate: 0.05
+  subsample: 0.8
+  subsample_freq: 1
+  colsample_bytree: 0.7
+  reg_alpha: 0.1
+  reg_lambda: 1.0
+  early_stopping_rounds: 150
+
+rf_params:
+  n_estimators: 200
+  max_depth: 12
+  min_samples_leaf: 10
+
+evaluation:
+  bootstrap_n: 1000
+  bootstrap_seed: 42
+
+output_dir: ${paths.results_dir}/pillar4_giessen_transfer

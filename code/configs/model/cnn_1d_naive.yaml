@@ -1,0 +1,10 @@
+# configs/model/cnn_1d_naive.yaml
+# Locality-assuming 1D CNN — hypothesis: works on single-reference (Giessen),
+# fails on pan-genome (Arcadia) due to broken spatial locality.
+
+name: cnn_1d_naive
+type: cnn
+vocab_size: 5
+padding_idx: 4
+embed_dim: 32
+dropout: 0.4

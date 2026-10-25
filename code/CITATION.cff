@@ -1,0 +1,55 @@
+cff-version: 1.2.0
+title: >-
+  TriLens-MoE-Stack: A Multi-View Hybrid Framework for
+  Lineage-Aware Multi-Drug Antibiotic Resistance Prediction in
+  Escherichia coli Using Genomic Data
+message: If you use this software or its results, please cite the thesis.
+type: software
+authors:
+  - family-names: Zaman Pronoy
+    given-names: Faiaz Abrar
+    affiliation: BRAC University
+  - family-names: Roy
+    given-names: Pranto
+    affiliation: BRAC University
+  - family-names: Khandoker
+    given-names: Sinthia
+    affiliation: BRAC University
+  - family-names: Barua
+    given-names: Shantanu
+    affiliation: BRAC University
+  - family-names: Islam Zishan
+    given-names: Md. Jahirul
+    affiliation: BRAC University
+repository-code: PASTE_REPO_URL_HERE
+license: MIT
+date-released: 2026-08
+keywords:
+  - antimicrobial resistance
+  - genomic prediction
+  - Escherichia coli
+  - lineage holdout
+  - prevalence correction
+  - mixture-of-experts
+  - multi-view learning
+references:
+  - type: thesis
+    title: >-
+      TriLens-MoE-Stack: A Multi-View Hybrid Framework for
+      Lineage-Aware Multi-Drug Antibiotic Resistance Prediction in
+      Escherichia coli Using Genomic Data
+    thesis-type: BSc thesis
+    institution:
+      name: BRAC University
+    year: 2026
+    authors:
+      - family-names: Zaman Pronoy
+        given-names: Faiaz Abrar
+      - family-names: Roy
+        given-names: Pranto
+      - family-names: Khandoker
+        given-names: Sinthia
+      - family-names: Barua
+        given-names: Shantanu
+      - family-names: Islam Zishan
+        given-names: Md. Jahirul

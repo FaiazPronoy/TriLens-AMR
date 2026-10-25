@@ -1,0 +1,55 @@
+\begin{tikzpicture}[font=\sffamily,>=Stealth,
+ ar/.style={-{Stealth[length=2.8mm]},line width=0.6mm,draw=orange!85!red}]
+\blk{0}{2.7}{1.7}{1.5}{0.45}{cin}
+\node[font=\scriptsize\bfseries,align=center] at (0.86,2.7) {SNP\\blocks};
+\node[below,font=\tiny,text=black!60,align=center] at (0.65,1.9) {$5000{\times}64$};
+\draw[ar] (1.75,2.7)--(2.35,2.7);
+\blk{2.4}{2.7}{1.5}{1.5}{0.45}{cexp}
+\node[font=\scriptsize\bfseries,align=center] at (3.15,2.7) {Motif\\Pattern\\Encoder};
+\draw[ar] (4.35,2.7)--(5.3,0.9);
+\blk{0}{0.0}{1.7}{1.5}{0.45}{cin}
+\node[font=\scriptsize\bfseries,align=center] at (0.86,0.0) {Gene P/A};
+\node[below,font=\tiny,text=black!60,align=center] at (0.65,-0.8) {$32{,}441$};
+\draw[ar] (1.75,0.0)--(2.35,0.0);
+\blk{2.4}{0.0}{1.5}{1.5}{0.45}{cexp}
+\node[font=\scriptsize\bfseries,align=center] at (3.15,0.0) {Gene\\Feature\\Attention\\Module};
+\draw[ar] (4.35,0.0)--(5.3,0);
+\blk{0}{-2.7}{1.7}{1.5}{0.45}{cin}
+\node[font=\scriptsize\bfseries,align=center] at (0.86,-2.7) {Gene stats};
+\node[below,font=\tiny,text=black!60,align=center] at (0.65,-3.5) {$5000{\times}4$};
+\draw[ar] (1.75,-2.7)--(2.35,-2.7);
+\blk{2.4}{-2.7}{1.55}{1.5}{0.45}{cexp}
+\node[font=\scriptsize\bfseries,align=center] at (3.15,-2.7) {Cross\\Antibiotic\\Context\\Module};
+\draw[ar] (4.1,-2.7)--(5.3,-0.9);
+\blk{5.35}{0}{1.4}{1.7}{0.5}{cgate}
+\node[font=\scriptsize\bfseries,align=center] at (6.05,0) {MoE\\gate};
+\node[below,font=\tiny,text=black!60,align=center] at (6.05,-0.9) {$7{\times}3$};
+\draw[ar] (7.25,0)--(8.0,0.9);
+\blk{8.05}{0.9}{1.5}{1.4}{0.5}{cin}
+\node[font=\scriptsize\bfseries,align=center] at (8.8,0.9) {fusion};
+\node[below,font=\tiny,text=black!60,align=center] at (8.8,0.15) {neural prob 7};
+\blk{4.45}{-3.4}{4.5}{1.4}{0.5}{cgate}
+\node[font=\scriptsize\bfseries,align=center] at (6.79,-3.4) {5 Classical base learners\\(OOF)};
+\node[below,font=\tiny,text=black!60,align=center] at (6.95,-4.15) {XGB, LGBM, RF, LogReg, XGB\_raw};
+\blk{10.4}{-0.5}{1.7}{1.7}{0.5}{cmeta}
+\node[font=\scriptsize\bfseries,align=center] at (11.25,-0.5) {LogReg\\meta};
+\node[below,font=\tiny,text=black!60,align=center] at (11.25,-1.4) {stacking};
+\draw[ar] (9.67,0.9)--(10.4,-0.1);
+\draw[ar] (9.2,-3.4)--(10.4,-0.9);
+\draw[ar] (12.3,-0.5)--(13.1,-0.5);
+\blk{13.2}{0.6}{0.95}{0.75}{0.3}{cout}
+\node[font=\scriptsize\bfseries,align=center] at (13.67,0.6) {AMP};
+\blk{14.35}{0.6}{0.95}{0.75}{0.3}{cout}
+\node[font=\scriptsize\bfseries,align=center] at (14.82,0.6) {CIP};
+\blk{15.5}{0.6}{0.95}{0.75}{0.3}{cout}
+\node[font=\scriptsize\bfseries,align=center] at (15.97,0.6) {AMC};
+\blk{16.65}{0.6}{0.95}{0.75}{0.3}{cout}
+\node[font=\scriptsize\bfseries,align=center] at (17.12,0.6) {SXT};
+\blk{13.2}{-0.55}{0.95}{0.75}{0.3}{cout}
+\node[font=\scriptsize\bfseries,align=center] at (13.67,-0.55) {GEN};
+\blk{14.35}{-0.55}{0.95}{0.75}{0.3}{cout}
+\node[font=\scriptsize\bfseries,align=center] at (14.82,-0.55) {CTX};
+\blk{15.5}{-0.55}{0.95}{0.75}{0.3}{cout}
+\node[font=\scriptsize\bfseries,align=center] at (15.97,-0.55) {CAZ};
+\node[font=\scriptsize,align=center] at (14.6,-1.7) {7 antibiotics (R/S)};
+\end{tikzpicture}

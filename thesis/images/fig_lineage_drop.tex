@@ -1,0 +1,70 @@
+% ---------------------------------------------------------------
+%  Random split vs lineage holdout vs prevalence-matched holdout,
+%  per antibiotic. Data source: Table 5.10 (tab:previnv), i.e. the
+%  delivered strain-conditioned model (results/trilens_attnfix for the
+%  random split). NOT results/pillar_mlst_final_comparison, which is the
+%  standard-formulation ablation run and averages 0.6300, not 0.6337.
+%  Sorted by the prevalence-corrected gap, smallest first.
+%  Pure TikZ - needs no package beyond what main.tex already loads.
+% ---------------------------------------------------------------
+\begin{tikzpicture}[x=1.95cm, y=7.0cm]
+
+% ---- horizontal gridlines and y-axis ticks ----
+\foreach \y in {0,0.2,0.4,0.6,0.8,1.0}{
+  \draw[black!20,line width=0.4pt] (0.45,\y) -- (8.15,\y);
+  \node[anchor=east,font=\small,text=black] at (0.40,\y) {\y};
+}
+
+% ---- axes ----
+\draw[black,line width=0.9pt] (0.45,0) -- (8.15,0);
+\draw[black,line width=0.9pt] (0.45,0) -- (0.45,1.06);
+\node[rotate=90,anchor=south,font=\small,text=black] at (0.00,0.53) {PR-AUC};
+
+% ---- bars: index / drug / random / holdout / prevalence-matched / corrected gap ----
+\foreach \i/\ab/\rnd/\hold/\mat/\gap in {%
+  1/AMP/0.9440/0.9043/0.9268/{-0.017},
+  2/CIP/0.9773/0.9118/0.9471/{-0.030},
+  3/SXT/0.8352/0.7872/0.8046/{-0.031},
+  4/CTX/0.9019/0.6073/0.7260/{-0.176},
+  5/CAZ/0.8299/0.4930/0.6431/{-0.187},
+  6/AMC/0.7482/0.4865/0.5513/{-0.197},
+  7/GEN/0.7037/0.2457/0.4594/{-0.244}}{
+    % random split
+    \fill[bluefill]  (\i-0.335,0) rectangle (\i-0.135,\rnd);
+    \draw[blueedge,line width=0.6pt] (\i-0.335,0) rectangle (\i-0.135,\rnd);
+    % lineage holdout, as measured
+    \fill[redfill]   (\i-0.10,0) rectangle (\i+0.10,\hold);
+    \draw[rededge,line width=0.6pt] (\i-0.10,0) rectangle (\i+0.10,\hold);
+    % lineage holdout, prevalence-matched
+    \fill[greenfill] (\i+0.135,0) rectangle (\i+0.335,\mat);
+    \draw[greenedge,line width=0.6pt] (\i+0.135,0) rectangle (\i+0.335,\mat);
+    % antibiotic label
+    \node[anchor=north,font=\small,text=black] at (\i,-0.014) {\ab};
+    % prevalence-corrected gap, printed above the group
+    \node[anchor=south,font=\scriptsize,text=black] at (\i,\rnd+0.014) {\gap};
+}
+
+% ---- divider separating the two groups ----
+\draw[black!55,dashed,line width=0.8pt] (3.5,0) -- (3.5,1.04);
+\node[anchor=south,font=\scriptsize\itshape,text=black,align=center]
+  at (2.0,1.04) {mechanism-driven\\(small corrected gap)};
+\node[anchor=south,font=\scriptsize\itshape,text=black,align=center]
+  at (5.3,1.04) {lineage-dependent\\(large corrected gap)};
+
+% ---- legend, top right, on an opaque panel so no bar shows through ----
+\fill[white] (6.42,0.770) rectangle (8.14,1.010);
+\draw[black!25,line width=0.5pt] (6.42,0.770) rectangle (8.14,1.010);
+
+\fill[bluefill] (6.50,0.940) rectangle (6.68,0.978);
+\draw[blueedge,line width=0.6pt] (6.50,0.940) rectangle (6.68,0.978);
+\node[anchor=west,font=\scriptsize,text=black] at (6.74,0.959) {Random split};
+
+\fill[redfill] (6.50,0.872) rectangle (6.68,0.910);
+\draw[rededge,line width=0.6pt] (6.50,0.872) rectangle (6.68,0.910);
+\node[anchor=west,font=\scriptsize,text=black] at (6.74,0.891) {Lineage holdout};
+
+\fill[greenfill] (6.50,0.804) rectangle (6.68,0.842);
+\draw[greenedge,line width=0.6pt] (6.50,0.804) rectangle (6.68,0.842);
+\node[anchor=west,font=\scriptsize,text=black] at (6.74,0.823) {Prevalence-matched};
+
+\end{tikzpicture}

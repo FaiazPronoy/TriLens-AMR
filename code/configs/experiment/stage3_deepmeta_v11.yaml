@@ -1,0 +1,89 @@
+# configs/experiment/stage3_deepmeta_v11.yaml
+# DeepMetaStack v11 — final hybrid neural-classical defence architecture
+
+name: stage3_deepmeta_v11
+description: "DeepMetaStack v11 - 3-level hybrid neural-classical ensemble with cross-antibiotic attention meta-learner. Final defence architecture."
+
+antibiotics: [AMP, CIP, AMC, SXT, GEN, CTX, CAZ]
+gene_stats: [mean, var, n_nonref, max]
+n_folds: 5
+use_lgbm: true
+
+# ── Level 0: classical base learners ──
+xgb_params:
+  n_estimators: 1500
+  max_depth: 5
+  min_child_weight: 5
+  learning_rate: 0.05
+  subsample: 0.8
+  colsample_bytree: 0.7
+  reg_alpha: 0.1
+  reg_lambda: 1.0
+  gamma: 0.1
+  tree_method: hist
+  device: cuda
+  early_stopping_rounds: 150
+
+lgbm_params:
+  num_leaves: 63
+  max_depth: 6
+  min_child_samples: 20
+  learning_rate: 0.05
+  subsample: 0.8
+  subsample_freq: 1
+  colsample_bytree: 0.7
+  reg_alpha: 0.1
+  reg_lambda: 1.0
+  early_stopping_rounds: 150
+
+rf_params:
+  n_estimators: 200
+  max_depth: 12
+  min_samples_leaf: 10
+
+xgb_raw_params:
+  n_estimators: 1500
+  max_depth: 5
+  learning_rate: 0.05
+  subsample: 0.8
+  colsample_bytree: 1.0
+  colsample_bynode: 0.5
+  reg_alpha: 0.1
+  reg_lambda: 1.0
+  tree_method: hist
+  device: cuda
+  early_stopping_rounds: 150
+
+prefilter_top_k: 50000
+prefilter_min_variance: 1.0e-6
+
+# ── Level 1: GeneAttentionNet ──
+gan:
+  max_epochs: 15
+  batch_size: 16
+  learning_rate: 1.0e-3
+  hidden_dim: 128
+  n_heads: 4
+  n_layers: 2
+  ffn_mult: 2
+  dropout: 0.3
+
+# ── Level 2: DeepMetaV11 meta-learner ──
+meta:
+  token_dim: 32
+  n_heads: 4
+  dropout: 0.3
+  attn_dropout: 0.2
+  lr: 5.0e-4
+  weight_decay: 1.0e-3
+  max_epochs: 100
+  patience: 15
+  batch_size: 64
+  snapshots_k: 3
+
+# ── Evaluation ──
+evaluation:
+  bootstrap_n: 1000
+  bootstrap_seed: 42
+
+output_dir: ${paths.results_dir}/stage3_deepmeta_v11

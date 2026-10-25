@@ -1,0 +1,36 @@
+\begin{tikzpicture}[font=\sffamily,>=Stealth,
+ ar/.style={-{Stealth[length=2.8mm]},line width=0.6mm,draw=orange!85!red}]
+\renewcommand{\scriptsize}{\fontsize{7.8}{9.3}\selectfont}
+\renewcommand{\tiny}{\fontsize{5.9}{6.8}\selectfont}
+\blk{0}{2.1}{0.8}{1.2}{0.4}{cexp}
+\node[font=\scriptsize\bfseries,align=center] at (0.4,2.1) {$z_A$};
+\node[below,font=\tiny,text=black!60,align=center] at (0.4,1.45) {64};
+\draw[ar] (0.95,2.1)--(2.25,0.6);
+\blk{0}{0}{0.8}{1.2}{0.4}{cexp}
+\node[font=\scriptsize\bfseries,align=center] at (0.4,0) {$z_B$};
+\node[below,font=\tiny,text=black!60,align=center] at (0.4,-0.65) {64};
+\draw[ar] (0.95,0)--(2.25,0.0);
+\blk{0}{-2.1}{0.8}{1.2}{0.4}{cexp}
+\node[font=\scriptsize\bfseries,align=center] at (0.4,-2.1) {$z_C$};
+\node[below,font=\tiny,text=black!60,align=center] at (0.4,-2.75) {64};
+\draw[ar] (0.95,-2.1)--(2.25,-0.6);
+\blk{2.4}{0}{1.1}{1.6}{0.5}{cgate}
+\node[font=\scriptsize\bfseries,align=center] at (2.95,0) {concat};
+\node[below,font=\tiny,text=black!60,align=center] at (2.95,-0.8500000000000001) {192};
+\draw[ar] (3.65,0)--(4.2,0);
+\blk{4.35}{0}{1.7}{2.0}{0.5}{cgate}
+\node[font=\scriptsize\bfseries,align=center] at (5.2,0) {gate MLP\\+ softmax};
+\node[below,font=\tiny,text=black!60,align=center] at (5.0,-1.05) {weights $7{\times}3$};
+% "weighted fusion" and "neural prob" shifted right by 0.4 (6.6->7.0,
+% 8.95->9.35) so the gaps between consecutive boxes are consistent
+% (~0.85-0.95, matching the other arrows) instead of the cramped 0.55 gap
+% that made the gate->fusion arrow nearly invisible.
+\draw[ar] (6.2,0)--(6.85,0);
+\blk{7.0}{0}{1.4}{2.0}{0.5}{cin}
+\node[font=\scriptsize\bfseries,align=center] at (7.7,0) {weighted\\fusion};
+\node[below,font=\tiny,text=black!60,align=center] at (7.7,-1.05) {$\Sigma\,g\cdot\ell$};
+\draw[ar] (8.55,0)--(9.2,0);
+\blk{9.35}{0}{1.0}{1.4}{0.45}{cout}
+\node[font=\scriptsize\bfseries,align=center] at (9.85,0) {neural\\prob};
+\node[below,font=\tiny,text=black!60,align=center] at (9.85,-0.75) {7};
+\end{tikzpicture}

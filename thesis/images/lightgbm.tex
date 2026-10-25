@@ -1,0 +1,284 @@
+% ============================================================
+%  LightGBM base-learner workflow  --  antibiotic resistance prediction.
+%  Faithful to the config (stage3_cascadestack_v9, used by the v10 stack):
+%  X = 5000 genes x 4 stats, y = R/S, histogram binning, F0 = mu,
+%  subsample=0.8, colsample_bytree=0.7, subsample_freq=1,
+%  num_leaves=63, max_depth=6, min_child_samples=20, reg_alpha/lambda,
+%  eta=0.05, ~1500 trees, early_stopping_rounds=150,
+%  sum -> sigmoid -> resistance probability at threshold 0.5.
+%  Include with:   \input{images/lightgbm_workflow}   (file goes in images/)
+%  Requires in main.tex preamble:
+%    \usepackage{amsmath}
+%    \usepackage{tikz}
+%    \usetikzlibrary{arrows.meta,positioning,fit,backgrounds,calc}
+% ============================================================
+
+%% ------------------------------------------------------------------ COLOURS
+\definecolor{Cnav}{RGB}{18,52,96}
+\definecolor{CnavM}{RGB}{30,80,150}
+\definecolor{Cblu}{RGB}{58,140,205}
+\definecolor{CbluBG}{RGB}{234,246,253}
+\definecolor{CgD}{RGB}{26,110,60}
+\definecolor{CgM}{RGB}{45,158,88}
+\definecolor{CgL}{RGB}{130,205,148}
+\definecolor{Cpur}{RGB}{98,54,176}
+\definecolor{CdR}{RGB}{204,52,42}
+\definecolor{CdB}{RGB}{32,74,188}
+\definecolor{CdG}{RGB}{148,158,168}
+\definecolor{Chst}{RGB}{60,124,192}
+\definecolor{Cpin}{RGB}{20,110,54}
+\definecolor{Csg}{RGB}{0,0,0}
+
+\begingroup
+%% Only two text sizes are used anywhere in the figure, so nothing can look
+%% "small" next to its neighbours:  \Huge = headline,  \LARGE = all body text.
+\renewcommand{\Huge}{\fontsize{41}{48}\selectfont}
+\renewcommand{\LARGE}{\fontsize{28}{34}\selectfont}
+
+\begin{tikzpicture}[
+  font=\sffamily, x=1cm, y=1cm,
+  Aarr/.style={-{Stealth[length=22pt,width=16pt,round]},line width=4.0pt,color=black},
+  Garr/.style={-{Stealth[length=22pt,width=16pt,round]},line width=4.0pt,color=CgD},
+  Darr/.style={-{Stealth[length=20pt,width=15pt,round]},line width=3.4pt,
+                dashed,dash pattern=on 11pt off 7pt,color=CgD},
+  Box/.style={draw=CnavM,fill=CbluBG,rounded corners=15pt,line width=3.0pt},
+  Sell/.style={draw=CgD,fill=white,circle,line width=3.6pt,minimum size=5.6cm,align=center},
+  Iball/.style={draw=#1,fill=#1!13,circle,line width=2.4pt,minimum size=62pt,inner sep=0pt},
+  Iball/.default=Cblu,
+  Cap/.style={align=center,text=Csg,font=\sffamily\LARGE},
+  Hd/.style={align=center,font=\sffamily\LARGE,text=CgD},
+  Lbl/.style={font=\sffamily\itshape\LARGE,fill=white,inner sep=7pt},
+]
+
+% Recenter: the auto bounding box has extra invisible margin on the left
+% (ink sits shifted right relative to the resized/centered figure). Force
+% a symmetric box up front so the diagram lines up with the body text
+% margins (must come before any node/path is drawn to take effect).
+\path[use as bounding box] (-28.9pt,-1250.57532pt) rectangle (1467.31628pt,170.63417pt);
+
+%% ================================================================== TITLE
+
+\node[align=center,font=\sffamily\Huge,text=CnavM] at (23.6,1.7)
+  {STAGE 1:\\[2pt]HISTOGRAM-BASED PREPROCESSING};
+\node[align=center,font=\sffamily\Huge,text=CnavM] at (44,1.7)
+  {STAGE 2:\\[2pt]INITIALISATION};
+
+%% ================================================================== INPUT
+\node[Box,minimum width=10.5cm,minimum height=11.4cm] (IB) at (3.5,-6.6) {};
+\node[font=\sffamily\Huge,text=CnavM] at (3.5,-2.6) {INPUT DATA};
+
+\node[Iball=Cblu] (Ic1) at (0.9,-4.9) {};
+\begin{scope}[shift={(0.9,-4.9)}]
+  \draw[Cblu,line width=1.5pt] (-0.32,0.17) to[out=52,in=128] (0.32,0.17);
+  \draw[Cblu,line width=1.5pt] (-0.32,-0.17) to[out=-52,in=-128] (0.32,-0.17);
+  \foreach \x in {-0.17,0,0.17}{\draw[Cblu,line width=1.3pt] (\x,0.21)--(\x,-0.21);}
+\end{scope}
+\node[right=10pt of Ic1,text=Cnav,font=\sffamily\LARGE,align=left]
+  {Genomic\\[-2pt]Features};
+
+\node[Iball=CnavM] (Ic2) at (0.9,-7.2) {};
+\begin{scope}[shift={(0.9,-7.2)},scale=2.3]
+  \draw[CnavM,line width=1.5pt,fill=white,rounded corners=1.5pt]
+    (-0.13,0.15) rectangle (0.13,-0.15);
+  \draw[CnavM,line width=1.5pt,fill=CnavM] (-0.06,0.18) rectangle (0.06,0.13);
+  \draw[CnavM,line width=1.1pt] (-0.09,0.06)--(0.09,0.06);
+  \draw[CnavM,line width=1.1pt] (-0.09,-0.01)--(0.09,-0.01);
+  \draw[CnavM,line width=1.1pt] (-0.09,-0.08)--(0.03,-0.08);
+\end{scope}
+\node[right=10pt of Ic2,text=Cnav,font=\sffamily\LARGE,align=left]
+  {Clinical\\[-2pt]Metadata};
+
+\node[Iball=Cpur] (Ic3) at (0.9,-9.5) {};
+\begin{scope}[shift={(0.9,-9.5)}]
+  \draw[Cpur,line width=1.5pt] (0,0) circle(0.42);
+  \filldraw[Cpur!65] (-0.14,0.13) circle(0.082);
+  \filldraw[Cpur!65] ( 0.13,0.09) circle(0.082);
+  \filldraw[Cpur!65] (-0.09,-0.14) circle(0.082);
+  \filldraw[Cpur!65] ( 0.15,-0.15) circle(0.060);
+\end{scope}
+\node[right=10pt of Ic3,text=Cnav,font=\sffamily\LARGE,align=left]
+  {AMR\\[-2pt]Labels};
+
+\node[font=\sffamily\LARGE,text=CnavM] at (3.5,-11.4) {Training dataset};
+
+%% ================================================================== STAGE 1
+\node[Box,minimum width=17cm,minimum height=11.4cm] (S1) at (23.6,-6.6) {};
+\begin{scope}[shift={(16.2,-9.2)},xscale=0.70,yscale=0.68]
+  \fill[Chst!38] (0.0,0) rectangle (1.0,2.3);
+  \fill[Chst!62] (1.2,0) rectangle (2.2,3.9);
+  \fill[Chst!88] (2.4,0) rectangle (3.4,5.6);
+  \fill[Chst]    (3.6,0) rectangle (4.6,4.5);
+  \fill[Chst!68] (4.8,0) rectangle (5.8,2.9);
+  \draw[Csg!60,line width=1.8pt,->] (-0.3,0)--(6.6,0);
+  \draw[Csg!60,line width=1.8pt,->] (-0.3,0)--(-0.3,6.4);
+\end{scope}
+\node[anchor=west,align=left,text=Csg,font=\sffamily\LARGE] at (21.0,-6.6)
+  {$\bullet$\ Histogram Binning\\
+   \quad(continuous $\rightarrow$ discrete)\\[9pt]
+   $\bullet$\ Handle Missing Values\\[9pt]
+   $\bullet$\ Prepare Feature Values\\[9pt]
+   $\bullet$\ Construct Histograms};
+
+%% ================================================================== STAGE 2
+\node[Box,minimum width=11cm,minimum height=11.4cm] (S2) at (44,-6.6) {};
+\node[draw=Cblu,fill=Cblu,circle,minimum size=4.0cm,font=\Huge,text=white]
+  (MU) at (44,-4.2) {$\mu$};
+\node[align=center,text=Csg,font=\sffamily\LARGE] at (44,-7.9)
+  {Initialise base score with\\the average resistance\\rate in the training data};
+\node[draw=CnavM!55,fill=white,rounded corners=10pt,line width=2.2pt,
+      font=\Huge,inner sep=11pt] at (44,-10.9) {$F_0=\mu$};
+
+\draw[Aarr] (IB.east) -- (S1.west);
+\draw[Aarr] (S1.east) -- (S2.west);
+
+%% ================================================================== STAGE 3 FRAME
+\node[draw=CgD,fill=white,rounded corners=22pt,line width=4.4pt,
+      fit={(-1.0,-14.6) (49.5,-32.3)}] (S3) {};
+\node[font=\sffamily\Huge,text=CgD,fill=white,inner sep=8pt] at (24.25,-14.6)
+  {STAGE 3: LEAF-WISE ITERATIVE BOOSTING};
+\node[draw=CgD,dashed,dash pattern=on 13pt off 8pt,rounded corners=18pt,
+      line width=2.6pt,fit={(0.2,-15.9) (38.9,-29.7)}] (INNER) {};
+
+%% ---- the five steps of one boosting iteration -----------------------------
+\node[Sell] (E1) at ( 4.0,-21.9) {};
+\node[Sell] (E2) at (11.8,-21.9) {};
+\node[Sell] (E3) at (19.6,-21.9) {};
+\node[Sell] (E4) at (27.4,-21.9) {};
+\node[Sell] (E5) at (35.2,-21.9) {};
+
+\node[Hd] at ( 4.0,-17.5) {1. Gradients\\\& Hessians};
+\node[Hd] at (11.8,-17.5) {2. Row + Feature\\Subsampling};
+\node[Hd] at (19.6,-17.5) {3. Histogram\\Split Finding};
+\node[Hd] at (27.4,-17.5) {4. Leaf-wise\\Tree Growth};
+\node[Hd] at (35.2,-17.5) {5. Add Scaled\\Tree Output};
+
+% 1 : gradient / hessian scatter
+\begin{scope}[shift={(4.0,-21.9)},scale=1.9]
+  \draw[Csg!50,line width=1.1pt,->] (-0.78,0)--(0.84,0);
+  \draw[Csg!50,line width=1.1pt,->] (-0.66,-0.78)--(-0.66,0.84);
+  \foreach \px/\py in {-0.08/0.38,0.16/0.58,0.40/0.22,-0.36/0.12,0.24/-0.14,
+                       -0.12/-0.36,0.48/0.46,-0.46/0.42,0.00/-0.56}
+    \filldraw[CdG,fill=CdG!55] (\px,\py) circle(3.6pt);
+  \foreach \px/\py in {0.36/-0.48,-0.26/0.58}
+    \filldraw[CgD,fill=CgM!70] (\px,\py) circle(3.6pt);
+\end{scope}
+
+% 2 : subsampling grid
+\begin{scope}[shift={(11.8,-21.9)},scale=1.9]
+  \foreach \c in {0,2}{\fill[CdB!22] ({-0.66+\c*0.33},-0.66) rectangle ++(0.33,1.32);}
+  \foreach \r in {0,1,3}{\fill[CgM!32] (-0.66,{-0.66+\r*0.33}) rectangle ++(1.32,0.33);}
+  \foreach \r in {0,...,3}{\foreach \c in {0,...,3}{
+     \draw[CdG!60,line width=0.8pt] ({-0.66+\c*0.33},{-0.66+\r*0.33}) rectangle ++(0.33,0.33);}}
+  \draw[Csg!60,line width=1.2pt] (-0.66,-0.66) rectangle (0.66,0.66);
+\end{scope}
+
+% 3 : split finding
+\begin{scope}[shift={(19.6,-21.9)},scale=1.6]
+  \foreach \i/\h in {0/0.42,1/0.72,2/1.14,3/0.78,4/0.48}{
+     \fill[CgD!55] ({-0.90+\i*0.36},-0.62) rectangle ++(0.29,\h);}
+  \draw[Csg!55,line width=1.2pt] (-0.96,-0.62)--(1.02,-0.62);
+  \draw[CdR,line width=2.4pt,dashed] (0.06,-0.80)--(0.06,0.80);
+\end{scope}
+
+% 4 : leaf-wise tree
+\begin{scope}[shift={(27.4,-21.7)},scale=1.4]
+  \draw[CgD,line width=2.2pt]
+    (0,0.62)--(-0.56,-0.16) (0,0.62)--(0.56,-0.16)
+    (-0.56,-0.16)--(-0.84,-0.94) (-0.56,-0.16)--(-0.28,-0.94)
+    (0.56,-0.16)--(0.28,-0.94) (0.56,-0.16)--(0.84,-0.94);
+  \filldraw[CgD,fill=CgD] (0,0.62) circle(6.6pt);
+  \filldraw[CgD,fill=CgM!80] (-0.56,-0.16) circle(5.8pt);
+  \filldraw[CgD,fill=CgM!80] (0.56,-0.16) circle(5.8pt);
+  \filldraw[CgM!70,fill=CgL!70](-0.84,-0.94) circle(5.2pt);
+  \filldraw[CgM!70,fill=CgL!70](-0.28,-0.94) circle(5.2pt);
+  \filldraw[CgM!70,fill=CgL!70](0.28,-0.94) circle(5.2pt);
+  \filldraw[CgM!70,fill=CgL!70](0.84,-0.94) circle(5.2pt);
+  \node[font=\Huge,text=CgD] at (0,-1.42) {$\cdots$};
+\end{scope}
+
+% 5 : scaled tree output
+\node[draw=CgD,fill=CgD,circle,minimum size=4.3cm,font=\Huge,text=white]
+  at (35.2,-21.9) {$\eta f_t(x)$};
+
+%% ---- captions (every line kept short so columns never collide) ------------
+\node[Cap] at ( 4.0,-27.0) {$g_i=\partial L/\partial\hat{y}_i$\\[6pt]
+                            $h_i=\partial^2 L/\partial\hat{y}_i^{\,2}$};
+\node[Cap] at (11.8,-27.0) {rows: $0.8$\\features: $0.7$};
+\node[Cap] at (19.6,-27.0) {scan bin edges\\for maximum\\loss reduction};
+\node[Cap] at (27.4,-27.0) {num\_leaves $=63$\\max\_depth $\le 6$\\min\_child $=20$\\L1 + L2 penalty};
+\node[Cap] at (35.2,-27.0) {$F_t=F_{t-1}+\eta f_t(x)$\\$\eta=0.05$\\up to $1500$ trees};
+
+%% ---- validation / early stopping -----------------------------------------
+\node[Hd] at (44.0,-17.5) {Validation Check\\\& Early Stopping};
+\node[draw=CgD,fill=white,dashed,dash pattern=on 12pt off 7pt,rounded corners=16pt,
+      line width=3.2pt,minimum width=8.5cm,minimum height=6.0cm] (VB) at (44.0,-21.9) {};
+\begin{scope}[shift={(42.4,-22.8)},xscale=0.60,yscale=0.42]
+  \fill[CgM!88]  (0.00,0) rectangle (0.90,4.5);
+  \fill[CgM!100] (1.20,0) rectangle (2.10,6.2);
+  \fill[CgM!80]  (2.40,0) rectangle (3.30,5.0);
+  \fill[CgM!60]  (3.60,0) rectangle (4.50,3.2);
+  \draw[Csg!48,line width=1.8pt,->] (-0.3,0)--(5.4,0);
+  \draw[Csg!48,line width=1.8pt,->] (-0.3,0)--(-0.3,7.4);
+\end{scope}
+% Nudged right (44.0->44.4) so the bolded "rounds with no gain" line clears
+% the dashed inner boosting-loop frame to its left instead of touching it.
+\node[Cap] at (44.4,-27.0) {stop after $150$\\rounds with no gain};
+
+%% ---- horizontal flow ------------------------------------------------------
+\draw[Garr] (E1) -- (E2);
+\draw[Garr] (E2) -- (E3);
+\draw[Garr] (E3) -- (E4);
+\draw[Garr] (E4) -- (E5);
+\draw[Garr] (E5) -- (VB.west);
+
+%% ---- entry from Stage 2 -> Stage 3 (Clean horizontal channel & vertical drop) ----
+\draw[Aarr,rounded corners=14pt]
+  (S2.south) -- (44.0,-13.2) -- (0.8,-13.2) -- (0.8,-15.9);
+\node[Lbl,text=Csg] at (22.4,-13.2) {start the boosting loop from $F_0$};
+
+%% ---- feedback loop        -> enters E1 at 200 deg (lower left) --------------
+%% Its vertical run sits at x=-0.4 and stops at y=-22.86, so it can never
+%% cross the entry arrow, whose horizontal run is at y=-20.94.
+\draw[Darr,rounded corners=12pt]
+  (40.0,-24.9) -- (40.0,-31.0) -- (-0.4,-31.0) -- (-0.4,-22.86) -- (E1.200);
+\node[Lbl,text=CgD] at (20.0,-31.0) {updated gradients: continue with tree $t+1$};
+
+%% ================================================================== OUTPUT ROW
+\node[draw=Cpur,fill=white,rounded corners=16pt,line width=3.0pt,
+      minimum width=16.5cm,minimum height=9.4cm] (FB) at (5.5,-39.2) {};
+\node[font=\sffamily\LARGE,text=Cpur] at (5.5,-36.1) {FINAL ENSEMBLE MODEL};
+\node[align=center,font=\Huge] at (5.5,-39.3)
+  {$\displaystyle F(x)=\sum_{t=1}^{T}\eta f_t(x)+\mu$};
+\node[Cap] at (5.5,-42.5) {Add initial score $\mu$ to\\the sum of all trees};
+
+\node[draw=Cpur,fill=white,rounded corners=16pt,line width=3.0pt,
+      minimum width=18cm,minimum height=9.4cm] (SG) at (24.1,-39.2) {};
+\node[font=\sffamily\LARGE,text=Cpur] at (24.1,-36.1) {SIGMOID TRANSFORMATION};
+\node[align=center,font=\Huge] at (24.1,-39.3)
+  {$\displaystyle P(x)=\sigma\!\left(F(x)\right)=\frac{1}{1+e^{-F(x)}}$};
+\node[Cap] at (24.1,-42.5) {Convert raw score to\\resistance probability};
+
+\node[draw=Cpur,fill=white,rounded corners=16pt,line width=3.0pt,
+      minimum width=15.5cm,minimum height=9.4cm] (DB) at (41.75,-39.2) {};
+\node[font=\sffamily\LARGE,text=Cpur] at (41.75,-36.1) {DECISION (THRESHOLD $=0.5$)};
+\begin{scope}[shift={(35.05,-39.6)}]
+  \shade[left color=Cpin,right color=Cpur] (0,0) rectangle (13.4,1.2);
+  \draw[Csg,line width=1.5pt] (0,0) rectangle (13.4,1.2);
+  \draw[white,dashed,line width=2.8pt] (6.7,-0.15)--(6.7,1.35);
+  \node[font=\sffamily\LARGE] at (0,1.95) {$0$};
+  \node[font=\sffamily\LARGE] at (6.7,1.95) {$0.5$};
+  \node[font=\sffamily\LARGE] at (13.4,1.95) {$1$};
+\end{scope}
+\node[Cap] at (38.35,-42.3) {$P(x)<0.5$\\Susceptible};
+\node[Cap] at (45.15,-42.3) {$P(x)\geq0.5$\\Resistant};
+
+%% ---- exit from Stage 3 to the output row ----------------------------------
+\draw[Aarr,rounded corners=14pt]
+  (VB.east) -- (51.5,-21.9) -- (51.5,-33.3) -- (5.5,-33.3) -- (FB.north);
+\node[Lbl,text=Csg] at (28.0,-33.3) {training complete: all $T$ trees are kept};
+
+\draw[Aarr] (FB.east) -- (SG.west);
+\draw[Aarr] (SG.east) -- (DB.west);
+
+\end{tikzpicture}
+\endgroup

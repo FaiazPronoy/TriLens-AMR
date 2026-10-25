@@ -1,0 +1,35 @@
+# Data -- never commit. See README.md for how to regenerate.
+data/
+*.pkl
+*.pkl.sha256
+*.npy
+*.npz
+*.npz.sha256
+*.vcf
+*.vcf.gz
+*.bed
+*.bim
+*.fam
+
+# Notebook / Python noise
+.ipynb_checkpoints/
+__pycache__/
+*.pyc
+.pytest_cache/
+*.egg-info/
+build/
+dist/
+
+# Environment
+.env
+.venv/
+venv/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Explicitly keep these even though they are small CSV/MD under results/
+!results/qa/**
+!results/splits/**
+!results/baselines/**

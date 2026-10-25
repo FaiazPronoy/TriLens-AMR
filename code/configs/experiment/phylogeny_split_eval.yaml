@@ -1,0 +1,37 @@
+# configs/experiment/phylogeny_split_eval.yaml
+#
+# EXP-1: Phylogeny-aware split re-evaluation.
+# Runs gene-agg XGBoost AND CascadeStack v9.1 on phylogeny_split.
+#
+# FLAT config — NO @package, NO defaults:, NO experiment: wrapper.
+#
+# Run:
+#   python src/run_experiment.py +experiment=phylogeny_split_eval
+#
+# Dispatch line to add to src/run_experiment.py _DISPATCH:
+#   "phylogeny_split_eval": "src.experiments.run_phylogeny_split_eval",
+#
+# PREREQUISITE: add split_key support to run_cascadestack_v9.py
+# (see instructions printed at runtime or in run_phylogeny_split_eval.py)
+#
+# Runtime: ~2 hr (same as a v9.1 run)
+name: phylogeny_split_eval
+# ── Paths ──────────────────────────────────────────────────────────────────
+output_dir: ${paths.results_dir}/phylogeny_split_eval
+data_pkl:   data/processed/arcadia_v2_gene_filtered.pkl
+
+# ── Split to evaluate ─────────────────────────────────────────────────────
+# The v9.1 runner must have split_key support before run_v9_phylo can be True.
+run_v9_phylo: true    # set false to run only XGB baseline
+
+# ── Evaluation parameters ─────────────────────────────────────────────────
+n_bootstrap: 1000
+seed:          42
+
+# ── v9.1 config passthrough ───────────────────────────────────────────────
+# The following are forwarded to run_cascadestack_v9.run() when run_v9_phylo=true.
+# They must match the v9.1 config (cascadestack_v9.yaml) exactly.
+# Leave as null to inherit from run_cascadestack_v9's defaults.
+v9_hidden_dim:   null
+v9_n_folds:      null
+v9_seed:         42

@@ -1,0 +1,28 @@
+# The GitHub repository holds code, Kaggle notebooks, docs and the paper sources.
+# Data and results stay on the computer (D:\TriLens-AMR) and on Kaggle.
+
+# personal files and large binaries
+/thesis/*.jpg
+/thesis/*.png
+/thesis/*.pdf
+/defense/
+/archive/
+/kaggle/upload/
+/setup_data.ps1
+
+# LaTeX build files
+*.aux
+*.bbl
+*.blg
+*.fdb_latexmk
+*.fls
+*.out
+*.toc
+*.synctex.gz
+*.lof
+*.lot
+
+# OS and editors
+.DS_Store
+Thumbs.db
+desktop.ini

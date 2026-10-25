@@ -1,0 +1,73 @@
+\chapter{Conclusion}
+\label{ch:conclusion}
+
+A genomic resistance model can look excellent on paper and still be measuring the
+wrong thing. That doubt is where this research started. The question we set out to
+answer was how much of the score comes from real biological patterns, and how much
+comes from similarities between related strains. We had to have a powerful model in
+order to test this fairly. TriLens-MoE-Stack was able to obtain an average PR-AUC of 0.849 on the random
+split, the best score of all the models tested. Against every method from
+outside this work the lead is clear: 0.045 over the PCA gradient-boosting model this
+project began with, 0.154 over TabNet, and 0.557 over the null model, and on three of the seven
+antibiotics the score clears the upper bound of that baseline's confidence interval.
+Against its own strongest component the margin is 0.009, which is what an ablation is
+expected to show once the best part is already in place. Then whole sequence types were removed from
+training and no test strain had a close neighbour in the training set. The average
+PR-AUC decreased to 0.634. A portion of this decrease was due to a decreased fraction
+of resistant strains in the holdout set which has a direct impact on PR-AUC. This
+change was corrected, and the score was 0.723. The actual difference was not 0.215
+but 0.126. Also, the decline in performance was quite distinct across antibiotics.
+Three antibiotics lost only 0.017 to 0.031, while four lost 0.176 to 0.244. This
+stark division indicates that the resistance associated with the stable biological
+processes can be transferred to new lineages, whereas the patterns primarily
+depending on the ancestry are not very transferable. When the classical part of the
+pipeline was rebuilt on a second dataset, it kept about 90\% of its earlier
+performance. This indicates that our approach is not just fitted to the specific
+characteristics of a single dataset.
+
+However, there are also significant limitations to these results. None of the
+antibiotics passed both CLSI error limits, so the error rates stay above the level
+those limits set. That weakness is concentrated in a few drugs rather than spread
+across the panel. For ciprofloxacin and ampicillin the model reaches 0.9773 and
+0.9440 on the random split, and still holds 0.9118 and 0.9043 when every close
+relative is removed from training. The lineage holdout led to a higher share of resistant strains being incorrectly
+classified as susceptible (0.249 to 0.559), although the accuracy-like measure did
+not change significantly. This distinction is important since the accuracy-like
+measure is commonly reported in the majority of studies and it may conceal severe
+clinical errors. The results of the interpretation were also not entirely consistent.
+In the attention weights, only one known resistance gene was identified whereas eight
+were identified using post-hoc attribution to classical learners. Thus the gene-level
+results should be viewed as potential leads rather than established biological
+truths. There is also a definite limit to the gene presence and absence lens. It is
+able to identify the presence of a gene, but not the level of gene expression. This
+may account for amoxicillin-clavulanate being the most difficult antibiotic during
+the study. One more limitation arises from the stratified split that is based on the
+phylogroup labels. These labels were extracted from an unreferenced lookup table for
+57 sequence types and we were not able to verify the original source of that table.
+
+The key takeaways from this work are related to testing and refining genomic
+resistance models. An adequate lineage holdout should eliminate entire clonal groups,
+but it should also guard against the domination of the test set by a single large
+clone. This produces another issue as the prevalence of resistance can be reduced
+with the removal of large resistant groups, which can then lead to a reduction in
+PR-AUC even if the true ability of the model has not reduced as much. In this study,
+prevalence correction moved the generalisation gap from 0.215 to 0.126. Thus,
+approximately two fifths of the original drop was caused by the evaluation measure
+instead of an actual loss in model performance. A critical issue with gated attention
+pooling for binary gene data was also uncovered in this study. The original attention
+score could be the same for all strains, as each present gene used only its fixed
+embedding. When the score was based on the complete set of genes in each strain, the
+sample-specific behaviour was regained and the neural part improved by 0.035 PR-AUC
+under the lineage holdout. Future efforts should be directed towards enhancing
+detection and assembly of plasmids and other mobile genetic elements, which are
+likely to harbour missing signals for the four challenging antibiotics. Future
+holdout designs should also maintain a minimum number of resistant strains for each
+antibiotic, particularly when the results are based upon only 38 cases of resistance
+(as in the gentamicin score). Finally, the entire study should be performed with
+another bacterial species to determine if the two-group phenomenon is unique to
+\textit{Escherichia coli} or is a general pattern for genomic resistance prediction.
+The main contribution of this work is not a single headline score. It is the finding
+that genomic resistance prediction in \textit{E. coli} is not one problem but two,
+and that the boundary between them is sharp, reproducible and specific to each
+antibiotic. The model is what produced that finding, and the evaluation protocol is
+what made it measurable.

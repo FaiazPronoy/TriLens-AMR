@@ -1,0 +1,112 @@
+# configs/experiment/trilens_v10.yaml
+#
+# TriLens-MoE-Stack v10 — headline neural ensemble
+# FLAT config: NO @package, NO defaults:, NO experiment: wrapper.
+#
+# Dispatch line to add to src/run_experiment.py _DISPATCH:
+#   "trilens_v10": "src.experiments.run_trilens_v10",
+#
+# Usage:
+#   python src/run_experiment.py +experiment=trilens_v10
+#   python src/run_experiment.py +experiment=trilens_v10 split_key=phylogeny_split
+
+name: trilens_v10
+description: >
+  TriLens-MoE-Stack v10 — hybrid neural ensemble with within-gene motif CNN (Expert A),
+  pan-genome P/A sparse-attention (Expert B), and structured cross-AB RMRNet (Expert C),
+  fused by per-sample per-AB MoE gating, then stacked with 5 classical v9.1 bases.
+
+# ── Antibiotics (LOCKED ORDER — must match v9.1) ──────────────────────────────
+antibiotics: [AMP, CIP, AMC, SXT, GEN, CTX, CAZ]
+
+# ── Input Paths ───────────────────────────────────────────────────────────────
+gene_filtered_pkl: data/processed/arcadia_v2_gene_filtered.pkl
+gene_pa_pkl:       data/processed/arcadia_v2_gene_presence_absence.pkl
+v9_predictions:    ${paths.results_dir}/stage3_cascadestack_v9/predictions_saved.npz
+
+# ── Expert A: within-gene SNP-motif 1D-CNN ────────────────────────────────────
+expert_a:
+  L_max:          64           # target SNP block length per gene
+  conv_channels:  [16, 32]     # Conv1d channel progression
+  kernel_size:    3            # Conv1d kernel; padding=kernel//2 keeps length
+  dropout:        0.2
+
+# ── Expert B: pan-genome P/A sparse-attention ─────────────────────────────────
+expert_b:
+  n_pa_genes:  32441           # total P/A genes in catalog
+  d_token:     32              # per-gene embedding dimension
+  attn_dim:    32              # gated-attention projection dimension
+
+# ── Expert C: RMRNet cross-AB structured head ─────────────────────────────────
+expert_c:
+  n_genes:           5000      # selected SNP genes
+  n_stats:           4         # per-gene statistics: mean, var, n_nonref, max
+  n_context_layers:  1         # pre-norm transformer gene-context; 0 to skip (saves ~3GB)
+  use_coresistance:  true      # light co-resistance residual (near-zero init)
+  drug_class_groups:
+    penicillin:      [AMP, AMC]
+    cephalosporin:   [CTX, CAZ]
+    fluoroquinolone: [CIP]
+    aminoglycoside:  [GEN]
+    folate:          [SXT]
+
+# ── Common model dims ─────────────────────────────────────────────────────────
+d_model:      64               # all expert output dims (smaller than standalone RMRNet=128)
+attn_dim_pool: 32              # GatedAttentionPool projection dim (Experts A, C)
+
+# ── MoE Gate ──────────────────────────────────────────────────────────────────
+moe:
+  hidden_dim:                    64
+  dropout:                       0.3
+  entropy_beta:                  0.01      # -beta * H_gate added to loss (prevents collapse)
+  expert_collapse_threshold:     0.05      # if any expert avg weight < this by epoch 10
+  expert_collapse_beta_increase: 0.05      # increase beta to this value and continue
+
+# ── Loss ──────────────────────────────────────────────────────────────────────
+aux_loss_weight: 0.1           # weight for per-expert auxiliary BCE losses
+
+# ── Training ──────────────────────────────────────────────────────────────────
+training:
+  lr:              1.0e-3
+  weight_decay:    1.0e-4
+  batch_size:      16          # try 16 first; set to 8 + grad_accum=2 if OOM
+  grad_accum:      1           # gradient accumulation steps (effective_bs = bs * grad_accum)
+  max_epochs:      50
+  patience:        8           # early-stop patience (Arcadia val avg PR-AUC)
+  grad_clip_norm:  1.0
+  use_amp:         true        # AMP required: autocast + GradScaler (RTX 4070 Ti)
+  seed:            42
+
+# ── K-fold OOF (T6/T7) ───────────────────────────────────────────────────────
+n_folds:    5
+kfold_seed: 42                 # MUST stay 42 — identical to v9.1 fold splits
+
+# ── Meta-stacking ─────────────────────────────────────────────────────────────
+meta_C: 1.0                    # LogReg regularization strength (per v9.1 protocol)
+
+# ── Splits ────────────────────────────────────────────────────────────────────
+split_key: random_split        # override with phylogeny_split for T7
+
+# ── Ablations to run ──────────────────────────────────────────────────────────
+# T1 Expert A only  (motif CNN baseline — does it beat old GAN 0.74?)
+# T2 Expert B only  (P/A alone — CRITICAL: GEN improvement?)
+# T3 Expert C only  (= RMRNet structured head)
+# T4 All 3, uniform avg (combine without gating)
+# T5 All 3, MoE gate (full TriLens standalone)
+# T6 T5 + K-fold OOF + 5 classical bases + LogReg meta  ← HEADLINE
+# T7 T6 on phylogeny_split  ← leakage-corrected reviewer number
+ablations: [T6, T7]
+
+# ── Evaluation ────────────────────────────────────────────────────────────────
+evaluation:
+  bootstrap_n:    1000
+  bootstrap_seed: 42           # consistent with rest of thesis
+
+# ── Output ────────────────────────────────────────────────────────────────────
+# Folder name comes from TRILENS_MAIN_RUN. Default trilens_attnfix_rerun, so a
+# local re-run never overwrites the delivered run in results/trilens_attnfix
+# (avg PR-AUC 0.8486). The Kaggle full re-run starts from an empty results/
+# folder and sets TRILENS_MAIN_RUN=trilens_attnfix, the name every later
+# script reads. Lens B variant: TRILENS_LENSB=standard trains the ablation
+# model without strain conditioning (see src/models/trilens.py, ExpertB).
+output_dir: ${paths.results_dir}/${oc.env:TRILENS_MAIN_RUN,trilens_attnfix_rerun}

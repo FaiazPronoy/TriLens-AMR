@@ -1,0 +1,17 @@
+# configs/experiment/pillar2_layer_ablation.yaml
+#
+# Pillar 2 layer ablation (Stage 1 config overlay).
+# Inherits all TriLens v10 T6 hyperparameters (architecture, training,
+# k-fold protocol, seeds) UNCHANGED from configs/experiment/trilens_v10.yaml
+# so Stage 1 trains under the exact same protocol as the T6 headline run.
+# This file only overrides output_dir and points at the Expert A/C feature
+# cache already built by the original T6 run (avoids rebuilding a ~2.5GB
+# cache from scratch).
+#
+# Loaded and merged manually (not via Hydra dispatch) by:
+#   src/experiments/run_pillar2_stage1_expert_only.py
+
+name: pillar2_layer_ablation_stage1
+output_dir: ${paths.results_dir}/pillar2_layer_ablation
+# the main TriLens run (trilens_attnfix); its feature caches are reused, not rebuilt
+existing_cache_dir: ${paths.results_dir}/${oc.env:TRILENS_MAIN_RUN,trilens_attnfix}/cache

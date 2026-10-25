@@ -1,0 +1,178 @@
+% !TeX root = ../main.tex
+% Works both as a standalone document and as a fragment included by main.tex.
+\newif\iflrstandalone
+\ifdefined\tikzpicture
+  \lrstandalonefalse
+  \let\lrenddocument\relax
+\else
+  \lrstandalonetrue
+  \documentclass[tikz,border=15pt]{standalone}
+  \usepackage{lmodern}
+  \usepackage[T1]{fontenc}
+  \usepackage{amsmath,amsfonts}
+  \usetikzlibrary{arrows.meta,backgrounds,fit}
+  \begin{document}
+  \def\lrenddocument{\end{document}}
+\fi
+
+\begingroup
+
+% Custom color definitions
+\definecolor{cin}{HTML}{BEE3F8}
+\definecolor{cexp}{HTML}{FEEBC8}
+\definecolor{cgate}{HTML}{E9D8FD}
+\definecolor{cattn}{HTML}{C6F6D5}
+\definecolor{cout}{HTML}{FED7D7}
+\definecolor{cpool}{HTML}{E2E8F0}
+\definecolor{cmeta}{HTML}{FBBF24}
+
+\begin{tikzpicture}[
+    >=Stealth,
+    font=\fontsize{75}{85.5}\selectfont\sffamily,
+    text=black,
+    node distance=4.2cm and 6.3cm,
+    flow/.style={-{Stealth[length=10mm,width=7mm]}, line width=2.4mm, draw=black},
+    plain/.style={line width=2.4mm, draw=black},
+    circle3d/.style args={#1}{
+        circle, draw=#1!65!black, line width=1.2mm,
+        fill=#1!42!white,
+        preaction={
+            draw=#1!65!black, line width=1.2mm,
+            fill=#1!55!white,
+            transform canvas={xshift=20pt,yshift=20pt}
+        }
+    },
+    input_node/.style={circle3d=cin, minimum size=4.5cm,
+        font=\fontsize{75}{85.5}\selectfont\sffamily},
+    weight_node/.style={circle3d=cexp, minimum size=4.5cm,
+        font=\fontsize{75}{85.5}\selectfont\sffamily},
+    sum_node/.style={circle3d=cgate, minimum size=7.8cm, align=center,
+        font=\fontsize{87.5}{98}\selectfont\sffamily},
+    sigmoid_node/.style={circle3d=cattn, minimum size=9.2cm, align=center,
+        font=\fontsize{91.5}{102}\selectfont\sffamily},
+    output_node/.style={circle3d=cout, minimum size=7.0cm, align=center,
+        font=\fontsize{79}{89.5}\selectfont\sffamily},
+    step_node/.style={circle3d=cpool, minimum size=7.0cm, align=center},
+    label/.style={font=\fontsize{58.5}{67}\selectfont\sffamily,
+        align=center, text width=12cm},
+    sub/.style={font=\bfseries\fontsize{68}{68}\selectfont\sffamily, align=center},
+    formula/.style={font=\fontsize{85.5}{85.5}\selectfont\sffamily,
+        align=center, fill=white, draw=cgate!65!black,
+        line width=1.0mm, rounded corners=5mm, inner sep=20pt},
+    dots/.style={font=\fontsize{87.5}{98}\selectfont\sffamily},
+    layer_box/.style args={#1}{
+        fill=#1!14!white, draw=#1!55!black,
+        line width=1.2mm, rounded corners=7mm, inner sep=42pt
+    }
+]
+
+% Recenter: auto bbox has extra invisible margin on the left (input-side
+% 3D shadow/box padding), which shifts the visible diagram off the true
+% page-margin alignment after resizebox. Force a symmetric box up front
+% (must come before any node/path is drawn to take effect).
+% ymax extended (689.88 -> 850) to make room for the new headline title
+% above the "Error / Loss" node -- xmin/xmax unchanged, so the resizebox
+% width-based scale factor (and every font size) is unaffected.
+\path[use as bounding box] (-204.99pt,-395pt) rectangle (2208.11525pt,850pt);
+
+% ----------------- HEADLINE TITLE -----------------
+% Bold title matching the treatment used above the random-forest.tex
+% diagram; placed in the extra headroom created by the bbox extension above.
+
+
+% ----------------- INPUT LAYER -----------------
+\node[input_node] (x0) at (-3.0, 12.0) {$1$};
+\node[input_node] (x1) at (-3.0, 6.4) {$x_1$};
+\node[input_node] (x2) at (-3.0, 0.7) {$x_2$};
+\node[dots] (xd) at (-3.0, -1.7) {$\vdots$};
+\node[input_node] (xm) at (-3.0, -6.0) {$x_m$};
+
+\node[label] at (-3.0, 18.0) {Input Layer\\(Features)};
+\node[font=\sffamily\fontsize{52}{62}\selectfont,align=center] at (-3.0, -12.0) {($m$ features)};
+
+% ----------------- WEIGHT LAYER -----------------
+\node[weight_node] (w0) at (10.0, 12.0) {$w_0$};
+\node[weight_node] (w1) at (10.0, 6.4) {$w_1$};
+\node[weight_node] (w2) at (10.0, 0.7) {$w_2$};
+\node[dots] (wd) at (10.0, -1.7) {$\vdots$};
+\node[weight_node] (wm) at (10.0, -6.0) {$w_m$};
+
+\node[label] at (10.0, 18.0) {Weight Layer\\(Parameters)};
+\node[font=\sffamily\fontsize{52}{62}\selectfont,align=center] at (10.0, -12.0) {($m+1$ parameters)};
+
+% ----------------- BACKGROUND BOXES -----------------
+\begin{scope}[on background layer]
+    \node[layer_box=cin, fit=(x0) (xm) (xd)] (input_box) {};
+    \node[layer_box=cexp, fit=(w0) (wm) (wd)] (weight_box) {};
+\end{scope}
+
+% ----------------- INPUT TO WEIGHT CONNECTIONS -----------------
+\draw[plain] (x0) -- (w0);
+\draw[plain] (x1) -- (w1);
+\draw[plain] (x2) -- (w2);
+\draw[plain] (xm) -- (wm);
+
+% ----------------- SUMMATION NODE -----------------
+\node[sum_node] (sum) at (24.0, 3.5) {$\displaystyle\sum$};
+\node[label] at (24.0, 16.5) {Net Input\\(Linear\\Combination)};
+\node[sub] at (24.0, -6.0) {$z = w_0 + \displaystyle\sum_{i=1}^{m} w_i x_i$};
+
+\draw[flow] (w0) -- (sum);
+\draw[flow] (w1) -- (sum);
+\draw[flow] (w2) -- (sum);
+\draw[flow] (wm) -- (sum);
+
+% ----------------- SIGMOID NODE -----------------
+\node[sigmoid_node] (sig) at (37.5, 3.5) {$\sigma(z) =$ \\ $\dfrac{1}{1+e^{-z}}$};
+\node[label] at (37.5, 14.5) {Sigmoid\\Function};
+
+\draw[flow] (sum) -- node[above, font=\fontsize{58.5}{69}\selectfont\sffamily, yshift=8pt] {$z$} (sig);
+
+% ----------------- OUTPUT NODE -----------------
+\node[output_node] (out) at (50.0, 3.5) {$\hat{p}$};
+\node[label] at (50.0, 14.5) {Output Layer\\(Probability)};
+\node[font=\bfseries\sffamily\fontsize{60}{68}\selectfont,align=center] at (50.0, -6.5) {$\hat{p} = P(y=1\mid x)$};
+
+\draw[flow] (sig) -- (out);
+
+% ----------------- UNIT STEP NODE -----------------
+\node[step_node, path picture={
+    \draw[line width=2.5mm]
+      (path picture bounding box.center) ++(-1.4,-1.0)
+      -- ++(1.4,0) -- ++(0,2.0) -- ++(1.4,0);
+}] (step) at (61.5, 3.5) {};
+\node[label] at (61.5, 14.5) {Unit Step\\(Prediction)};
+\node[font=\bfseries\sffamily\fontsize{60}{68}\selectfont,align=center] at (61.5, -10.0) {$\hat{y} = \mathbf{1}(\hat{p} \geq \tau)$};
+
+\draw[flow] (out) -- (step);
+
+% ----------------- FINAL PREDICTION -----------------
+\coordinate (final_out) at (70.0, 3.5);
+\draw[flow] (step) -- (final_out)
+    node[right, font=\fontsize{67}{75}\selectfont\sffamily, align=center]
+    {$\hat{y}$\\(0 or 1)};
+
+% ----------------- ERROR / LOSS FEEDBACK -----------------
+\node[draw=cmeta!65!black, dashed, rounded corners=6mm, line width=1.4mm,
+      font=\fontsize{68}{76}\selectfont\sffamily,
+      fill=cmeta!42!white, inner sep=28pt,
+      preaction={
+          draw=cmeta!65!black, dashed, rounded corners=6mm, line width=1.4mm,
+          fill=cmeta!55!white,
+          transform canvas={xshift=20pt,yshift=20pt}
+      }] (loss) at (37.5, 22.0) {Error / Loss};
+
+% Feedback loop
+\coordinate (feedback_start) at (68.5, 3.5);
+
+\draw[dashed, line width=2.0mm] (feedback_start) -- (68.5,22.0);
+\draw[dashed, line width=2.0mm] (68.5,22.0) -- (loss.east);
+
+\coordinate (feedback_turn) at (17.0,22.0);
+\draw[dashed, flow] (loss.west) -- (feedback_turn) |-
+    (weight_box.north east);
+
+\end{tikzpicture}
+
+\endgroup
+\lrenddocument

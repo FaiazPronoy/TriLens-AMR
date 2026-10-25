@@ -1,0 +1,242 @@
+\sloppy
+
+As discussed in Chapter~\ref{ch:intro}, a resistance model can get a high score for the wrong
+reasons. It may recognise the family of a strain instead of learning the biology that makes
+the strain resistant. The chapter addresses this issue through published studies. It starts
+with the key biological concepts and words that are used throughout the research. Then, it
+examines the methods devised by other researchers. Lastly, it concentrates on the question
+that is sometimes given little attention. It does not just ask how they were designed. It
+asks how those models were tested. This question is the focus of our work and the review
+therefore gradually takes this direction.
+
+\section{Preliminaries}
+Antibiotic resistance is the ability of bacteria to survive antibiotics that are meant to kill them or stop them multiplying. It arises in two ways: through mutations in the bacterium's own genes, or by acquiring a resistance gene from another bacterium, a process called horizontal gene transfer. As resistant bacteria spread, infections become harder and more expensive to treat, which is why resistance is now treated as a worldwide public health problem.
+
+Resistance has to be studied at the level of the individual strain. A strain is a variant within a species, defined by differences in its genetic code, and two strains of the same species can respond very differently to the same antibiotic. Working at strain level is therefore what allows a therapy to be matched to the particular bacterium causing an infection.
+
+The genome provides the evidence for this. The bacterial genome is the organism's complete set of DNA. It has all the features that are utilised in this research. These are genes that it acquires from elsewhere, point mutations in its own genes, and short sequence patterns such as k-mers and single-nucleotide polymorphisms (SNPs). Non-coding regions can matter too, so resistance is not determined by genes alone. Genomic data of this kind is distributed in standard formats such as FASTA and GenBank through public databases including NCBI, CARD, and BV-BRC (the Bacterial and Viral Bioinformatics Resource Center). Given this information, a machine learning model can be trained to predict resistance directly, which is what makes faster and more targeted treatment possible.
+
+\section{Review of Existing Research}
+\label{sec:litreview}
+
+We grouped the research in this area into six themes, which give this section its structure: general reviews of artificial intelligence applied to resistance; genomic feature engineering and species-specific methods; the core body of machine learning studies that predict resistance from genomic data; practical concerns raised when these methods leave the laboratory; methods for combining several views and several models, which is closest to our own design; and finally evaluation design itself. That last theme is the most important for this research, because population structure and split design are what our later chapters test directly.
+
+\subsection{Reviews of Artificial Intelligence and Genomics in Antimicrobial Resistance}
+
+Antimicrobial resistance is becoming steadily more serious, and the research community has been looking for faster and more scalable ways to respond. Conventional laboratory tests are reliable, but they are too slow to inform the first treatment decision. This is the gap artificial intelligence and machine learning are being used to fill, by predicting resistance from genomic and clinical data. An early line of work applied classical learners to large numbers of bacterial genomes in order to separate strains into resistant and susceptible groups, and in some cases to estimate the minimum inhibitory concentration, the smallest drug concentration that still works. These models were built on established databases such as PATRIC, CARD, and the NCBI pathogen collections, and they predicted resistance accurately in common organisms including \textit{Escherichia coli}, \textit{Salmonella}, and \textit{Mycobacterium tuberculosis} \cite{Kim2022, Li2024}.
+
+The limitations of this early work were clear. Resistance was not defined consistently between studies, data quality varied, and experimental validation was largely absent, so the tools were not directly usable in clinical practice. Most also used genomic features alone, such as resistance genes or k-mers, which say nothing about the patient or the care setting. Later approaches added electronic health record data, including patient history, diagnosis codes, laboratory results, and prior antibiotic use. These reported accuracies of roughly 70 to 90 percent for both resistance and the correct antibiotic choice, in some cases outperforming genomics-only models \cite{Kim2022, Sakagianni2023}. Clinical decision support systems built this way reduced unnecessary broad-spectrum prescribing, but incompatible data formats, privacy constraints, and poor transfer between hospitals remained obstacles.
+
+\vspace{1em}
+
+Other researchers examine the effect of these methods on the whole infectious disease pipeline rather than on resistance prediction alone, combining genomic sequences, susceptibility results, electronic health records and environmental samples into multimodal representations. Such models already strengthen surveillance through tools such as PathogenWatch and NARMS \cite{Bilal2025, Li2024}, and convolutional and recurrent architectures have been used with hospital and genomic data to suggest treatment in real time, though a lack of explainability, privacy concerns and variation in clinical processes continue to prevent widespread deployment. Recent work responds with explainable AI methods, with federated learning to train across hospitals without sharing sensitive data, and with frameworks aimed at new regulation such as the EU Artificial Intelligence Act \cite{Lastra2024, Dhaarani2025}. A bibliometric review counted over 2,400 publications on AI and antimicrobial resistance, with output growing most sharply between 2019 and 2024 \cite{wang2025aibibliometric}.
+
+\vspace{1em}
+
+Other works suggest that machine learning and classical population genetics can work together rather than be treated as different approaches. We can use machine learning to discover patterns and make accurate predictions, and we can use statistical methods to understand how significant that pattern really is. This is a very important distinction for our work, because a model can perform exceptionally well while failing to identify the actual processes behind resistance \cite{sheppard2025mlstats}. The research papers discussed in this category are targeted towards improving predictive accuracy as the primary goal, with interpretability being the major challenge to effective application. None asks what a high accuracy figure is actually measuring. A model can reach that figure by learning a real resistance mechanism, or simply by learning which lineage a strain belongs to, and no review in this group separates the two. The gap we take from this literature is therefore not that models need to be more accurate or more explainable, but that we cannot trust a reported accuracy until we know how much of it comes from real biology and how much from lineage.
+
+\subsection{Genomic Feature Engineering and Species-Specific Methods}
+
+Genomic machine learning for resistance prediction continues to improve, and much of the recent gain has come from how the genome is represented rather than from the learner itself. Beyond the presence of resistance genes or individual SNPs, recent studies use higher-level representations of the genome and species-specific mechanisms. One such direction replaces curated gene lists with sets of short DNA fragments fed directly to the model. MTB++ uses 31-mers to encode \textit{Mycobacterium tuberculosis} genomes, and trains logistic regression and random forest classifiers to predict resistance to thirteen drugs, without relying on a database of known mutations \cite{serajian2024mtbpp}. The approach is effective but carries costs: ranking millions of k-mers takes heavy computation, and the models are sensitive to missing phenotype labels and inconsistent dataset formats.
+
+\vspace{1em}
+
+Deep learning has also played a key role in the metagenomic context. DeepARG predicts antibiotic resistance genes directly from raw sequencing reads, trained on bit-score comparisons with curated databases, and reaches high precision and recall on 30 classes of ARGs with much lower false-negative rates than the typical best-hit method, which matters for finding resistance genes less similar to known markers. The same group published DeepARG-DB, though the model underperformed on datasets with a narrow sample range \cite{ArangoArgoty2018}. A similar k-mer approach for \textit{Acinetobacter baumannii} predicted resistance to 13 antibiotics on 339 isolates, reaching essential agreement above 90.9\% and categorical agreement above 95.3\% without any curated resistance gene as input, and returning predictions within ten minutes \cite{Gao2024}. Note that those metrics are agreement rather than accuracy, and that 339 isolates is a small cohort by the standards of this review.
+
+\vspace{1em}
+
+For \textit{Pseudomonas aeruginosa}, one pipeline used unitigs, the non-redundant sequences obtained from compacted de Bruijn graphs, as a pan-genome alternative to gene-centric models, combining DBGWAS and GATB for graph construction with XGBoost for feature selection. It performed well on both training and external datasets and identified hundreds of previously undescribed candidate resistance genes, many linked to mobile genetic elements and secretion systems \cite{Do2024}. For \textit{Helicobacter pylori}, an explainable pipeline combining genome-wide SNPs with gene presence-or-absence features predicted resistance to five antibiotics, with XGBoost performing consistently well and SHAP identifying markers such as mutations in the 23S ribosomal RNA gene, though the sample size was small and there was no external validation \cite{Wang2025}.
+
+\vspace{1em}
+
+All these studies indicate a definite trend. It is more informative to use richer descriptions of the genome, such as k-mers, unitigs, gene presence and absence, rather than a pre-determined gene list of known resistance genes. Their scores are not comparable to each other, since each is measured on a different organism, drug panel, and partition. There is one important point here. All the improvements in this group are due to a better representation of the genome. Each one is, however, tested with data from the same population as it was trained on. The \textit{H.\ pylori} study states plainly that it has no external validation, and the unitig work reports an external set without holding out lineage. So better features are known to raise the score, but it is not clear whether they do so by capturing resistance biology, or simply by capturing relatedness more finely. Thus, our feature selection should be tested against this question. It should not just be tuned until a score is higher.
+
+\subsection{Machine Learning and Deep Learning for Resistance Prediction}
+
+The field has developed rapidly in recent years using machine learning and deep learning. These tools can find complex genetic patterns of resistance, whether or not they use known resistance genes, which makes them flexible and helpful for monitoring and diagnosing resistance in hospitals. \textit{Escherichia coli} is a bacterium commonly responsible for infections, including severe hospital-acquired infections, and is therefore one of the most studied bacteria in this regard. Two earlier studies address the same task on the same organism, and set the baseline this research works against. Moradigaravand et al.\ predicted resistance to eleven compounds across four antibiotic classes in \textit{E. coli}, from the whole-genome sequences of 1,936 isolates. They used a pan-genome representation combining gene presence and absence, population structure, and year of isolation, and reported that gradient-boosted trees performed best \cite{moradigaravand2018}. Her and Wu built a pan-genome-based pipeline that scores each gene cluster for its association with resistance, and feeds the selected clusters to a classifier, finding that the accessory portion of the pan-genome, rather than the core, carried most of the predictive signal \cite{her2018pangenome}. Both studies establish that pan-genome features carry usable signal for this organism, and both are direct predecessors of the representation we adopt. It is worth noting that Moradigaravand et al.\ include population structure as an explicit input feature, rather than treating it as something to control for; this is a different framing from the one this research takes.
+
+\vspace{1em}
+
+Following this strand, Random Forest, Support Vector Machines, Logistic Regression and Convolutional Neural Networks have all been used to predict which antibiotics an \textit{E. coli} isolate would resist, under various encodings of the genetic information including one-hot and FCGR, which represents DNA as images rather than raw sequences. Random Forest and CNNs stood out, particularly for ciprofloxacin and gentamicin \cite{Ren2022}, but the datasets were imbalanced and it was not easy to see what DNA patterns the models relied on. More sophisticated pipelines responded by splitting bacterial DNA into k-mers, grouping them with unsupervised methods such as Affinity Propagation, and feeding the result to a Random Forest classifier, achieving high specificity and sensitivity \cite{Parthasarathi2024}, and multilayer networks applied to multi-drug resistance could trace important k-mers back to known resistance genes, giving some explainability.
+
+\vspace{1em}
+
+One concept followed by some researchers is called One Health. It recognises that human, animal, and environmental health are interdependent components of a single problem. The concept has motivated scholars to integrate genomic data with other records. Liu and Pandey review how integrated genomic investigation across human, animal and environmental reservoirs improves our understanding of how resistance emerges and spreads, arguing that monitoring dominated by hospital data misses a large part of the picture \cite{Liu2024}. This matters for us in one specific way: the collections we train on are not a random sample of the bacterial world, a point Section~\ref{sec:societal} returns to. A tutorial study on 1,936 \textit{E. coli} isolates tested Logistic Regression, Random Forest, XGBoost and neural networks, found XGBoost consistently best, particularly for ampicillin, and stressed proper cross-validation and clinically meaningful measures such as recall \cite{Orcales2024}.
+
+\vspace{1em}
+
+Studies that focus on a single species are also becoming more common. A two-stage pipeline of k-mers and a step involving explainable AI achieved an accuracy of 79\% and an AUROC of 0.77 for \textit{Pseudomonas aeruginosa}. The authors also described the fact that the raw accuracy is not sufficient to evaluate the model correctly \cite{jain2025paeruginosa}. XGBoost and LightGBM were trained on 847 samples of \textit{Mycobacterium tuberculosis}. With accuracies of about 97\% and 95\% respectively, they predicted resistance to isoniazid, rifampicin and ethambutol. Mutations occurring between genes were also found to be important. This highlights the importance of not overlooking non-coding regions. Of the three methods, artificial neural networks performed the worst \cite{ParedesGutierrez2025}.
+
+\vspace{1em}
+
+One recent study is very similar to our design. It is a combination of sequence motifs learned by a small one-dimensional convolutional network and pan-genome features scored by XGBoost, brought together in an ensemble \cite{siddiqui2025amrensemble}. It is evaluated on a benchmark of 809 \textit{E. coli} strains across four antibiotics, the same collection we use for external validation. It reports a Matthews correlation coefficient of 0.926 for ciprofloxacin, and a macro F1 of 0.691 for the more difficult gentamicin. Its interpretability analysis reports that the model concentrates on SNPs inside well-characterised resistance genes, naming \textit{fusA} and \textit{parC}. The second of those is worth flagging early, because \textit{parC} is one of the two genes our own attribution analysis recovers independently in Section~\ref{subsec:attnfix}, on a different collection and with a different method. Its central assumption is that the ordering of variants along the reference chromosome carries information that order-agnostic models discard, and that standard machine learning models lose this by treating the genome as an unordered collection of features. We return to this assumption in Chapter~\ref{ch:results}, where we test it directly. We find that it holds for a single-reference matrix like the one used there, but not for a pan-genome representation, where column order is arbitrary. This is why our own convolutional lens operates inside gene blocks, rather than across the whole genome.
+
+\vspace{1em}
+
+Most directly related to the present work is a recent large-scale effort by Arcadia Science. It assembled a comprehensive genotype and phenotype resource of roughly 7,000 globally distributed \textit{Escherichia coli} strains, with matched antimicrobial resistance labels \cite{morin2024ecoli}. Building on this resource, a companion study explored the genetic basis of resistance across the same collection. It reported that AMR phenotypes are associated with a range of genetic architectures spanning multiple evolutionary scales \cite{york2025amr}. That observation is central to our work, because it implies that part of the predictive signal in \textit{E. coli} resistance may reflect lineage and relatedness, rather than isolated resistance genes. We adopt this dataset, and treat the mechanism-versus-population-structure distinction as something to measure, not assume.
+
+\vspace{1em}
+
+This is the literature our model is compared against most directly, so it is worth saying where we agree and where we do not. We agree with Moradigaravand et al.\ and Her and Wu that the pan-genome, particularly its accessory portion, carries most of the usable signal in \textit{E. coli}, and our gene presence and absence view is built on that \cite{moradigaravand2018, her2018pangenome}. We differ from Moradigaravand et al.\ on population structure: they supply it to the model as an input feature, while we withhold it and use it to test the score instead. We differ from Siddiqui and Tarannum on where positional order matters, a claim Chapter~\ref{ch:results} tests rather than assumes \cite{siddiqui2025amrensemble}. Moradigaravand et al.\ do report one such test, holding out the ST131 lineage in a supplementary figure, but none of these studies corrects the measure for the change in resistance prevalence that such a holdout causes, or separates the resulting drop by antibiotic. The companion Arcadia study raises this concern about genetic architecture, but does not turn it into an evaluation. That unanswered concern is the opening this research works in.
+
+\subsection{Deployment Challenges and Practical Considerations}
+
+Turning experimental models into clinical practice has uncovered practical deployment problems: data imbalance, sampling bias, interpretability, model transferability and regulatory readiness. The first concerns the structure of the genomic datasets themselves. Analysing over 24,000 genomes from five pathogens with LightGBM, one study found that accuracy dropped when phylogenetic structure was not considered in the split, that adding more data did not fix it, and that the models could not carry their knowledge over to new bacterial lineages \cite{Yu2025}.
+
+\vspace{1em}
+
+Rule-based tools including ResFinder were compared with machine-learning tools such as Kover and PhenotypeSeeker across 78 pathogen-antibiotic combinations. No tool was best everywhere: rule-based methods did better on genetically diverse data and machine learning tools reached higher accuracy on more closely related genomes, while data imbalance, lack of generalisability and explainability remained obstacles to adoption \cite{Hu2024}. A scoping review of AI for resistance under the One Health framework found genuine advances in genomic surveillance across 43 studies, but also that most used their own data and their own assessment procedure, making comparison between studies difficult, and recommended standardised datasets and external validation before large-scale use \cite{kasse2025onehealth}.
+
+\vspace{1em}
+
+A review of this literature reports k-mer features with XGBoost, SVM and Random Forest reaching near-perfect accuracy of around 99\% on foodborne pathogens including \textit{Salmonella enterica}, \textit{Campylobacter jejuni} and \textit{E. coli} from NARMS surveillance data, even where resistance genes were unknown \cite{Yun2024}. That number is worth pausing on: these collections come from ongoing surveillance rather than a single outbreak, but they still sample the same farms and regions repeatedly, so many closely related isolates can end up in the data. A different line of work skips sequencing altogether and classifies MALDI-TOF mass spectra directly \cite{weis2022driams}, and it matters here for one reason only: MSDeepAMR, applied to that modality, needs transfer learning to work in a hospital it was not trained on \cite{LopezCortes2024}, so the same generalisation problem appears in a completely different data type and is therefore not an artefact of genomic features.
+
+\vspace{1em}
+
+Two findings here are worth placing side by side. Hu et al.\ report that rule-based tools do better on genetically diverse data, while machine learning tools do better on closely related genomes \cite{Hu2024}. Yu et al.\ report that accuracy falls once phylogenetic structure is accounted for in the split, and that more data does not fix it \cite{Yu2025}. Together, these say something sharper than either alone: the advantage machine learning holds over rule-based tools is largest exactly where relatedness is highest, which is exactly where learned mechanism is hardest to tell apart from learned ancestry. What is still missing is a direct measurement. Yu et al.\ establish that the drop exists across five pathogens, but not how it is spread across antibiotics within one, or whether the antibiotics that hold up are the ones with known single-gene mechanisms. That per-antibiotic decomposition is what this research provides.
+
+\subsection{Methods for Combining Multiple Views and Multiple Models}
+
+The studies reviewed above differ mainly in what they feed a model. Our work differs in how it combines what it is fed, so we briefly review the methods our design draws on. The mixture-of-experts idea, training several specialised sub-models and learning a gate that decides how much to trust each one, goes back to Jacobs et al.\ \cite{jacobs1991moe}, and was later scaled to modern networks by Shazeer et al.\ \cite{shazeer2017moe}. The appeal for our problem is direct: different antibiotics are resisted through different mechanisms, so a fixed combination of views would dilute whichever view happens to be right for a given drug, but a gate can shift its preference from one drug to another.
+
+\vspace{1em}
+
+Wolpert's stacked generalisation showed that the predictions of several base learners can themselves be used as features for a second-level model \cite{wolpert1992stacked}. Training that second level on out-of-fold predictions, rather than in-sample ones, keeps it from trusting a base learner that has simply memorised the training data, which is why our meta-learner is fitted on cross-validated predictions. A consistent finding across recent benchmarks is that gradient-boosted trees remain competitive with, and often better than, deep architectures on tabular problems \cite{grinsztajn2022trees, shwartzziv2022tabular}. Our architecture responds to this fact directly, by keeping a classical arm rather than replacing it. TabNet was proposed specifically to close this gap, with an attention-based architecture designed for tabular inputs \cite{arik2021tabnet}, and we use it as a baseline in Chapter~\ref{ch:results} for exactly this reason.
+
+\vspace{1em}
+
+Attention-based pooling lets a model weight a variable number of items, without its parameter count growing with that number \cite{vaswani2017attention}. The gated variant by Ilse et al.\ \cite{ilse2018attention} was designed for cases where a large bag of items contains only a few informative ones, which is a fair description of a pan-genome, where a strain carries thousands of genes and only a handful matter. On interpretation, SHAP provides a unified attribution framework with consistency guarantees \cite{lundberg2017shap}, and we use it alongside the model's own attention weights, rather than in place of them; Section~\ref{sec:discussion} reports that the two do not agree, which is itself one of our findings. Each of these methods was developed and benchmarked on data where training and test samples are drawn independently from the same distribution. That is the assumption under which a gate learns which sub-model to trust, and a meta-learner learns how to weight its inputs, but none of them was designed for the case where the test set comes from a lineage the base learners have never seen. Whether a learned gate still routes sensibly under that shift, and whether the neural and classical halves of a stack degrade at the same rate, are open questions in this literature. Chapter~\ref{ch:results} answers both for our own model, and the answers are not the ones the architecture was designed around.
+
+\subsection{Evaluation Design and Population Structure}
+\label{subsec:evaldesign}
+
+The groups of studies above are organised by what they model. This last group is organised by how they test, and that is where this research makes its contribution; the relevant literature sits mostly outside the predictive machine learning field. This problem is old, and well understood, in bacterial genome-wide association studies. Bacteria reproduce by copying themselves rather than by mixing genes, so the genome does not reshuffle the way it does in sexually reproducing organisms: variants that sit far apart stay linked, and whole lineages inherit them together. Saber and Shapiro benchmarked association methods on simulated bacterial genomes and phenotypes for exactly this reason, reporting that population structure and genome-wide linkage make a causal variant hard to separate from one that is merely linked to it \cite{saber2020bacgwas}. The response in that field has been to build the correction into the model, rather than apply it afterwards. Lees et al.\ fit an interpretable regression that spans the whole pangenome, so variants compete against one another inside a single model, instead of each being tested on its own, absorbing much of the signal that would otherwise be wrongly attributed to a linked variant \cite{lees2020pyseer}.
+
+\vspace{1em}
+
+The predictive machine learning literature has largely not adopted this correction, and the reason is partly structural. An association study asks which variant causes the phenotype, so confounding by ancestry is the central threat and has to be handled. A prediction study asks something different, namely how well the phenotype can be guessed, and here ancestry is a legitimate source of predictive signal, so nothing in the task itself forces the question. The confound only becomes visible when the model meets a lineage it has not seen, and a random split never produces that case. The evaluation-split column of Table~\ref{tab:summary} shows how this plays out. Fourteen of the entries predict a strain's resistance phenotype; the other two are a review \cite{Yun2024} and a tool that classifies genes into resistance categories rather than predicting a phenotype \cite{ArangoArgoty2018}. Of those fourteen, two partition by population structure as their primary design \cite{Yu2025, Hu2024}. Five pair cross-validation or a holdout with an independent external collection, three use cross-validation alone, and four use a random or stratified holdout with no external set. Two of the remaining twelve report a structure-aware analysis alongside their main result: Moradigaravand et al.\ hold out the ST131 lineage in a supplementary figure \cite{moradigaravand2018}, and Orcales et al.\ provide MLST-blocked cross-validation as an option \cite{Orcales2024}. This is not a criticism of any individual study. But not one of the fourteen corrects the measure for the change in resistance prevalence that a lineage holdout causes, and not one separates the resulting drop by antibiotic. Figure~\ref{fig:evalsplit_landscape} sets out that division.
+
+\begin{figure}[htbp]
+  \centering
+  \resizebox{\textwidth}{!}{\input{images/fig_evalsplit_landscape}}
+  \caption{How the fourteen predictive studies of Table~\ref{tab:summary} test
+  their models.}
+  \label{fig:evalsplit_landscape}
+  \fignote{Only two partition by population structure as their primary design. The
+  remaining twelve report a headline score from a split that never withholds a
+  lineage; two of those twelve add a supplementary structure-aware check alongside
+  it. Closing that gap is what this work sets out to do.}
+\end{figure}
+
+Even after Yu et al., two gaps remain. Their result is reported as an average across five pathogens, so it establishes that a drop exists without saying which antibiotics carry it. And accounting for structure during splitting is not the same as holding a lineage out, because a split can balance lineage composition across partitions and still leave close relatives on both sides, which measures something quite different. Chapter~\ref{ch:results} returns to this distinction, because we built such a split ourselves before realising it could not answer the question we were asking.
+
+\section{Summary of Key Findings}
+
+Four points follow from this body of work. The first is that reported accuracy is already high and classical models are hard to beat: Random Forest and gradient boosting often match or beat far more complex deep architectures, and the same pattern holds on tabular data generally \cite{grinsztajn2022trees, shwartzziv2022tabular}. Convolutional and attention-based models add value when features are well encoded, such as k-mers or gene presence and absence, but they do not consistently outperform a well-tuned classical method. The second point matters most for this research: evaluation is where the field is weakest. Only two of the fourteen predictive studies in Table~\ref{tab:summary} partition by phylogenetic structure as their primary design \cite{Yu2025, Hu2024}, and both report a drop once they do, so most scores in this field were obtained on strains related to the training set. Section~\ref{subsec:evaldesign} sets out why the correction developed in the association-testing literature \cite{saber2020bacgwas, lees2020pyseer} never carried over, and what a genuine lineage holdout requires that a stratified split does not.
+
+The third point is that most high-performing models remain hard to interpret, and that external validation on a genuinely independent collection is often missing. The fourth is less obvious: the architecture literature our design draws on has developed apart from the AMR application literature. Mixture-of-experts gating, stacked generalisation and attention pooling are mature methods, yet how best to combine several genomic views has drawn far less attention here than which single view to use. Together these four points set the direction of the present research. Rather than adding data types or scaling the model up, we work in one well-characterised genomic setting in \textit{E. coli} and ask how much of the predictive signal is genuine mechanism and how much is relatedness. Honest evaluation, interpretability and generalisation are what separate a reported accuracy from a useful one, and they are what Chapters~\ref{ch:method} and~\ref{ch:results} are built to address.
+
+Table~\ref{tab:summary} summarises the existing research, with the evaluation-split column set apart from the modelling detail because it is the property most relevant to the argument above. Two of its sixteen entries are not predictive studies of a strain phenotype: one is a review \cite{Yun2024}, and one classifies genes into resistance categories rather than predicting resistance for an isolate \cite{ArangoArgoty2018}. Both are listed because they are discussed elsewhere in this chapter, but neither is counted among the fourteen whose split designs are tallied above.
+
+{\footnotesize
+\setlength{\tabcolsep}{5pt}
+\renewcommand{\arraystretch}{1.25}
+\begin{longtable}{|>{\raggedright\arraybackslash}p{2.7cm}|>{\raggedright\arraybackslash}p{3.9cm}|>{\raggedright\arraybackslash}p{2.2cm}|>{\raggedright\arraybackslash}p{4.7cm}|}
+\caption{Summary of related works on genomic antimicrobial resistance prediction. The evaluation split column records the partitioning scheme as reported by each study.}
+\label{tab:summary}\\
+\hline
+\textbf{Study} & \textbf{Data and method} & \textbf{Evaluation split} & \textbf{Result and limitation} \\
+\hline
+\endfirsthead
+\hline
+\textbf{Study} & \textbf{Data and method} & \textbf{Evaluation split} & \textbf{Result and limitation} \\
+\hline
+\endhead
+\hline
+\multicolumn{4}{r}{\footnotesize\textit{Continued on the next page}}\\
+\endfoot
+\hline
+\endlastfoot
+Moradi\-garavand et al.\ (2018) \cite{moradigaravand2018} & Pan-genome; gradient boosting, RF, LR; 1,936 \textit{E. coli}, 11 compounds & Random, with an ST131 lineage holdout as a supplementary analysis & Gradient boosting best; feature importance recovers \textit{gyrA} and \textit{parC}; the ST131 holdout scores about 0.28 below a size-matched random control \\ \hline
+Her and Wu (2018) \cite{her2018pangenome} & Pan-genome; gene-cluster scoring by genetic algorithm + classifier; 59 \textit{E. coli}, 12 drugs & Leave-one-out cross-validation & Accessory genome carried most signal; very small collection; no lineage-aware holdout \\ \hline
+Arango-Argoty et al.\ (2018) \cite{ArangoArgoty2018} & Metagenomic reads; DeepARG vs BLAST best-hit; CARD, ARDB, UNIPROT (14,933 ARGs) & Random 70/30, with external sets & Higher precision and recall than best-hit; classifies genes into resistance categories rather than predicting a strain phenotype \\ \hline
+Ren et al.\ (2022) \cite{Ren2022} & WGS, one-hot and FCGR; LR, SVM, RF, CNN; Giessen (987) and public (1,509) \textit{E. coli} & Stratified cross-validation with an independent external set & RF best, AUC around 0.96; class imbalance; associated mutations reported for each antibiotic \\ \hline
+Jain et al.\ (2025) \cite{jain2025paeruginosa} & k-mers; two-tier ML with explainable AI; \textit{P. aeruginosa} & Stratified 75/25, with an independent 56-genome set & 79\% accuracy, AUROC 0.77; phylogeny used to weight features but not to split \\ \hline
+Gao et al.\ (2024) \cite{Gao2024} & k-mers; RF, SVM, XGBoost; 339 \textit{A. baumannii}, 13 antibiotics & Ten-fold stratified shuffle-split cross-\allowbreak validation, with an independent 120-isolate test set & Essential agreement $>$90.9\%, categorical agreement $>$95.3\%, without curated genes \\ \hline
+Do et al.\ (2024) \cite{Do2024} & Unitigs; DBGWAS, GATB, XGBoost; \textit{P. aeruginosa} pan-genome & Ten-fold stratified cross-\allowbreak validation, with an independent 414-isolate collection & Novel candidate resistance genes found; AUC falls from above 0.929 in training to about 0.77 on the independent collection \\ \hline
+Serajian et al.\ (2024) \cite{serajian2024mtbpp} & 31-mers; MTB++ (LR, RF); \textit{M. tuberculosis}, 13 drugs & Five-fold cross-validation & Database-free prediction; k-mer ranking computationally heavy \\ \hline
+Yun et al.\ (2024) \cite{Yun2024} & Review of machine learning for AMR in foodborne pathogens & Not applicable, review & Reports accuracies up to about 99\% from the studies it surveys; small $n$ for some drug and pathogen pairs \\ \hline
+Lopez-Cortes et al.\ (2024) \cite{LopezCortes2024} & MALDI-TOF spectra; MSDeepAMR, transfer learning; three species & Stratified 80/20 with ten-fold cross-\allowbreak validation, and cross-site transfer & About 10\% better than conventional ML; strong transfer-learning gains \\ \hline
+Hu et al.\ (2024) \cite{Hu2024} & Benchmarking ResFinder, Kover, PhenotypeSeeker; 78 pathogen-antibiotic pairs & \textbf{Random, phylo\-geny-\allowbreak aware and homo\-logy-\allowbreak aware folds} & No single tool best everywhere; scores fall markedly under phylogeny-aware folds \\ \hline
+Wang et al.\ (2025) \cite{Wang2025} & SNPs and gene P/A; XGBoost with SHAP; 296 \textit{H. pylori}, 4 antibiotics plus MDR & Random & Consistently strong AUC; SHAP flagged 23S rRNA mutation; no external validation \\ \hline
+Orcales et al.\ (2024) \cite{Orcales2024} & Genomic; LR, RF, XGBoost, NN; 1,936 \textit{E. coli} & Cross-validation, with an MLST-blocked option & XGBoost most reliable; warns about overfitting and feature misreading \\ \hline
+Paredes-Gutierrez et al.\ (2025) \cite{ParedesGutierrez2025} & Mutations; XGBoost, LightGBM, ANN; 847 \textit{M. tuberculosis} & Random 677/170, with ten-fold cross-\allowbreak validation inside training & Accuracy about 97\% for XGBoost and 95\% for LightGBM; intergenic mutations important; ANN worst \\ \hline
+Siddiqui and Tarannum (2026) \cite{siddiqui2025amrensemble} & Motifs + pan-genome; 1D CNN + XGBoost ensemble; Giessen (809) \textit{E. coli}, 4 antibiotics & Stratified 80/20 holdout & MCC 0.926 for CIP, macro F1 0.691 for GEN; attributions concentrate on \textit{fusA} and \textit{parC}; assumes positional order is informative \\ \hline
+Yu et al.\ (2025) \cite{Yu2025} & Genomic; LightGBM; over 24,000 genomes, 5 pathogens & \textbf{Phylogeny-\allowbreak aware} & Accuracy drops when phylogenetic structure is ignored; more data does not fix it \\ \hline
+\end{longtable}}
+
+\subsection{Comparative Analysis}
+
+Table~\ref{tab:summary} records what each study did; Table~\ref{tab:comparison} sets
+the closest six side by side on the points that matter here. Those six work on the
+same organism, the same collections, or the same question of population structure.
+The remaining entries differ in organism, so a column-by-column comparison with them
+would not be informative.
+
+\begin{table}[H]
+\centering
+\caption{The proposed approach against the six most closely related studies. Each
+cell records only what the study reports; N/A means the study does not
+report that property, not that it was attempted and failed.}
+\label{tab:comparison}
+\renewcommand{\arraystretch}{1.3}
+\setlength{\tabcolsep}{3.5pt}
+\footnotesize
+\begin{tabular}{|>{\raggedright\arraybackslash}p{2.1cm}|>{\raggedright\arraybackslash}p{2.0cm}|>{\raggedright\arraybackslash}p{2.4cm}|>{\raggedright\arraybackslash}p{1.8cm}|>{\centering\arraybackslash}p{1.5cm}|>{\raggedright\arraybackslash}p{1.7cm}|>{\raggedright\arraybackslash}p{1.6cm}|}
+\hline
+\textbf{Study} & \textbf{Organism and scale} & \textbf{Genomic views combined} & \textbf{Evalua\-tion split} & \textbf{Preval.\ correction} & \textbf{Interpre\-tation} & \textbf{External collection} \\
+\hline
+Moradi\-garavand et al.\ (2018) \cite{moradigaravand2018} & \textit{E. coli} \newline 1,936 strains \newline 11 drugs & Pan-genome; population structure as an input feature & Random; ST131 holdout in a supple\-ment & \na & Feature import\-ance (\textit{gyrA}, \textit{parC}) & \na \\ \hline
+Ren et al.\ (2022) \cite{Ren2022} & \textit{E. coli} \newline 987 + 1,509 strains \newline 4 drugs & One-hot and FCGR encodings of WGS & 5$\times$5-fold stratified cross-\allowbreak validation & \na & Associated mutations reported & Trained on one collection, tested on another \\ \hline
+Orcales et al.\ (2024) \cite{Orcales2024} & \textit{E. coli} \newline 1,936 strains & Single genomic view & Cross-validation; MLST-blocked option & \na & \na & \na \\ \hline
+Wang et al.\ (2025) \cite{Wang2025} & \textit{H. pylori} \newline 296 strains \newline 4 drugs plus MDR & SNPs and gene presence/absence & Random & \na & SHAP & None reported \\ \hline
+Siddiqui and Tarannum (2026) \cite{siddiqui2025amrensemble} & \textit{E. coli} (Giessen) \newline 809 strains \newline 4 drugs & SNP motifs and pan-genome, ensembled & Stratified 80/20 & \na & Attribu\-tion (\textit{fusA}, \textit{parC}) & \na \\ \hline
+Yu et al.\ (2025) \cite{Yu2025} & 5 pathogens \newline over 24,000 strains & Single genomic view & \textbf{Phylo\-geny-\allowbreak aware} & \na & \na & \na \\
+\hline\hline
+\textbf{This work} & \textbf{\textit{E. coli} (Arcadia)} \newline \textbf{6,962 strains} \newline \textbf{7 drugs} & \textbf{SNP motifs, pan-genome and cross-antibiotic structure, gated and stacked} & \textbf{Random and MLST lineage holdout} & \textbf{Yes} & \textbf{SHAP and attention weights} & \textbf{Giessen, retrained} \\ \hline
+\end{tabular}
+\end{table}
+
+\vspace{1em}
+
+If we only take a look at the scale and views columns, the proposed work is not
+that much different from the other studies. The collection is larger than most single-organism studies here but
+smaller than the multi-pathogen one, and combining several genomic views is a
+difference of degree rather than of kind:
+Ren et al. and Siddiqui and Tarannum both combine encodings, and the gain we
+measure from our own neural design over a well-tuned classical learner is small
+enough to sit inside its confidence interval, which is consistent with what the
+tabular-data literature reports \cite{grinsztajn2022trees}. A claim of novelty
+resting on architecture width alone would therefore be weak, and we do not make
+one. What the architecture does contribute is narrower and can be stated
+precisely: gated attention pooling, used unchanged, collapses to a single gene
+ranking shared by every strain, because the quantity it scores for a
+present gene is the gene embedding itself. Conditioning that score on the strain's
+own gene content removes the degeneracy, and Chapter~\ref{ch:results} measures what
+it is worth.
+
+The separation is in the last four columns. Of the fourteen predictive studies in
+Table~\ref{tab:summary} two split with phylogeny in mind, and none
+reports the correction that such a split makes necessary. A lineage holdout does
+not only remove relatedness from the test set; it also changes how many strains in
+it are resistant, and PR-AUC is read against a no-skill baseline equal to that
+share. A drop measured without correcting for it therefore mixes a real loss of
+generalisation with an artefact of the metric, and the two are not separable after
+the fact. Feature selection needs the same care: unless it is refitted on each split's own
+training partition, the selection itself carries test information across the divide. This is why
+the contribution we defend is a protocol rather than a score: the model exists to
+make the measurement worth trusting, and the measurement is what transfers to
+other organisms in which population structure and resistance travel together.
+External validation and interpretation follow the same rationale, since an attribution
+that restores an established mechanism and a model retrained on an independent
+collection are both checks on whether the number means what it appears to mean.

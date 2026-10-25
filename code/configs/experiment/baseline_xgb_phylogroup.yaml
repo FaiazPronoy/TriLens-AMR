@@ -1,0 +1,31 @@
+# configs/experiment/baseline_xgb_phylogroup.yaml
+# Baseline check — confirm phylogroup carries signal beyond PCA-1024 features
+# before investing in full FiLM phylogroup conditioning in Pillar 2.
+
+name: baseline_xgb_phylogroup
+description: "XGBoost on PCA-1024 with/without phylogroup features"
+
+antibiotics: [AMP, CIP, AMC, SXT, GEN, CTX, CAZ]
+output_dir: ${paths.results_dir}/baselines
+
+xgb_params:
+  n_estimators: 4000
+  max_depth: 4
+  learning_rate: 0.05
+  subsample: 0.7
+  colsample_bytree: 0.7
+  reg_alpha: 0.01
+  reg_lambda: 1.0
+  min_child_weight: 10
+  early_stopping_rounds: 200
+  eval_metric: "aucpr"
+  tree_method: "hist"
+  device: "cuda"
+
+evaluation:
+  bootstrap_n: 1000
+  bootstrap_seed: 42
+
+wandb:
+  project: amr-phylogene-mtl
+  tags: [baseline, xgb_phylogroup]

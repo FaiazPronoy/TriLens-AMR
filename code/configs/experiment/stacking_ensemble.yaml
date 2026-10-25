@@ -1,0 +1,51 @@
+# configs/experiment/stacking_ensemble.yaml
+# 3-model stacking ensemble (XGB gene-agg + GeneAttentionNet + XGB raw+chi²)
+
+name: stacking_ensemble
+description: "3-model stacking ensemble with per-AB LogReg meta-learner"
+
+antibiotics: [AMP, CIP, AMC, SXT, GEN, CTX, CAZ]
+gene_stats: [mean, var, n_nonref, max]
+
+# Path to your best GeneAttentionNet checkpoint
+gene_attention_ckpt: ${paths.results_dir}/stage2_gene_attention/ckpts/stage2_gene_attention_best.ckpt
+nn_inference_batch_size: 32
+
+# Base 1: XGB on gene-aggregated features (20K features)
+xgb_agg_params:
+  n_estimators: 4000
+  max_depth: 4
+  learning_rate: 0.05
+  subsample: 0.7
+  colsample_bytree: 0.7
+  reg_alpha: 0.01
+  reg_lambda: 1.0
+  min_child_weight: 10
+  tree_method: hist
+  device: cuda
+  early_stopping_rounds: 200
+  eval_metric: aucpr
+
+# Base 3: XGB on raw chi²-prefiltered SNPs
+prefilter_top_k: 50000
+prefilter_min_variance: 1.0e-6
+xgb_raw_params:
+  n_estimators: 4000
+  max_depth: 4
+  learning_rate: 0.05
+  subsample: 0.7
+  colsample_bytree: 1.0
+  colsample_bynode: 0.5
+  reg_alpha: 0.01
+  reg_lambda: 1.0
+  min_child_weight: 10
+  tree_method: hist
+  device: cuda
+  early_stopping_rounds: 200
+  eval_metric: aucpr
+
+evaluation:
+  bootstrap_n: 1000
+  bootstrap_seed: 42
+
+output_dir: ${paths.results_dir}/stacking_ensemble

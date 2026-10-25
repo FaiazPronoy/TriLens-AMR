@@ -1,0 +1,36 @@
+# Arcadia v2 dataset configuration
+name: arcadia_v2
+
+paths:
+  master_pkl: ${paths.processed_dir}/arcadia_v2_master_features.pkl
+  snp_matrix_pkl: ${paths.processed_dir}/arcadia_v2_snp_matrix.pkl
+
+# Master pkl key names (verified from disk)
+col_names:
+  X_train: X_pca_train
+  X_val: X_pca_val
+  X_test: X_pca_test
+  Y: Y
+  label_mask: label_mask
+  label_names: label_names
+  random_split: random_split
+  phylogeny_split: phylogeny_split
+  phylogroup: phylogroup_onehot
+  genome_names: genome_names
+
+# Antibiotics
+antibiotics: [AMP, CIP, AMC, SXT, GEN, CTX, CAZ]
+common_with_giessen: [CIP, CTX, GEN, CAZ]  # CAZ == CTZ (same drug)
+
+# Feature settings
+n_samples: 6962
+n_pca_features: 1024
+n_snp_features: 535439
+n_phylogroups: 8
+
+# Split strategy: random | phylogeny
+split: random
+
+# Vocab for SNP embedding
+vocab_size: 5  # 0=ref, 1-3=alt alleles, 4=padding (Arcadia doesn't use 4)
+padding_idx: 4

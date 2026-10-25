@@ -1,0 +1,111 @@
+# @package _global_
+
+defaults:
+  - override /data: arcadia_v2
+
+experiment:
+  name: stage3_cascadestack_v7
+  description: "CascadeStack v7 — defense-grade ensemble on gene-aggregated features + GeneAttentionNet base"
+
+  # Data
+  filtered_pkl: ${paths.processed_dir}/arcadia_v2_gene_filtered.pkl
+  gene_stats: [mean, var, n_nonref, max]
+  antibiotics: [AMP, CIP, AMC, SXT, GEN, CTX, CAZ]
+
+  # GeneAttentionNet checkpoint (pre-trained, used for full-train predictions on val + test)
+  gan_checkpoint: ${paths.results_dir}/stage2_gene_attention/ckpts/stage2_gene_attention_best.ckpt
+  use_gan_base: true # set false for pure classical stack
+
+  # Per-fold GeneAttentionNet retraining (for leak-free OOF)
+  gan_per_fold:
+    enabled: true
+    max_epochs: 15 # reduced from 50 for compute
+    batch_size: 16
+    learning_rate: 1e-3
+    hidden_dim: 128
+    n_heads: 4
+    n_layers: 2
+    ffn_mult: 2
+    dropout: 0.3
+
+  # Ensemble structure
+  ensemble:
+    n_folds: 5
+    oof_es_frac: 0.15
+    oof_cal_frac: 0.15
+    val_meta_frac: 0.60 # 60% meta-ES / 40% threshold-holdout
+    min_cal_samples: 30
+
+  # Base models
+  base_models:
+    use_lgbm: true
+    use_tabnet: true
+
+  # XGBoost
+  xgb_params:
+    n_estimators: 4000
+    max_depth: 5
+    min_child_weight: 5
+    learning_rate: 0.05
+    subsample: 0.7
+    colsample_bytree: 0.5
+    reg_alpha: 0.1
+    reg_lambda: 1.0
+    gamma: 0.1
+    early_stopping_rounds: 150
+    tree_method: hist
+
+  # LightGBM
+  lgbm_params:
+    n_estimators: 4000
+    num_leaves: 63
+    max_depth: 6
+    min_child_samples: 20
+    learning_rate: 0.05
+    subsample: 0.7
+    subsample_freq: 1
+    colsample_bytree: 0.5
+    reg_alpha: 0.1
+    reg_lambda: 1.0
+    early_stopping_rounds: 150
+
+  # TabNet
+  tabnet_params:
+    n_d: 24
+    n_a: 24
+    n_steps: 5
+    gamma: 1.5
+    momentum: 0.3
+    mask_type: entmax
+    learning_rate: 2e-2
+    max_epochs: 200
+    patience: 30
+    batch_size: 512
+    virtual_batch_size: 128
+
+  # Meta MLP
+  meta_mlp:
+    lr: 3e-4
+    weight_decay: 1e-3
+    max_epochs: 150
+    patience: 25
+    batch_size: 128
+    snapshots_k: 3
+    small_train_threshold: 3000
+
+  # Gating thresholds
+  gating:
+    gap_threshold: 0.15
+    pr_threshold: 0.55
+    val_pr_gate_threshold: 0.65
+    min_base_after_gate: 3
+
+  evaluation:
+    bootstrap_n: 1000
+    bootstrap_seed: 42
+
+  output_dir: ${paths.results_dir}/stage3_cascadestack_v7
+
+  wandb:
+    project: amr-phylogene-mtl
+    tags: [stage3, cascadestack_v7, defense, ensemble]

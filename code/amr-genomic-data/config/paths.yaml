@@ -1,0 +1,100 @@
+# All filesystem paths used by src/amr_data. Nothing outside this file (and
+# src/amr_data/config.py, which resolves it) should ever contain a literal
+# path. See docs/AUDIT_FINDINGS.md (B11).
+#
+# `env` controls which `roots` entry is used. "auto" (default) detects the
+# environment at import time: Kaggle if /kaggle/input exists, Colab if
+# /content exists, else "local". Override with the AMR_ENV environment
+# variable if auto-detection ever picks the wrong one.
+
+env: auto
+
+roots:
+  local:
+    project_root: "."
+    raw_dir: "data/raw"
+    interim_dir: "data/interim"
+    # NOTE: points at the *parent* thesis repo's already-populated
+    # data/processed/, so tests and qa.py can run against the real
+    # arcadia_v2_*.pkl files without duplicating multi-GB artifacts into
+    # this package. If you clone this repo standalone (outside the thesis
+    # folder), override with AMR_PROCESSED_DIR or edit this path -- there is
+    # nothing local/machine-specific baked into the code, only in this one
+    # config value.
+    processed_dir: "../data/processed"
+    results_dir: "results"
+  kaggle:
+    project_root: "/kaggle/working"
+    raw_dir: "/kaggle/input/datasets/faiazabrarzaman/arcadia-presenceabsence-v2-ecoli-rawdownload/Ecoli_AMR_GenotypePhenotype/Ecoli_AMR_GenotypePhenotype"
+    interim_dir: "/kaggle/working/interim"
+    processed_dir: "/kaggle/working/processed"
+    results_dir: "/kaggle/working/results"
+  colab:
+    project_root: "/content/amr-genomic-data"
+    raw_dir: "/content/amr-genomic-data/data/raw"
+    interim_dir: "/content/amr-genomic-data/data/interim"
+    processed_dir: "/content/amr-genomic-data/data/processed"
+    results_dir: "/content/amr-genomic-data/results"
+
+# Raw source files (Zenodo 12692732, arcadia-d2cf-ebe5). Paths are relative
+# to `raw_dir` above. See docs/DATA_PROVENANCE.md for the full citation
+# table -- these two DOIs are NOT interchangeable, and the previous version
+# of this pipeline cited only one of them for both VCF and P/A data.
+raw_files:
+  vcf_filtered: "vcf_files/filtered_output.vcf.gz"
+  phenotype_matrix: "phenotype_matrix/phenotype_matrix_08302024.csv"
+  sra_to_genome_map: "phenotype_matrix/SRA_to_genome_name.csv"
+  strains_metadata: "strains_metadata.csv"
+  # Presence/absence PLINK triple -- these live under the SEPARATE Zenodo
+  # 14364732 (arcadia-8391-465f) record, not the VCF record above. If both
+  # records are downloaded into the same raw_dir this still works because
+  # the sub-path is distinct; otherwise override this one key.
+  gene_pa_bed: "presence_absence_data/presence_absence_all.bed"
+  gene_pa_bim: "presence_absence_data/presence_absence_all.bim"
+  gene_pa_fam: "presence_absence_data/presence_absence_all.fam"
+
+# Interim / processed artifacts produced by this pipeline (relative to
+# interim_dir / processed_dir above).
+interim_files: {}
+
+processed_files:
+  # NOTE: this lives under processed_dir (not interim_dir) because that is
+  # where the existing thesis repo's copy actually is on disk -- Phase A's
+  # own notebook treats it as an intermediate artifact, but this refactor
+  # follows where the real file already sits rather than relocating it.
+  snp_matrix_pkl: "arcadia_v2_snp_matrix.pkl"
+  full_dataset_pkl: "arcadia_v2_full_dataset.pkl"
+  master_features_pkl: "arcadia_v2_master_features.pkl"
+  gene_pa_pkl: "arcadia_v2_gene_presence_absence.pkl"
+  gene_filtered_random_pkl: "arcadia_v2_gene_filtered__random_split.pkl"
+  gene_filtered_phylogroup_pkl: "arcadia_v2_gene_filtered__phylogroup_stratified_split.pkl"
+  gene_filtered_holdout_pkl: "arcadia_v2_gene_filtered__lineage_holdout_split.pkl"
+  card_mapping_pkl: "arcadia_card_mapping.pkl"
+  ported_cluster_labels_pkl: "ported_cluster_labels_v2.pkl"
+  # Read-only reference to the artifact already produced by the existing,
+  # untouched src/experiments pipeline (Stage 1.5, single-split-regime,
+  # pre-dates this refactor's naming convention). qa.py / gene_filter.py use
+  # this ONLY to cross-check numbers, never to write.
+  gene_filtered_legacy_pkl: "arcadia_v2_gene_filtered.pkl"
+
+# Legacy (superseded) artifact -- only used by scripts/port_cluster_labels.py
+# to harvest the 30 disjoint cluster labels. Not part of the main pipeline.
+# 2.85 GB -- same reasoning as processed_dir/giessen_files above: points
+# directly at the copy already sitting in the parent thesis repo rather than
+# duplicating a multi-GB file. See docs/OPEN_QUESTIONS.md item 1.
+legacy_files:
+  amr_metax_dataset_pkl: "../amr_metax_dataset.pkl"
+
+# Giessen external validation set (Ren et al. 2022,
+# 10.1093/bioinformatics/btab681). Paths relative to project_root; on
+# "local" this resolves into the parent thesis repo's data/ (see
+# processed_dir note above -- same reasoning, avoids duplicating files).
+giessen_files:
+  x_csv: "../data/Giessen_dataset/cip_ctx_ctz_gen_multi_data.csv"
+  y_csv: "../data/Giessen_dataset/cip_ctx_ctz_gen_pheno.csv"
+
+# CARD database (Sub-task B in the original Stage 1.5 prompt -- NOT yet
+# integrated anywhere in the live pipeline; see docs/OPEN_QUESTIONS.md).
+card_files:
+  card_json_url: "https://card.mcmaster.ca/latest/data"
+  card_json_local: "data/raw/card/card.json"

@@ -1,0 +1,51 @@
+# Hydra base configuration
+defaults:
+  - data: arcadia_v2
+  - trainer: default
+  - model: cnn_1d_naive
+  - experiment: ???
+  - _self_
+
+# Global settings
+seed: 42
+# Root of the code folder. Defaults to the current directory, so always run
+# commands from inside code/. Override with the TRILENS_ROOT environment variable
+# (on Kaggle: os.environ["TRILENS_ROOT"] = "/kaggle/working/code").
+project_root: ${oc.env:TRILENS_ROOT,.}
+
+# Paths
+paths:
+  # Stage 0 original paths (kept for DataModule compatibility)
+  data_dir: ${project_root}/data
+  processed_dir: ${project_root}/data/processed
+  results_dir: ${project_root}/results
+  checkpoints_dir: ${project_root}/checkpoints
+  logs_dir: ${project_root}/logs
+
+  # Stage 1 explicit data file paths
+  arcadia_master_pkl: ${project_root}/data/processed/arcadia_v2_master_features.pkl
+  arcadia_snp_matrix_pkl: ${project_root}/data/processed/arcadia_v2_snp_matrix.pkl
+  giessen_data_csv: ${project_root}/data/Giessen_dataset/cip_ctx_ctz_gen_multi_data.csv
+  giessen_pheno_csv: ${project_root}/data/Giessen_dataset/cip_ctx_ctz_gen_pheno.csv
+
+# WandB
+wandb:
+  project: amr-phylogene-mtl
+  entity: null
+  mode: ${oc.env:WANDB_MODE,offline}   # online needs a wandb login; offline works everywhere
+  log_model: false
+
+# Hydra
+hydra:
+  run:
+    dir: ${project_root}/experiments/${now:%Y-%m-%d_%H-%M-%S}_${experiment.name}
+  sweep:
+    dir: ${project_root}/experiments/sweep_${now:%Y-%m-%d_%H-%M-%S}
+    subdir: ${experiment.name}
+  job:
+    chdir: false
+
+# Data split config (used by Stage 1 experiment runners)
+data:
+  arcadia:
+    split_type: random

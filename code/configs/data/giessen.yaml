@@ -1,0 +1,29 @@
+# Giessen dataset configuration
+name: giessen
+
+paths:
+  snp_csv: ${project_root}/data/Giessen_dataset/cip_ctx_ctz_gen_multi_data.csv
+  pheno_csv: ${project_root}/data/Giessen_dataset/cip_ctx_ctz_gen_pheno.csv
+
+# CSV column names
+id_column: prename
+
+# Antibiotics (note: CTZ in Giessen == CAZ in Arcadia, same drug Ceftazidime)
+antibiotics: [CIP, CTX, CTZ, GEN]
+antibiotic_aliases:
+  CTZ: CAZ  # for cross-dataset matching
+
+# Feature settings
+n_samples: 809
+n_snp_features: 60936
+
+# Vocab for SNP embedding
+vocab_size: 5  # 0=ref, 1-3=alt alleles, 4=missing/padding
+padding_idx: 4
+
+# Split strategy (Giessen has no predefined split — create one)
+split:
+  type: random_stratified
+  ratios: [0.70, 0.15, 0.15]  # train/val/test
+  stratify_on: CIP  # primary antibiotic for stratification
+  seed: 42

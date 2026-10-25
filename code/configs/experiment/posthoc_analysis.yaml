@@ -1,0 +1,47 @@
+# configs/experiment/posthoc_analysis.yaml
+#
+# Post-hoc analysis on saved CascadeStack v9.1 predictions.
+# EXP-3 (clinical), EXP-4 (significance), EXP-9 (LOO ablation),
+# EXP-10 (calibration), EXP-13 (per-phylogroup).
+#
+# FLAT config — NO @package, NO defaults:, NO experiment: wrapper.
+#
+# Run:
+#   python src/run_experiment.py +experiment=posthoc_analysis
+#
+# Dispatch line to add to src/run_experiment.py _DISPATCH:
+#   "posthoc_analysis": "src.experiments.run_posthoc_analysis",
+#
+# PREREQUISITE: v9.1 must have saved predictions_saved.npz.
+# Add to end of run_cascadestack_v9.py (inside run()):
+#   import numpy as _np
+#   _np.savez_compressed(
+#     Path(cfg.output_dir) / "predictions_saved.npz",
+#     test_ens_probs=test_probs_ens,        # (n_test, n_abs)
+#     test_base_probs=test_probs_bases,     # (n_test, n_bases, n_abs)
+#     val_ens_probs=val_probs_ens,          # (n_val, n_abs)
+#     val_base_probs=val_probs_bases,       # (n_val, n_bases, n_abs)
+#     oof_base_probs=oof_probs_bases,       # (n_train, n_bases, n_abs)
+#     test_indices=test_idx,
+#     val_indices=val_idx,
+#     train_indices=train_idx,
+#   )
+name: posthoc_analysis
+# ── Paths ──────────────────────────────────────────────────────────────────
+output_dir:     ${paths.results_dir}/posthoc_analysis
+v9_results_dir: ${paths.results_dir}/stage3_cascadestack_v9
+data_pkl:       data/processed/arcadia_v2_gene_filtered.pkl
+
+# ── Experiment toggles ─────────────────────────────────────────────────────
+run_exp3_clinical:    true   # Clinical metrics (VME, ME, CA, etc.)
+run_exp4_significance: true   # Paired bootstrap + McNemar
+run_exp9_loo:         true   # Leave-one-out ablation (needs oof_base_probs)
+run_exp10_calibration: true  # Brier/ECE + isotonic recalibration
+run_exp13_phylogroup:  true  # Per-phylogroup breakdown
+
+# ── Analysis parameters ────────────────────────────────────────────────────
+n_bootstrap:         1000
+bootstrap_seed:        42
+specificity_targets: [0.90, 0.95]   # thresholds in EXP-3
+ece_n_bins:           10             # ECE histogram bins
+phylo_min_samples:    20             # minimum test samples for EXP-13

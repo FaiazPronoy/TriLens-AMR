@@ -1,0 +1,50 @@
+# configs/experiment/pillar3_shap.yaml
+# Pillar 3 v3 — SHAP + XGB-gain interpretability with concordance analysis.
+# Requires: pip install shap
+
+name: pillar3_shap
+description: "Pillar 3 v3 — dual-method (gain + SHAP) per-gene importance from CascadeStack v9 base learners. Includes Spearman / Jaccard concordance between gain and SHAP, cross-AB Jaccard analysis, Plan-B vs Plan-C consensus genes."
+
+antibiotics: [AMP, CIP, AMC, SXT, GEN, CTX, CAZ]
+gene_stats: [mean, var, n_nonref, max]
+
+# Toggle plans
+run_plan_b: true # XGB gene-aggregated
+run_plan_c: true # XGB raw chi²-prefiltered (PRIMARY)
+
+# chi² prefilter knobs — identical to v8/v9
+prefilter_top_k: 50000
+prefilter_min_variance: 1.0e-6
+
+# SHAP subsampling — saves memory on Plan C's 50K features
+shap_subsample: 1500
+
+# XGB hyperparams — IDENTICAL to v9 base learner configs
+xgb_params:
+  n_estimators: 1500
+  max_depth: 5
+  min_child_weight: 5
+  learning_rate: 0.05
+  subsample: 0.8
+  colsample_bytree: 0.7
+  reg_alpha: 0.1
+  reg_lambda: 1.0
+  gamma: 0.1
+  tree_method: hist
+  device: cuda
+
+xgb_raw_params:
+  n_estimators: 1500
+  max_depth: 5
+  learning_rate: 0.05
+  subsample: 0.8
+  colsample_bytree: 1.0
+  colsample_bynode: 0.5
+  reg_alpha: 0.1
+  reg_lambda: 1.0
+  tree_method: hist
+  device: cuda
+
+top_k: 20
+
+output_dir: ${paths.results_dir}/pillar3_shap

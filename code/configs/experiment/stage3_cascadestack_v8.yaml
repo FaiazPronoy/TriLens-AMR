@@ -1,0 +1,73 @@
+# configs/experiment/stage3_cascadestack_v8.yaml
+# CascadeStack v8 — K-fold stacking with 5 diverse base learners + LogReg meta
+
+name: stage3_cascadestack_v8
+description: "CascadeStack v8 - K-fold stacking, LogReg meta, 5 diverse bases"
+
+antibiotics: [AMP, CIP, AMC, SXT, GEN, CTX, CAZ]
+gene_stats: [mean, var, n_nonref, max]
+
+n_folds: 5
+use_lgbm: true
+
+# Base 1: XGB on gene-aggregated (20K features)
+xgb_params:
+  n_estimators: 1500
+  max_depth: 5
+  min_child_weight: 5
+  learning_rate: 0.05
+  subsample: 0.8
+  colsample_bytree: 0.7
+  reg_alpha: 0.1
+  reg_lambda: 1.0
+  gamma: 0.1
+  tree_method: hist
+  device: cuda
+  early_stopping_rounds: 150
+
+# Base 2: LightGBM on gene-aggregated
+lgbm_params:
+  num_leaves: 63
+  max_depth: 6
+  min_child_samples: 20
+  learning_rate: 0.05
+  subsample: 0.8
+  subsample_freq: 1
+  colsample_bytree: 0.7
+  reg_alpha: 0.1
+  reg_lambda: 1.0
+  early_stopping_rounds: 150
+
+# Base 3: RandomForest on gene-aggregated (sqrt features for speed)
+rf_params:
+  n_estimators: 200
+  max_depth: 12
+  min_samples_leaf: 10
+
+# Base 4: LogReg on gene-aggregated (uses internal StandardScaler + L2 C=0.1)
+# (no params needed)
+
+# Base 5: XGB on raw chi²-prefiltered SNPs — per-fold prefilter
+prefilter_top_k: 50000
+prefilter_min_variance: 1.0e-6
+xgb_raw_params:
+  n_estimators: 1500
+  max_depth: 5
+  learning_rate: 0.05
+  subsample: 0.8
+  colsample_bytree: 1.0
+  colsample_bynode: 0.5
+  reg_alpha: 0.1
+  reg_lambda: 1.0
+  tree_method: hist
+  device: cuda
+  early_stopping_rounds: 150
+
+# Meta-learner: LogReg L2 strength (1/C). C=1.0 = mild regularization.
+meta_C: 1.0
+
+evaluation:
+  bootstrap_n: 1000
+  bootstrap_seed: 42
+
+output_dir: ${paths.results_dir}/stage3_cascadestack_v8

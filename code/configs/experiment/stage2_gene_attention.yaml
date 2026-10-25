@@ -1,0 +1,37 @@
+# configs/experiment/stage2_gene_attention.yaml
+# Stage 2 — GeneAttentionNet multi-task training
+
+name: stage2_gene_attention
+description: "Stage 2 — GeneAttentionNet (per-gene encoder + cross-gene attention + multi-task heads)"
+
+antibiotics: [AMP, CIP, AMC, SXT, GEN, CTX, CAZ]
+gene_stats: [mean, var, n_nonref, max]
+
+model:
+  hidden_dim: 128       # embedding dim per gene token
+  n_heads: 4            # attention heads
+  n_layers: 2           # transformer blocks
+  ffn_mult: 2           # FFN expansion factor (hidden_dim * ffn_mult)
+  dropout: 0.3
+
+training:
+  max_epochs: 50
+  min_epochs: 5
+  early_stop_patience: 8
+  batch_size: 16
+  num_workers: 0        # Windows safety
+  learning_rate: 1.0e-3
+  weight_decay: 1.0e-4
+  gradient_clip: 1.0
+  precision: "16-mixed"
+  scheduler_t_max: 50
+
+evaluation:
+  bootstrap_n: 1000
+  bootstrap_seed: 42
+
+output_dir: ${paths.results_dir}/stage2_gene_attention
+
+wandb:
+  project: amr-phylogene-mtl
+  tags: [stage2, gene_attention, multitask]

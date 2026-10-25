@@ -1,0 +1,79 @@
+\section*{Approval}
+
+% Signature block: rule, then the name tight underneath it.
+% NOTE: the template writes the lines as "\centerline{...}~\\", and that "~"
+% inserts a whole blank line between each pair. Using \centering with plain \\
+% keeps the name, designation, department and university on consecutive lines,
+% which both looks right and frees the space used for the gaps between people.
+% The parbox is 9.5cm and the department line is wrapped in \mbox so that it
+% can never break across two lines, for every member.
+\newcommand*\apprsig[3]{%
+  \vspace{0.7cm}\par\noindent\hspace*{5cm}%
+  \parbox{9.5cm}{\hrulefill\par\centering
+    \textbf{#1}\\[0.05cm]
+    {\small #2}\\
+    {\small \mbox{Department of Computer Science and Engineering}}\\
+    {\small BRAC University}#3}\par\vspace{1.8cm}}
+
+% Same block, but with a supplied signature image sitting on the rule.
+% The image is put in its own group so that \centering does not leak out and
+% stop \hrulefill from stretching to the full 9.5cm.
+% Spacing is rebalanced (0.2cm before, 1.2cm after) so that a signed block is
+% very slightly SHORTER than a blank one, and the page cannot grow.
+% #1 is the printed width of the signature. It is per-signature because the
+% source files are cropped differently: "GRA Sir.png" and "image.png" are tight
+% to the ink, while "Sdq sir.jpg" carries white margin inside its canvas, so it
+% needs a larger width to make the ink read at the same size as the other two.
+\newcommand*\apprsigi[5]{%
+  \vspace{0.15cm}\par\noindent\hspace*{5cm}%
+  \parbox{9.5cm}{%
+    {\centering\includegraphics[width=#1]{#2}\par}%
+    \vspace{-0.15cm}%
+    \hrulefill\par\centering
+    \textbf{#3}\\[0.05cm]
+    {\small #4}\\
+    {\small \mbox{Department of Computer Science and Engineering}}\\
+    {\small BRAC University}#5}\par\vspace{0.3cm}}
+
+The thesis titled \textquote{TriLens-MoE-Stack: A Multi-View Hybrid Framework for Lineage-Aware Multi-Drug Antibiotic Resistance Prediction in Escherichia coli Using Genomic Data} submitted by
+
+\begin{enumerate}\setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}
+  \item Faiaz Abrar Zaman Pronoy (22301061)
+  \item Pranto Roy (22301261)
+  \item Sinthia Khandoker (22301412)
+  \item Shantanu Barua (22301108)
+  \item Md. Jahirul Islam Zishan (21301474)
+\end{enumerate}
+
+\noindent of Summer, 2026 has been accepted as satisfactory in partial fulfillment of the requirement for the degree of B.Sc. in Computer Science and Engineering on August 10, 2026.
+
+\vspace{0.25cm}
+\noindent\textbf{Examining Committee:}
+
+\vspace{0.3cm}
+
+\noindent Supervisor:\\
+(Member)
+\apprsigi{3.6cm}{{GRA Sir}.png}{Dr. Md. Golam Rabiul Alam}{Professor}{}
+
+\noindent Co-Supervisor:\\
+(Member)
+\apprsigi{4cm}{image.png}{Dr. Swakkhar Shatabda}{Professor}{}
+
+\noindent Co-Supervisor:\\
+(Member)
+\apprsigi{6.2cm}{{Sdq sir}.jpg}{Md. Saiful Bari Siddiqui}{Senior Lecturer}{}
+
+\newpage
+
+\noindent Thesis Coordinator:\\
+(Member)
+\apprsigi{3.6cm}{{GRA Sir}.png}{Dr. Md. Golam Rabiul Alam}{Professor}{}
+
+\vspace{1cm}
+
+\noindent Head of Department:\\
+(Chair)
+\apprsigi{4cm}{{sadia miss}.png}{Dr. Sadia Hamid Kazi}{Chairperson}{}
+
+\pagebreak

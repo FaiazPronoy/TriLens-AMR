@@ -1,0 +1,30 @@
+# configs/experiment/tabnet_baseline_phylogeny.yaml
+#
+# TabNet baseline on phylogeny_split -- same architecture/hyperparameters as
+# configs/experiment/tabnet_baseline.yaml (random_split version), only
+# split_key and output_dir differ, so TabNet vs T6 is comparable on BOTH
+# splits consistently.
+#
+# Run (GPU, not run yet):
+#   conda activate amr
+#   python -m src.experiments.run_tabnet_baseline_phylogeny
+
+name: tabnet_baseline_phylogeny
+gene_stats: [mean, var, n_nonref, max]
+split_key: phylogeny_split
+
+tabnet:
+  n_d: 16
+  n_a: 16
+  n_steps: 4
+  gamma: 1.3
+  lambda_sparse: 1.0e-3
+  seed: 42
+
+training:
+  max_epochs: 150
+  patience: 20
+  batch_size: 256
+  virtual_batch_size: 128
+
+output_dir: ${paths.results_dir}/pillar_tabnet_phylogeny

@@ -1,0 +1,28 @@
+# PyTorch Lightning trainer configuration
+_target_: lightning.pytorch.Trainer
+
+accelerator: gpu
+devices: 1
+precision: 16-mixed  # mixed precision on 4080
+
+max_epochs: 50
+min_epochs: 5
+
+# Performance
+deterministic: true
+benchmark: false  # deterministic mode requires benchmark=false
+
+# Logging
+log_every_n_steps: 10
+enable_progress_bar: true
+enable_model_summary: true
+
+# Validation
+check_val_every_n_epoch: 1
+num_sanity_val_steps: 2
+
+# Gradient
+gradient_clip_val: 1.0
+accumulate_grad_batches: 1
+
+# Callbacks added programmatically in code (EarlyStopping, ModelCheckpoint)

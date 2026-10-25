@@ -1,0 +1,15 @@
+# configs/model/cnn_1d_contig_aware.yaml
+# Contig-aware CNN — respects pan-genome contig boundaries.
+# Variant A: per-contig pooling + attention aggregation (recommended primary).
+# Variant B: single CNN with boundary-masked convolutions.
+
+name: cnn_1d_contig_aware
+type: cnn_contig_aware
+variant: A
+vocab_size: 5
+padding_idx: 4
+embed_dim: 32
+dropout: 0.4
+attention_heads: 4
+min_contig_size: 16
+max_contig_len: null   # auto from data (95th percentile by default)
