@@ -100,4 +100,12 @@ unflagged strains. Everything else stays "high-locus, cause unknown".
 
 ## Deviations
 
-(none)
+- **26 October 2026, same session, before any use of the flag (addition, not a rule change).**
+  Arcadia's own pipeline removes "outlier samples" before analysis: samples with more than 500
+  synonymous quadrupleton alleles (`workflow/rules/filtering.smk` and `scripts/quadrupleton_stats.R`
+  in Arcadia-Science/2024-predicting-antimicrobial-resistance). Our pipeline never did this.
+  - Added to the `w0_encoding` check: recompute Arcadia's list from `annotated_output.vcf.gz`
+    (biallelic synonymous SNPs with AC = 4; per-sample count of alternate alleles > 500).
+  - Report its overlap with our 61 strains (count, Jaccard, Fisher test).
+  - The handling rules above are unchanged. The same sensitivity analysis is run a second time with
+    Arcadia's outlier list in place of ours.
