@@ -12,7 +12,8 @@ status: PASS, WARN (disclose in the paper, not an error), FAIL.
 Exit code 1 if any check FAILs.
 
 Checks
-  1. every split: train / val / test disjoint, together exactly the 6,962 strains
+  1. every split: train / val / test disjoint, together exactly the 6,962 strains;
+     the gene-filtered SNP values are genotype codes 0..3
   2. the three gene-filtered datasets carry the same split as the split files
   3. lineage holdout: no sequence type shared between train and test, or val and test
   4. exact duplicate genomes between train and test (WARN: report, do not fail)
@@ -108,6 +109,9 @@ def main() -> int:
             add(f"{fname}: carries {key}", False, f"keys: {sorted(gf)[:12]}")
         X = gf.get("X_snp_filtered")
         if X is not None:
+            lo, hi = int(np.min(X)), int(np.max(X))
+            add(f"{fname}: SNP codes in 0..3", lo >= 0 and hi <= 3,
+                f"min {lo}, max {hi}" + ("" if lo >= 0 and hi <= 3 else " - run scripts/repair_gene_filtered.py"))
             h = np.array([hashlib.blake2b(np.ascontiguousarray(X[i]).tobytes(), digest_size=16).digest()
                           for i in range(X.shape[0])], dtype=object)
             train_h = set(h[tr].tolist())

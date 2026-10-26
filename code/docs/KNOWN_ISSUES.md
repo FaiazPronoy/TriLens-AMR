@@ -111,7 +111,30 @@ labels of some holdout test strains, so the TabNet holdout number (0.3255) is if
 optimistic. It favours the baseline, not the proposed model, so it does not weaken any
 claim; say so in one sentence in the paper.
 
-### 10. Download links are placeholders
+### 10. 42 corrupted columns in the random-split dataset (found and repaired, October 2026)
+
+`kaggle/notebooks/data_check.ipynb` read every processed file. `arcadia_v2_gene_filtered.pkl`
+(random split, 6,962 × 262,225) has **42 columns with values from -128 to 127**, in 6,925 of
+the 6,962 strains; SNP codes are 0 to 3. The SNP matrix it was cut from
+(`arcadia_v2_snp_matrix.pkl`) and the phylogroup and lineage-holdout files are clean (0 to 3).
+
+Effect: chi-squared feature selection refuses the file, so the classical stack, SHAP and gain
+importance on the random split cannot run on it, and every gene-feature model on the random
+split (XGBoost, LightGBM, RF, LogReg, TabNet, TriLens Lens A and C) would read the 42 columns
+as large genotype values. It is not known which copy of this file the original thesis runs
+read; this code cannot have run the classical stack on this one.
+
+**Fix:** `scripts/repair_gene_filtered.py` re-reads the 42 columns from the SNP matrix by
+their position names. It refuses unless every other column of the file is identical to the
+matrix, so nothing else changes. Every Kaggle notebook runs it in its setup cell and writes
+`results/diagnostics/data_repair.json`; `check_leakage.py` fails if any gene-filtered file has
+values outside 0 to 3. Outputs made before the repair from runs that read this file are
+thrown away by the notebooks and recomputed.
+
+For the paper: the random-split numbers come from the repaired file. State in Methods that
+SNP codes are 0 to 3 and that the data files are checked for this.
+
+### 11. Download links are placeholders
 
 `docs/DATA.md` and `CITATION.cff` still contain `PASTE_LINK_HERE` / `PASTE_REPO_URL_HERE`.
 
