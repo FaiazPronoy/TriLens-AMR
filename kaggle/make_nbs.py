@@ -123,6 +123,64 @@ STAGES = {
                 f"pillar1/exp3/{d}_CIP_{o}_run.json")
                for d in ("giessen", "arcadia") for o in ("orig", "shuf")]
               + [("Ordered against shuffled: summary", H + "pillar1_exp3", "pillar1/exp3/exp3_results.csv")]),
+    # ── Journal extension (docs/PLAN.md). Splits are rebuilt from code/results/splits/*.json. ──
+    "w1_gene_sets": dict(
+        title="W1: gene filter refitted on the country and time splits",
+        lensb="fixed", needs=[], cpu=True, gpu="None (CPU; XGBoost runs on the CPU here)",
+        hours="about 12 CPU hours (3 splits x about 4); it resumes if a session stops",
+        about="For S4a (UK to Norway), S4b (Norway to UK) and S5 (Norway, up to 2013 to 2014-2017): rank "
+              "genes by XGBoost gain on chi-squared-prefiltered SNPs of the split's training strains "
+              "(early stopping on its validation strains; test never read), as was done for the lineage "
+              "holdout. Pre-registration: docs/experiments/w1_five_axis.md. Only the rankings are saved; "
+              "w1_classical rebuilds the filtered matrices from them.",
+        writes=["w1_gene_sets"],
+        steps=[("Rebuild the split files from code/results/splits/*.json", "python -m src.splits.from_json", None)]
+              + [(f"Gene ranking, {sp}", M + f"run_split_pipeline rank --split {sp} --device cpu",
+                  f"w1_gene_sets/{sp}/xgb_gene_importance.csv")
+                 for sp in ("country_uk_to_norway", "country_norway_to_uk", "time_norway_2013")]),
+    "w1_classical": dict(
+        title="W1: classical arm on the country and time splits",
+        lensb="fixed", needs=["w1_gene_sets"], gpu="GPU T4 x2 (XGBoost runs on the GPU)",
+        hours="about 4.5 GPU hours",
+        about="Builds each split's 5,000-gene matrix from w1_gene_sets, then the five classical learners "
+              "and the LogReg meta-learner on S4a, S4b and S5 (the classical half of the W1 table). "
+              "Pre-registration: docs/experiments/w1_five_axis.md.",
+        writes=["w1_classical"],
+        steps=[("Rebuild the split files from code/results/splits/*.json", "python -m src.splits.from_json", None)]
+              + [step for sp in ("country_uk_to_norway", "country_norway_to_uk", "time_norway_2013") for step in (
+                  (f"Filtered SNP matrix, {sp}", M + f"run_split_pipeline build --split {sp}", None),
+                  (f"Classical arm, {sp}", M + f"run_split_pipeline classical --split {sp} --device cuda",
+                   f"w1_classical/{sp}/classical5_results.csv"))]),
+    "w2_snp_knn": dict(
+        title="W2: lineage-lookup baselines with SNP distance, all six splits",
+        lensb="fixed", needs=[], cpu=True, gpu="None (CPU)",
+        hours="about 1 CPU hour",
+        about="One 6,962 x 6,962 SNP Hamming matrix, then the ST lookup, phylogroup and kNN baselines on "
+              "the random, phylogroup, ST-holdout, country and time splits. Pre-registration: "
+              "docs/experiments/w2_lineage_lookup.md.",
+        writes=["w2_lineage_lookup_snp"],
+        steps=[("Rebuild the split files from code/results/splits/*.json", "python -m src.splits.from_json", None),
+               ("SNP Hamming distances (cached in data/cache, not in the zip)", "python -m src.baselines.snp_distance",
+                None),
+               ("Lookups, CIP on the random split first (the pilot step)",
+                M + "run_lineage_lookup --distance snp --pilot",
+                "w2_lineage_lookup_snp/step1_cip_random/lookup_results.csv"),
+               ("Lookups, every split and antibiotic", M + "run_lineage_lookup --distance snp",
+                "w2_lineage_lookup_snp/lookup_results.csv")]),
+    "w4_amrfinder": dict(
+        title="W4: AMRFinderPlus on the pan-genome",
+        lensb="fixed", needs=["pa_fix"], cpu=True, gpu="None (CPU)",
+        hours="about 0.5 CPU hours (installation included)",
+        about="Installs AMRFinderPlus 4.2.7 and its database (internet must be on), runs it on the 18,494 "
+              "pan-genome CDS, and maps the hits to drugs and to the rebuilt presence/absence columns. "
+              "Needs raw/pangenome/pangenome_cds.fa in an attached dataset. Pre-registration: "
+              "docs/experiments/w4_mechanism.md (step 1).",
+        writes=["w4_amrfinder"],
+        steps=[("Install AMRFinderPlus, run it, map the hits",
+                "bash scripts/install_amrfinder.sh /tmp/amr > /tmp/amr_bin.txt && "
+                "PATH=$(tail -1 /tmp/amr_bin.txt):$PATH "
+                "python -m src.mechanism.amrfinder --fasta data/raw/pangenome/pangenome_cds.fa --out results/w4_amrfinder",
+                "w4_amrfinder/determinants.csv")]),
     "analysis": dict(
         title="Analysis: stacking, diagnostics, ablation table, figures, paper numbers",
         lensb="fixed", needs=["pa_fix", "classical", "trilens_random", "trilens_splits", "standard_random",
@@ -252,6 +310,14 @@ for n in ("cip_ctx_ctz_gen_multi_data.csv", "cip_ctx_ctz_gen_pheno.csv"):
     if f is not None and not (giessen / n).exists():
         (giessen / n).symlink_to(f)
 print("data   :", master.parent, f"({{len(list(proc.iterdir()))}} files)")
+# small raw files (W0/W4), if the dataset has them; their place in code/data/raw/
+for rel in ("raw/strains_metadata.csv", "raw/pangenome/pangenome_cds.fa",
+            "raw/pangenome/gene_presence_absence.csv"):
+    f = find_one(Path(rel).name)
+    dst = WORK / "data" / rel
+    if f is not None and not dst.exists():
+        dst.parent.mkdir(parents=True, exist_ok=True)
+        dst.symlink_to(f)
 
 # The random-split gene-filtered file has 42 columns with values outside the SNP codes
 # 0..3 (found by data_check). Re-read those columns from the SNP matrix; the script
@@ -381,7 +447,9 @@ if old_pa:
 
 os.chdir(WORK)
 os.environ.update(TRILENS_ROOT=str(WORK), TRILENS_MAIN_RUN="trilens_attnfix", TRILENS_LENSB=LENSB,
-                  WANDB_MODE="disabled", PYTHONUNBUFFERED="1", MPLBACKEND="Agg")
+                  WANDB_MODE="disabled", PYTHONUNBUFFERED="1", MPLBACKEND="Agg",
+                  # the repository's committed results (split indices, strain table); WORK/results is this run's
+                  TRILENS_REPO_RESULTS=str(code_src / "results"))
 subprocess.run([sys.executable, "-m", "pip", "install", "-q", "-r", "requirements-kaggle.txt"], check=True)
 import torch
 ENV_TEXT = "\n".join([
@@ -541,6 +609,7 @@ def notebook(name, st):
     needs = st["needs"]
     intro = [f"# {st['title']}", "", st["about"], "", "**Before you start**", "",
              f"1. Settings → Accelerator → **{st['gpu']}**. Settings → Internet → **On**.",
+             *( [f"   Expected run time: {st['hours']}."] if st.get("hours") else [] ),
              "2. Add Input → your dataset **trilens-data**. (The code is cloned from GitHub.)",
              "3. Add-ons → Secrets → **GITHUB_TOKEN** → switch it on for this notebook.",
              "4. **Save Version → Save & Run All (Commit)**. You can close the tab.",
@@ -560,7 +629,7 @@ def notebook(name, st):
     cells = [md("\n".join(intro)),
              code(SETUP.format(name=name, lensb=st["lensb"], writes=json.dumps(st["writes"]),
                          needs=json.dumps(st["needs"]), resume_own=str(name != "analysis"),
-                         needs_gpu=str(name not in ("analysis", "pa_fix")))),
+                         needs_gpu=str(not st.get("cpu", name in ("analysis", "pa_fix"))))),
              code(HELPERS)]
     n = 3
     for title, cmd, marker in st["steps"]:

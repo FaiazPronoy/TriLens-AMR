@@ -166,7 +166,7 @@ def main() -> None:
 
     with open(OUT_DIR / "xgb_importance_summary.json", "w") as f:
         json.dump({
-            "split_used_for_importance": "mlst_lineage_holdout_split",
+            "split_used_for_importance": SPLIT_PKL.stem.removesuffix("_split") + "_split",
             "n_genes": stats["n_genes"],
             "n_genes_filter_5snps": stats["n_with_at_least_5"],
             "per_antibiotic_metadata": per_ab_results,

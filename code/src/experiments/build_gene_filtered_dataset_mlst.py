@@ -42,6 +42,7 @@ PROCESSED_DIR = ROOT / "data" / "processed"
 IMPORTANCE_DIR = ROOT / "results" / "stage1_5_mlst_clean"
 SPLIT_PKL = PROCESSED_DIR / "mlst_lineage_holdout_split.pkl"
 OUTPUT_PKL = PROCESSED_DIR / "arcadia_v2_gene_filtered__mlst_holdout.pkl"
+SPLIT_KEY = "mlst_lineage_holdout_split"   # key the split is stored under in the output
 
 MIN_SNPS_PER_GENE = 5
 FINAL_GENE_CAP = 5000
@@ -130,7 +131,7 @@ def main() -> None:
         "random_split": master["random_split"],
         "phylogeny_split": master["phylogeny_split"],
         # the split this arm is actually about:
-        "mlst_lineage_holdout_split": {
+        SPLIT_KEY: {
             "train_idx": np.asarray(sp["train_idx"]),
             "val_idx": np.asarray(sp["val_idx"]),
             "test_idx": np.asarray(sp["test_idx"]),

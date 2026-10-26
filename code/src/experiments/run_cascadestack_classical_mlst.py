@@ -44,6 +44,7 @@ ROOT = Path(__file__).resolve().parents[2]
 RESULTS_DIR = ROOT / "results"
 GENE_FILTERED_PKL = ROOT / "data" / "processed" / "arcadia_v2_gene_filtered__mlst_holdout.pkl"
 SPLIT_KEY = "mlst_lineage_holdout_split"
+REQUIRE_ST_DISJOINT = True     # the ST holdout's defining property; other splits share STs
 OUTPUT_DIR = RESULTS_DIR / "pillar_cascadestack_classical_mlst"
 
 ANTIBIOTICS = ["AMP", "CIP", "AMC", "SXT", "GEN", "CTX", "CAZ"]
@@ -110,11 +111,14 @@ def main() -> None:
     st_tr = {st[i] for i in tr_idx if st[i] is not None}
     st_te = {st[i] for i in te_idx if st[i] is not None}
     st_va = {st[i] for i in va_idx if st[i] is not None}
-    assert not (st_tr & st_te), "TRAIN/TEST ST LEAK"
-    assert not (st_tr & st_va), "TRAIN/VAL ST LEAK"
-    assert not (st_va & st_te), "VAL/TEST ST LEAK"
-    print(f"  ST disjointness re-verified. train={len(tr_idx)} val={len(va_idx)} "
-          f"test={len(te_idx)}")
+    if REQUIRE_ST_DISJOINT:
+        assert not (st_tr & st_te), "TRAIN/TEST ST LEAK"
+        assert not (st_tr & st_va), "TRAIN/VAL ST LEAK"
+        assert not (st_va & st_te), "VAL/TEST ST LEAK"
+        print(f"  ST disjointness re-verified. train={len(tr_idx)} val={len(va_idx)} "
+              f"test={len(te_idx)}")
+    assert not (set(tr_idx) & set(te_idx)) and not (set(tr_idx) & set(va_idx)) and not (set(va_idx) & set(te_idx)), \
+        "partitions overlap"
     print(f"  X_flat: {X_flat.shape}, X_snp_int8: {X_snp_int8.shape}")
 
     exp_cfg = SimpleNamespace(

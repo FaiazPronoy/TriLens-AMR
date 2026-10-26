@@ -114,6 +114,9 @@ def main():
     ap.add_argument("--hits", type=Path, help="existing AMRFinderPlus table (skips the run)")
     ap.add_argument("--threads", type=int, default=4)
     a = ap.parse_args()
+    if not a.hits and not a.fasta.exists():
+        raise FileNotFoundError(f"{a.fasta} missing: add raw/pangenome/pangenome_cds.fa (small_data.zip) "
+                                "to a dataset attached to this notebook")
     a.out.mkdir(parents=True, exist_ok=True)
     tsv = a.out / "amrfinder_hits.tsv"
     if a.hits:
