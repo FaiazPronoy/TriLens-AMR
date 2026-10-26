@@ -69,6 +69,14 @@ def load(p):
         return pickle.load(f)
 
 
+def same_indices(za, zb, keys=("train_indices", "test_indices")):
+    missing = [k for k in keys if k not in za.files or k not in zb.files]
+    if missing:
+        return False, "missing " + ", ".join(missing)
+    same = all(np.array_equal(np.asarray(za[k]).ravel(), np.asarray(zb[k]).ravel()) for k in keys)
+    return same, "match" if same else "DIFFERENT - stacking would pair different strains"
+
+
 def main() -> int:
     splits = {}
     master = load(PROC / "arcadia_v2_master_features.pkl")
@@ -140,19 +148,18 @@ def main() -> int:
             z = np.load(p, allow_pickle=True)
             tr, va, te = splits[key]
             for k, ref in (("test_indices", te), ("train_indices", tr), ("val_indices", va)):
-                if k in z.files and z[k].size:
-                    same = np.array_equal(np.asarray(z[k]).ravel(), ref)
-                    add(f"{tag}: {k} = {key}", same, "match" if same else "DIFFERENT")
+                if k not in z.files or not z[k].size:
+                    add(f"{tag}: {k} = {key}", False, "not in the file", warn_only=(k == "val_indices"))
+                    continue
+                same = np.array_equal(np.asarray(z[k]).ravel(), ref)
+                add(f"{tag}: {k} = {key}", same, "match" if same else "DIFFERENT")
         for neural, classical in (("trilens_attnfix", "stage3_cascadestack_v9"),
                                   ("pillar_trilens_t7_clean_gene_set", "pillar_cascadestack_classical_phylogeny_clean"),
                                   ("pillar_trilens_mlst", "pillar_cascadestack_classical_mlst")):
             a, b = base / neural / "predictions_saved.npz", RES / classical / "predictions_saved.npz"
             if a.exists() and b.exists():
-                za, zb = np.load(a, allow_pickle=True), np.load(b, allow_pickle=True)
-                same = all(np.array_equal(np.asarray(za[k]).ravel(), np.asarray(zb[k]).ravel())
-                           for k in ("train_indices", "test_indices") if k in za.files and k in zb.files)
-                add(f"{a.parent.relative_to(RES).as_posix()} + {classical}: same strains, same order", same,
-                    "match" if same else "DIFFERENT - stacking would pair different strains")
+                same, detail = same_indices(np.load(a, allow_pickle=True), np.load(b, allow_pickle=True))
+                add(f"{a.parent.relative_to(RES).as_posix()} + {classical}: same strains, same order", same, detail)
 
         # 7. validation probabilities of the main run
         p = base / "trilens_attnfix" / "predictions_saved.npz"

@@ -927,6 +927,32 @@ def run_meta_stack(
     return test_meta, meta_weights
 
 
+def _load_classical_arm(v9_path: Path, train_idx, val_idx, test_idx):
+    """Classical base predictions (OOF, test, val or None), checked against this run's split."""
+    # A file that is there but unreadable is an error, not a TriLens-only stack.
+    v9 = np.load(str(v9_path), allow_pickle=False)
+    # oof_base_probs: (n_train, n_bases, n_abs); drop GAN (index 5)
+    oof_classical  = v9["oof_base_probs"][:, :5, :]   # (4872, 5, 7)
+    test_classical = v9["test_base_probs"][:, :5, :]  # (1045, 5, 7)
+    val_classical = None
+    if "val_base_probs" in v9.files:
+        val_classical = v9["val_base_probs"][:, :5, :]
+    # The two arms must describe the same strains in the same order,
+    # otherwise the meta-learner pairs one strain's classical score with
+    # another strain's TriLens score.
+    keys = [("train_indices", train_idx), ("test_indices", test_idx)]
+    if val_classical is not None:
+        keys.append(("val_indices", val_idx))
+    for key, idx in keys:
+        if key not in v9.files:
+            raise ValueError(f"{v9_path}: no {key}, so the row order of the classical arm cannot be checked")
+        if not np.array_equal(np.asarray(v9[key]).ravel(), np.asarray(idx).ravel()):
+            raise ValueError(f"{v9_path}: {key} differ from this run's split - "
+                             "the classical arm was built on another split or row order")
+    log.info(f"Loaded v9.1 classical OOF from {v9_path} (split indices match)")
+    return oof_classical, test_classical, val_classical
+
+
 def run_kfold_and_stack(
     abl_id:     str,
     cfg:        DictConfig,
@@ -952,26 +978,8 @@ def run_kfold_and_stack(
     test_classical = None
     val_classical  = None
     if v9_path.exists():
-        try:
-            v9 = np.load(str(v9_path), allow_pickle=False)
-            # oof_base_probs: (n_train, n_bases, n_abs); drop GAN (index 5)
-            oof_classical  = v9["oof_base_probs"][:, :5, :]   # (4872, 5, 7)
-            test_classical = v9["test_base_probs"][:, :5, :]  # (1045, 5, 7)
-            if "val_base_probs" in v9.files:
-                val_classical = v9["val_base_probs"][:, :5, :]
-            # The two arms must describe the same strains in the same order,
-            # otherwise the meta-learner pairs one strain's classical score with
-            # another strain's TriLens score.
-            for key, idx in (("train_indices", train_idx), ("val_indices", val_idx),
-                             ("test_indices", test_idx)):
-                if key in v9.files and not np.array_equal(np.asarray(v9[key]).ravel(), np.asarray(idx).ravel()):
-                    raise ValueError(f"{v9_path}: {key} differ from this run's split - "
-                                     "the classical arm was built on another split or row order")
-            log.info(f"Loaded v9.1 classical OOF from {v9_path} (split indices match)")
-        except ValueError:
-            raise
-        except Exception as exc:
-            log.warning(f"Cannot load v9.1 predictions ({exc}). Stacking TriLens only.")
+        oof_classical, test_classical, val_classical = _load_classical_arm(
+            v9_path, train_idx, val_idx, test_idx)
     elif v9_path.name.startswith("_intentionally_absent"):
         log.info("Neural arm only (the classical arm is stacked later by the diagnose_* script).")
     else:
