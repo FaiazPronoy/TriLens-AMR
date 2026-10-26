@@ -1,0 +1,53 @@
+{
+ "row": {
+  "dataset": "giessen",
+  "antibiotic": "CIP",
+  "model": "cnn_1d_naive",
+  "variant": "shuf",
+  "status": "ok",
+  "test_pr_auc": 0.6597290824720344,
+  "test_pr_auc_lo": 0.5227926512665815,
+  "test_pr_auc_hi": 0.7855982649813678,
+  "test_mcc": 0.030615651774538722,
+  "test_mcc_lo": -0.15564352772395765,
+  "test_mcc_hi": 0.2103024149261432,
+  "test_roc_auc": 0.7228021978021979,
+  "test_f1": 0.208955223880597,
+  "test_f2": 0.15695067264573992,
+  "test_precision": 0.4666666666666667,
+  "test_recall": 0.1346153846153846,
+  "test_acc": 0.5655737704918032,
+  "test_brier": 0.260990695726788,
+  "test_sens_at_90_spec": 0.1346153846153846,
+  "n_test": 122,
+  "n_pos_test": 52,
+  "epochs_run": 12,
+  "fit_time_s": 51.08858346939087,
+  "elapsed_s": 103.73361372947693,
+  "best_ckpt": "/tmp/trilens/code/results/pillar1/exp3/ckpts/giessen_CIP_naive_shuf_best.ckpt"
+ },
+ "nested": {
+  "predictions_npz": "/tmp/trilens/code/results/pillar1/exp3/giessen_CIP_shuf_predictions.npz",
+  "metrics": {
+   "pr_auc": 0.6597290824720344,
+   "roc_auc": 0.7228021978021979,
+   "f1": 0.208955223880597,
+   "f2": 0.15695067264573992,
+   "precision": 0.4666666666666667,
+   "recall": 0.1346153846153846,
+   "mcc": 0.030615651774538722,
+   "acc": 0.5655737704918032,
+   "brier": 0.260990695726788,
+   "sens_at_90_spec": 0.1346153846153846
+  },
+  "pr_auc_ci": [
+   0.5227926512665815,
+   0.7855982649813678
+  ],
+  "mcc_ci": [
+   -0.15564352772395765,
+   0.2103024149261432
+  ],
+  "best_ckpt": "/tmp/trilens/code/results/pillar1/exp3/ckpts/giessen_CIP_naive_shuf_best.ckpt"
+ }
+}
