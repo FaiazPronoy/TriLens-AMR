@@ -138,6 +138,32 @@ SNP codes are 0 to 3 and that the data files are checked for this.
 
 `docs/DATA.md` and `CITATION.cff` still contain `PASTE_LINK_HERE` / `PASTE_REPO_URL_HERE`.
 
+### 12. The presence/absence matrix marks the minority state, not presence (found October 2026, W0)
+
+`arcadia_v2_gene_presence_absence.pkl` (`encoding_rule = "present = (PLINK_value == 0)"`) has no
+column "present" in more than 50.3% of strains. 2,642 of the 2,652 genes present in all 72 ECOR
+genomes are "present" in under 1% of our strains; gyrA and parC are "present" in none. A 1 marks
+the minority state of each gene, so for genes most strains carry it means *absent*. The likely
+cause is PLINK's minor-allele A1.
+
+**Not affected:** tree models, logistic regression, Hamming-distance kNN, and so every predictive
+number as far as this encoding goes.
+
+**Affected:** Lens B, which weights gene embeddings by `X_pa`, and every presence-based reading:
+attended genes, U_res / U_ST, "TEM present in 49%", gene counts per strain, and the mapping of
+AMRFinderPlus hits.
+
+Evidence and the check on the raw `.bed`/`.bim`: `../../docs/experiments/data_inventory.md` §4,
+`results/data_inventory/pa_orientation_*.csv`. **Status:** strong hypothesis; confirm on Kaggle
+before changing anything.
+
+### 13. SNP calls: missing = reference
+
+`notebooks/snp_matrix_from_vcf.ipynb` codes a missing genotype as the reference allele (Arcadia's
+convention), and the MAF filter counts missing as reference. In accessory genes, absence of the gene
+and the reference allele therefore have the same code. The share of missing calls was not recorded.
+Check: `../../docs/experiments/data_inventory.md` §4. State it as a limitation in the paper.
+
 ---
 
 ## Leakage audit (October 2026)

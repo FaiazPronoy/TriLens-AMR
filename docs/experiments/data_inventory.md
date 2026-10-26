@@ -361,7 +361,8 @@ The `raw/` files are not yet in the Kaggle dataset. Notebooks that need them:
 | `raw/pangenome/gene_presence_absence.csv` | the P/A orientation fix (W0 / W4) |
 | `processed/cds_eggNog.tsv`, `processed/genes.gff` | W4 |
 
-The split files themselves (`country_split.pkl`, `time_split.pkl`) are built on CPU from
-`strains_metadata.csv` and are small. They can also be built here and uploaded to the Kaggle dataset
+The split files themselves (`country_uk_to_norway_split.pkl`, `country_norway_to_uk_split.pkl`,
+`time_norway_2013_split.pkl`, built by `python -m src.splits.country_time`) are built on CPU from
+`strains_metadata.csv` and are small; their indices are also committed in `code/results/splits/*.json`. They can also be built here and uploaded to the Kaggle dataset
 next to `mlst_lineage_holdout_split.pkl`, so the Kaggle notebooks do not need the raw metadata.
 This is the plan in `docs/PLAN.md`.

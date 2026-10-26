@@ -31,9 +31,9 @@ arm ≈ 3.5 GPU h; gene ranking ≈ 4 CPU h (or ≈ 1 GPU h).
 | S1 | random | `arcadia_v2_master_features.pkl` (`random_split`) | 4,872 / 1,045 / 1,045 | exists |
 | S2 | phylogroup-stratified | same file (`phylogeny_split`) | 4,872 / 1,045 / 1,045 | exists |
 | S3 | sequence-type holdout | `mlst_lineage_holdout_split.pkl` | 4,836 / 1,081 / 1,045 | exists |
-| S4a | country: train UK → test Norway | `country_split.pkl` (new) | UK minus val / 15% of UK / Norway | built here (CPU) |
-| S4b | country: train Norway → test UK | same file | Norway minus val / 15% of Norway / UK | built here (CPU) |
-| S5 | time: Norway, train 2002–2013 → test 2014–2017 | `time_split.pkl` (new) | ≤ 2013 minus val / 15% of ≤ 2013 / 2014–2017 | built here (CPU) |
+| S4a | country: train UK → test Norway | `country_uk_to_norway_split.pkl` (new) | UK minus val / 15% of UK / Norway | built here (CPU) |
+| S4b | country: train Norway → test UK | `country_norway_to_uk_split.pkl` (new) | Norway minus val / 15% of Norway / UK | built here (CPU) |
+| S5 | time: Norway, train 2002–2013 → test 2014–2017 | `time_norway_2013_split.pkl` (new) | ≤ 2013 minus val / 15% of ≤ 2013 / 2014–2017 | built here (CPU) |
 
 Antibiotics per split (from W0's minimum counts):
 
