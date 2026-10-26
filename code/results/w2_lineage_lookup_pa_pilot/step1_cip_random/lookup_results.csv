@@ -1,0 +1,4 @@
+note,split,antibiotic,tier,baseline,status,n_train,n_val,n_test,n_test_resistant,train_prev,test_prev,val_pr_auc,best_on_val,test_pr_auc,ci_lo,ci_hi,test_roc_auc,pr_auc_matched_train_prev,pr_auc_matched_random_test_prev,vme_0p5,me_0p5,test_share_st_seen,k,n_unmatched_excluded
+P/A-only pilot (rebuilt presence/absence matrix; the SNP variant runs on Kaggle),S1_random,CIP,primary,st_lookup,ok,4202,916,907,198,0.2342,0.2183,0.7551,False,0.7463,0.692,0.7976,0.9133,0.7601,0.7455,0.3182,0.0663,0.8919514884233738,,13
+P/A-only pilot (rebuilt presence/absence matrix; the SNP variant runs on Kaggle),S1_random,CIP,primary,phylogroup,ok,4202,916,907,198,0.2342,0.2183,0.2559,False,0.2496,0.2122,0.2912,0.5706,0.2668,0.2486,1.0,0.0,,,13
+P/A-only pilot (rebuilt presence/absence matrix; the SNP variant runs on Kaggle),S1_random,CIP,primary,knn_pa,ok,4202,916,907,198,0.2342,0.2183,0.9361,True,0.8912,0.8511,0.9246,0.9608,0.8976,0.8908,0.2525,0.024,,20.0,13

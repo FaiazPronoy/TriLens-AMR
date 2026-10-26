@@ -1,0 +1,10 @@
+{
+ "old minority-state matrix": {
+  "share_of_strains_with_an_unmatched_strain_among_20_nearest": 0.0073,
+  "share_with_one_as_nearest": 0.0
+ },
+ "rebuilt matrix": {
+  "share_of_strains_with_an_unmatched_strain_among_20_nearest": 0.0,
+  "share_with_one_as_nearest": 0.0
+ }
+}

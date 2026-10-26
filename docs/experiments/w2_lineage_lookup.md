@@ -180,3 +180,70 @@ Classical arm (5 learners stacked) minus the best lookup, paired bootstrap, Holm
 - The classical predictions are from the `outputs-classical` release made before the data repair and
   are replaced by the re-run (the S2/S3 gene sets they read were not damaged).
 - P1–P3 of `w1_five_axis.md` are about TriLens and are **not** evaluated here.
+
+---
+
+## Pilot redone on the rebuilt presence/absence matrix (session 2, 26 October 2026)
+
+**Why:** the matrix used above marked the minority state of each locus (KNOWN_ISSUES 12). The rebuilt
+matrix (release `outputs-pa_fix`) flips 10,511 of 32,441 loci and leaves 21,930 unchanged.
+
+**Rule for the 13 strains without a profile** (all zeros in both matrices): they are **dropped from
+every partition** for all three baselines, so every comparison stays on identical strains. This rule
+also binds W1/W3/W4 (`w0_high_locus_strains.md`, point 4). Each split loses 0–5 labelled test strains
+per antibiotic. Settings are otherwise unchanged; the runner now refuses the old matrix.
+
+**What changed:**
+
+1. **Distances between strains with a profile are identical**, checked on all 6,949² pairs. A flipped
+   column changes both strains of a pair, so Hamming distance cannot change. This is as expected.
+2. **The 13 all-zero strains were not harmless in the superseded run.**
+   - In the minority-state matrix an all-zero row is *closer* to every strain than real strains are to
+     each other: median distance 3,712 against 5,543 for S3 test → train pairs.
+   - On the ST holdout, where test strains have no close relatives, 10% of CTX test strains had one of
+     them among their 10 nearest neighbours; 3 of the 5 in CTX training are resistant.
+   - In the rebuilt matrix the same rows are about 11,800 away, and they are now dropped.
+   - Overall, 0.7% of strains had one among their 20 nearest (`unmatched_as_neighbours.json`).
+3. **Effect on the numbers:**
+   - ST lookup and phylogroup change by at most 0.006 PR-AUC; this only reflects the dropped strains.
+   - kNN changes by more than 0.01 in 3 of 38 cells: S3 CTX 0.212 → 0.340, S3 AMP 0.582 → 0.556,
+     S4a AMP 0.670 → 0.695. In 5 of 38 cells the k chosen on validation changed.
+4. **S3 CTX is unstable in k, and is marked as noisy.**
+   - Validation PR-AUC is flat across k (0.228–0.231), while test PR-AUC ranges from 0.159 (k = 5)
+     to 0.385 (k = 50).
+   - Its "best lookup" value should not be read to two decimals. The pre-registered choice rule stays.
+5. **Unchanged conclusions:** L1 and L2 hold. The classical arm beats the best lookup on all 14
+   antibiotic × split cells of S2/S3 (Holm p ≤ 0.009). S3 CTX's margin shrinks from +0.390 to
+   +0.262 [+0.159, +0.354] because the lookup rose.
+
+Mean test PR-AUC over the usable antibiotics (rebuilt matrix; last column = the superseded run):
+
+| split | ST lookup | phylogroup | kNN (P/A) | kNN, superseded run |
+|---|---:|---:|---:|---:|
+| S1_random | 0.541 | 0.288 | 0.684 | 0.682 |
+| S2_phylogroup | 0.564 | 0.286 | 0.716 | 0.715 |
+| S3_st_holdout | 0.230 | 0.230 | 0.310 | 0.294 |
+| S4a_uk_to_norway | 0.325 | 0.154 | 0.365 | 0.359 |
+| S4b_norway_to_uk | 0.563 | 0.262 | 0.590 | 0.590 |
+| S5_time_norway | 0.395 | 0.216 | 0.481 | 0.480 |
+
+Classical arm minus the best lookup on the rebuilt matrix (Holm across the 7 antibiotics of each split):
+
+| split | antibiotic | classical | best lookup | Δ [95% CI] | Holm p |
+|---|---|---:|---:|---:|---:|
+| S2_phylogroup | AMP | 0.932 | 0.808 | +0.124 [+0.093, +0.158] | < 0.001 |
+| S2_phylogroup | CIP | 0.961 | 0.870 | +0.091 [+0.062, +0.124] | < 0.001 |
+| S2_phylogroup | AMC | 0.797 | 0.621 | +0.176 [+0.134, +0.221] | < 0.001 |
+| S2_phylogroup | SXT | 0.828 | 0.665 | +0.163 [+0.088, +0.245] | < 0.001 |
+| S2_phylogroup | GEN | 0.730 | 0.570 | +0.160 [+0.111, +0.219] | < 0.001 |
+| S2_phylogroup | CTX | 0.877 | 0.778 | +0.098 [+0.065, +0.137] | < 0.001 |
+| S2_phylogroup | CAZ | 0.842 | 0.699 | +0.143 [+0.103, +0.189] | < 0.001 |
+| S3_st_holdout | AMP | 0.901 | 0.556 | +0.345 [+0.291, +0.394] | < 0.001 |
+| S3_st_holdout | CIP | 0.916 | 0.239 | +0.677 [+0.617, +0.733] | < 0.001 |
+| S3_st_holdout | AMC | 0.476 | 0.322 | +0.154 [+0.080, +0.226] | < 0.001 |
+| S3_st_holdout | SXT | 0.774 | 0.430 | +0.344 [+0.273, +0.408] | < 0.001 |
+| S3_st_holdout | GEN | 0.222 | 0.082 | +0.140 [+0.027, +0.268] | 0.009 |
+| S3_st_holdout | CTX | 0.602 | 0.340 | +0.262 [+0.159, +0.354] | < 0.001 |
+| S3_st_holdout | CAZ | 0.464 | 0.200 | +0.264 [+0.125, +0.385] | < 0.001 |
+
+The superseded files are in `code/results/w2_lineage_lookup_pa_pilot/superseded_minority_state_matrix/`.

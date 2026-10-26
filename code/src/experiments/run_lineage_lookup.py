@@ -46,17 +46,23 @@ def load_splits():
 
 
 def pa_distance():
-    CACHE.mkdir(parents=True, exist_ok=True)
-    p = CACHE / "pa_hamming.npy"
-    if p.exists():
-        return np.load(p)
+    """Hamming distances on the rebuilt presence/absence matrix (KNOWN_ISSUES 12), and the mask of
+    strains that have a presence/absence profile at all (13 do not: all zeros)."""
     with open(PROCESSED / "arcadia_v2_gene_presence_absence.pkl", "rb") as f:
         pa = pickle.load(f)
+    if not str(pa.get("encoding_rule", "")).startswith("present = (allele letter"):
+        raise ValueError("arcadia_v2_gene_presence_absence.pkl is the old minority-state file; "
+                         "use the rebuilt one from the outputs-pa_fix release")
+    matched = np.asarray(pa["matched_mask"]).astype(bool)
+    CACHE.mkdir(parents=True, exist_ok=True)
+    p = CACHE / "pa_hamming_rebuilt.npy"
+    if p.exists():
+        return np.load(p), matched
     t0 = time.time()
     D = hamming_matrix(pa["X_pa"])
     np.save(p, D)
     print(f"P/A Hamming matrix {D.shape} in {time.time() - t0:.0f}s -> {p}")
-    return D
+    return D, matched
 
 
 def tier(split, ab):
@@ -64,14 +70,14 @@ def tier(split, ab):
     return "primary" if ab in a["primary"] else ("secondary" if ab in a.get("secondary", []) else "below minimum")
 
 
-def run(t, D, splits, abs_, random_test_prev, out_scores):
+def run(t, D, splits, abs_, random_test_prev, out_scores, keep):
     rows = []
     st = np.array(t.st.values, dtype=object)
     pg = np.array(t.phylogroup.values, dtype=object)
     for sid, sp in splits.items():
         for ab in abs_:
             y_all = t[ab].values
-            lab = lambda idx: idx[~np.isnan(y_all[idx])]
+            lab = lambda idx: idx[~np.isnan(y_all[idx]) & keep[idx]]
             tr, va, te = lab(sp["train"]), lab(sp["val"]), lab(sp["test"])
             ytr, yva, yte = (y_all[i].astype(int) for i in (tr, va, te))
             if min(ytr.sum(), (1 - ytr).sum(), yte.sum(), (1 - yte).sum(), yva.sum(), (1 - yva).sum()) == 0:
@@ -124,20 +130,23 @@ def main():
         splits, abs_ = {"S1_random": splits["S1_random"]}, ["CIP"]
     else:
         abs_ = AB_NAMES
-    D = pa_distance()
+    D, keep = pa_distance()
+    print(f"{int((~keep).sum())} strains without a presence/absence profile are left out of every partition")
     out = ROOT / "results" / f"w2_lineage_lookup_{a.distance}_pilot"
     if a.pilot:
         out = out / "step1_cip_random"
     out.mkdir(parents=True, exist_ok=True)
     scores = {}
-    df = run(t, D, splits, abs_, random_test_prev, scores)
-    df.insert(0, "note", "P/A-only pilot (gene presence/absence distance; the SNP variant runs on Kaggle)")
+    df = run(t, D, splits, abs_, random_test_prev, scores, keep)
+    df.insert(0, "note", "P/A-only pilot (rebuilt presence/absence matrix; the SNP variant runs on Kaggle)")
+    df["n_unmatched_excluded"] = int((~keep).sum())
     df.to_csv(out / "lookup_results.csv", index=False)
     np.savez_compressed(out / "test_scores.npz", **{k.replace("|", "__"): v for k, v in scores.items()})
     (out / "README.md").write_text(
         "# W2 lineage-lookup baselines: P/A-only pilot\n\n"
         "Pre-registration: `docs/experiments/w2_lineage_lookup.md`. Distance = Hamming on the 32,441 gene "
-        "presence/absence columns, a stand-in for the SNP distance that runs on Kaggle. Produced by "
+        "presence/absence columns of the rebuilt matrix (KNOWN_ISSUES 12), with the 13 strains that have no "
+        "presence/absence profile left out of every partition; a stand-in for the SNP distance that runs on Kaggle. Produced by "
         f"`python -m src.experiments.run_lineage_lookup{' --pilot' if a.pilot else ''}`.\n\n"
         f"k grid: {list(K_GRID)}; smoothing alpha = 1; bootstrap 2,000 resamples.\n", encoding="utf-8")
     (out / "random_test_prevalence.json").write_text(json.dumps(random_test_prev, indent=1))
