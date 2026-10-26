@@ -208,6 +208,12 @@ def run(cfg: DictConfig) -> None:
                       f"[{result.pr_auc_ci[0]:.4f}, {result.pr_auc_ci[1]:.4f}]")
 
     df = pd.DataFrame(rows)
+    failed = df[df["status"] != "ok"] if "status" in df else df
+    if len(failed):
+        # Do not write exp3_results.csv: the notebooks treat that file as "done".
+        df.to_csv(output_dir / "exp3_results_FAILED.csv", index=False)
+        raise SystemExit(f"{len(failed)} of {len(df)} shuffle-test runs failed; "
+                         f"see exp3_results_FAILED.csv (first error: {failed.iloc[0].to_dict()})")
     df.to_csv(output_dir / "exp3_results.csv", index=False)
     with open(output_dir / "exp3_results.json", "w") as f:
         json.dump(nested, f, indent=2, default=str)
