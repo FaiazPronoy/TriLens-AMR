@@ -1,6 +1,6 @@
 # Full re-run on Kaggle, connected to GitHub
 
-> **Short version (Banglish):** Code thake GitHub e (`FaiazPronoy/TriLens-AMR`, private).
+> **Short version (Banglish):** Code thake GitHub e (`FaiazPronoy/TriLens-AMR`, public).
 > Kaggle e shudhu ekta dataset lage: `trilens-data`. Protita notebook GitHub theke code clone
 > kore, ager notebook er output GitHub release theke namay, ar nijer output GitHub e pathay.
 > Tai kono zip download/upload korte hoy na, ar Claude GitHub theke result sorasori porte pare.
@@ -37,7 +37,7 @@ The token never appears in the code or the outputs; it lives only in Kaggle's se
 
 ---
 
-## The seven notebooks, in order
+## The eight notebooks, in order
 
 Import each one from `notebooks/`: Kaggle → Code → New Notebook → File → Import Notebook.
 In every notebook: Add Input → `trilens-data`; Internet **On**; secret `GITHUB_TOKEN` on;
@@ -45,13 +45,14 @@ then **Save Version → Save & Run All (Commit)**. It keeps running after you cl
 
 | # | Notebook | Needs | What it computes | Paper |
 |---|---|---|---|---|
+| 0 | `pa_fix` | nothing | rebuilds the gene presence/absence matrix with the correct orientation (CPU, minutes; KNOWN_ISSUES 12) | every Lens B number |
 | 1 | `classical` | nothing | classical arm on all three splits, PCA / phylogroup / TabNet baselines, Giessen, SHAP | tab:baselines, tab:giessen_transfer, classical half of every stack |
-| 2 | `trilens_random` | classical | the delivered model, random split; the layer ablation | tab:main, tab:ci, tab:gate, tab:clinical, tab:ablation |
-| 3 | `trilens_splits` | classical | the neural half on the phylogroup split and the lineage holdout | tab:mlst_per_ab, tab:mlst_components |
-| 4 | `standard_random` | classical | the ablation model (standard Lens B), random split | tab:attnfix, Standard column |
-| 5 | `standard_splits` | classical | the ablation model on the two harder splits | tab:attnfix, Standard column |
+| 2 | `trilens_random` | pa_fix, classical | the delivered model, random split; the layer ablation | tab:main, tab:ci, tab:gate, tab:clinical, tab:ablation |
+| 3 | `trilens_splits` | pa_fix, classical | the neural half on the phylogroup split and the lineage holdout | tab:mlst_per_ab, tab:mlst_components |
+| 4 | `standard_random` | pa_fix, classical | the ablation model (standard Lens B), random split | tab:attnfix, Standard column |
+| 5 | `standard_splits` | pa_fix, classical | the ablation model on the two harder splits | tab:attnfix, Standard column |
 | 6 | `shuffle_test` | nothing | 1D CNN, ordered against shuffled variants | the locality argument for the Motif Pattern Encoder |
-| 7 | `analysis` | all six | stacking per split, prevalence correction, clinical metrics, near-duplicates, gene annotation, lineage markers, attention diagnostics, leakage checks, the ablation table, figures, `paper_numbers.csv` | everything else |
+| 7 | `analysis` | all seven | stacking per split, prevalence correction, clinical metrics, near-duplicates, gene annotation, lineage markers, attention diagnostics, leakage checks, the ablation table, figures, `paper_numbers.csv` | everything else |
 
 "Needs" is fetched automatically from the GitHub releases; you do not attach anything.
 Notebooks 2 to 6 do not depend on each other: once `classical` is done they can run in any
@@ -71,9 +72,10 @@ GPU notebook at a time; the next one starts when the previous one has finished.
 | Order | Account A (Faiaz) | Account B (team member) |
 |---|---|---|
 | 1, now | `classical` | `shuffle_test` |
-| 2, after `classical` is finished | `trilens_random` | `trilens_splits` |
+| 1b, any time (CPU, alongside) | `pa_fix` | — |
+| 2, after `classical` and `pa_fix` are finished | `trilens_random` | `trilens_splits` |
 | 3 | `standard_random` | `standard_splits` |
-| 4, after all six | `analysis` (CPU, no GPU) | — |
+| 4, after all seven | `analysis` (CPU, no GPU) | — |
 
 `classical` is finished when the notebook's last line says "All steps finished". A later
 notebook checks this itself: it stops with "not finished yet" if an earlier notebook it needs
@@ -83,9 +85,9 @@ skips every finished step and only adds the marker.
 
 Account B, once:
 1. Accept the GitHub invitation to `FaiazPronoy/TriLens-AMR` (repo Settings → Collaborators).
-2. Make its own token at github.com/settings/personal-access-tokens/new: resource owner
-   **FaiazPronoy**, repository `TriLens-AMR`, Contents **Read and write**. Store it as the
-   Kaggle secret `GITHUB_TOKEN` in account B.
+2. Make its own token: github.com/settings/tokens → Generate new token (classic), scope
+   **`public_repo`** only. (A fine-grained token cannot write to a repository owned by
+   another personal account.) Store it as the Kaggle secret `GITHUB_TOKEN` in account B.
 3. Add the dataset shared by account A (Dataset → Settings → Sharing → add account B).
 
 Never run the same notebook from both accounts at once: both would write the same release.
