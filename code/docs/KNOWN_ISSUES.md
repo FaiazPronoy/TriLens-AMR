@@ -111,11 +111,11 @@ labels of some holdout test strains, so the TabNet holdout number (0.3255) is if
 optimistic. It favours the baseline, not the proposed model, so it does not weaken any
 claim; say so in one sentence in the paper.
 
-### 10. 42 corrupted columns in the random-split dataset (found and repaired, October 2026)
+### 10. 46 corrupted columns in the random-split dataset (found and repaired, October 2026)
 
 `kaggle/notebooks/data_check.ipynb` read every processed file. `arcadia_v2_gene_filtered.pkl`
-(random split, 6,962 × 262,225) has **42 columns with values from -128 to 127**, in 6,925 of
-the 6,962 strains; SNP codes are 0 to 3. The SNP matrix it was cut from
+(random split, 6,962 × 262,225) has **46 columns with values from -128 to 127**, in 6,925 of
+the 6,962 strains, all inside one block of columns (169,213 to 169,307); SNP codes are 0 to 3. The SNP matrix it was cut from
 (`arcadia_v2_snp_matrix.pkl`) and the phylogroup and lineage-holdout files are clean (0 to 3).
 
 Effect: chi-squared feature selection refuses the file, so the classical stack, SHAP and gain
@@ -124,8 +124,8 @@ split (XGBoost, LightGBM, RF, LogReg, TabNet, TriLens Lens A and C) would read t
 as large genotype values. It is not known which copy of this file the original thesis runs
 read; this code cannot have run the classical stack on this one.
 
-**Fix:** `scripts/repair_gene_filtered.py` re-reads the 42 columns from the SNP matrix by
-their position names. It refuses unless every other column of the file is identical to the
+**Fix:** `scripts/repair_gene_filtered.py` re-reads the damaged block from the SNP matrix by
+their position names (two columns in the block were damaged with values that happen to lie in 0 to 3). It refuses unless every column outside the block is identical to the
 matrix, so nothing else changes. Every Kaggle notebook runs it in its setup cell and writes
 `results/diagnostics/data_repair.json`; `check_leakage.py` fails if any gene-filtered file has
 values outside 0 to 3. Outputs made before the repair from runs that read this file are

@@ -13,9 +13,12 @@ it), so the clean values can be taken back from the matrix.
 
 The repair is only accepted if
   * every filtered column is found in the SNP matrix by its position name,
-  * the filtered file and the rebuild agree in every column that has no
-    out-of-range value (so nothing else in the file is touched),
-and the values of the rebuilt file are all 0 to 3.
+  * every difference between the file and the rebuild lies inside the damaged
+    block, i.e. between the first and the last column with an out-of-range value
+    (inside that block some damaged cells happen to fall in 0..3; outside it the
+    file must be identical to the matrix, so nothing else is touched),
+and the values of the rebuilt file are all 0 to 3. The genes covering the damaged
+block are written to the report.
 
     python scripts/repair_gene_filtered.py --src old.pkl --snp arcadia_v2_snp_matrix.pkl \
         --out new.pkl --report report.json
@@ -84,13 +87,19 @@ def main() -> int:
     del X_snp
     diff = X_new != X_old
     diff_cols = np.where(diff.any(axis=0))[0]
-    outside = np.setdiff1d(diff_cols, bad_cols)
+    lo, hi = int(bad_cols.min()), int(bad_cols.max())
+    in_range_changed = np.setdiff1d(diff_cols, bad_cols)
+    outside = diff_cols[(diff_cols < lo) | (diff_cols > hi)]
     rep.update(cells_changed=int(diff.sum()), columns_changed=int(len(diff_cols)),
-               columns_changed_without_out_of_range_values=int(len(outside)),
+               damaged_block=[lo, hi], damaged_block_width=hi - lo + 1,
+               columns_changed_without_out_of_range_values=in_range_changed.tolist()[:50],
+               columns_changed_outside_damaged_block=int(len(outside)),
                new_min=int(X_new.min()), new_max=int(X_new.max()))
+    g2r = gf.get("gene_to_range") or {}
+    rep["genes_in_damaged_block"] = sorted(g for g, (a0, b0) in g2r.items() if a0 <= hi and b0 > lo)[:50]
     if len(outside):
-        rep["example_columns_changed_without_out_of_range_values"] = outside.tolist()[:20]
-        return done(1, "refused: the file differs from the SNP matrix in normal columns too")
+        rep["example_columns_changed_outside_damaged_block"] = outside.tolist()[:20]
+        return done(1, "refused: the file differs from the SNP matrix outside the damaged block")
     if X_new.min() < 0 or X_new.max() > VALID_MAX:
         return done(1, "refused: rebuilt values out of range")
 
