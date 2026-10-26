@@ -48,6 +48,7 @@ def test_new_stage_is_wired(name):
     if name.startswith(("w1", "w2")):                   # splits come from the committed JSON, not uploads
         assert "src.splits.from_json" in steps[0]
     assert "TRILENS_REPO_RESULTS" in setup
+    assert 'CODE_REF    = "extension"' in setup         # the extension code is not on main
 
 
 def test_w1_classical_needs_the_gene_sets():

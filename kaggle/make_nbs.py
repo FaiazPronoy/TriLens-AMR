@@ -125,6 +125,7 @@ STAGES = {
               + [("Ordered against shuffled: summary", H + "pillar1_exp3", "pillar1/exp3/exp3_results.csv")]),
     # ── Journal extension (docs/PLAN.md). Splits are rebuilt from code/results/splits/*.json. ──
     "w1_gene_sets": dict(
+        code_ref="extension",      # the extension code is not on main yet
         title="W1: gene filter refitted on the country and time splits",
         lensb="fixed", needs=[], cpu=True, gpu="None (CPU; XGBoost runs on the CPU here)",
         hours="about 12 CPU hours (3 splits x about 4); it resumes if a session stops",
@@ -139,6 +140,7 @@ STAGES = {
                   f"w1_gene_sets/{sp}/xgb_gene_importance.csv")
                  for sp in ("country_uk_to_norway", "country_norway_to_uk", "time_norway_2013")]),
     "w1_classical": dict(
+        code_ref="extension",      # the extension code is not on main yet
         title="W1: classical arm on the country and time splits",
         lensb="fixed", needs=["w1_gene_sets"], gpu="GPU T4 x2 (XGBoost runs on the GPU)",
         hours="about 4.5 GPU hours",
@@ -152,6 +154,7 @@ STAGES = {
                   (f"Classical arm, {sp}", M + f"run_split_pipeline classical --split {sp} --device cuda",
                    f"w1_classical/{sp}/classical5_results.csv"))]),
     "w2_snp_knn": dict(
+        code_ref="extension",      # the extension code is not on main yet
         title="W2: lineage-lookup baselines with SNP distance, all six splits",
         lensb="fixed", needs=[], cpu=True, gpu="None (CPU)",
         hours="about 1 CPU hour",
@@ -168,6 +171,7 @@ STAGES = {
                ("Lookups, every split and antibiotic", M + "run_lineage_lookup --distance snp",
                 "w2_lineage_lookup_snp/lookup_results.csv")]),
     "w4_amrfinder": dict(
+        code_ref="extension",      # the extension code is not on main yet
         title="W4: AMRFinderPlus on the pan-genome",
         lensb="fixed", needs=["pa_fix"], cpu=True, gpu="None (CPU)",
         hours="about 0.5 CPU hours (installation included)",
@@ -231,7 +235,7 @@ def code(text):
 SETUP = r'''
 # 1. Set up: code, data, and the outputs of the earlier notebooks
 GITHUB_REPO = "FaiazPronoy/TriLens-AMR"   # where the code lives and the outputs go
-CODE_REF    = "main"                       # branch, tag or commit to run
+CODE_REF    = "{code_ref}"                       # branch, tag or commit to run
 RESUME_OWN  = {resume_own}                       # continue from this notebook's own release
 
 NAME   = "{name}"
@@ -627,7 +631,7 @@ def notebook(name, st):
         intro += ["", "This notebook trains the **ablation** model. Do not attach the "
                   "trilens_random or trilens_splits outputs here."]
     cells = [md("\n".join(intro)),
-             code(SETUP.format(name=name, lensb=st["lensb"], writes=json.dumps(st["writes"]),
+             code(SETUP.format(name=name, lensb=st["lensb"], code_ref=st.get("code_ref", "main"), writes=json.dumps(st["writes"]),
                          needs=json.dumps(st["needs"]), resume_own=str(name != "analysis"),
                          needs_gpu=str(not st.get("cpu", name in ("analysis", "pa_fix"))))),
              code(HELPERS)]
