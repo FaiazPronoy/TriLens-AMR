@@ -55,20 +55,33 @@ def _release(s, repo, tag, create):
 
 
 def upload_asset(repo, token, tag, path):
-    """Put `path` on release `tag`, replacing an asset of the same name."""
+    """Put `path` on release `tag`, replacing an asset of the same name.
+
+    The new file is uploaded under a temporary name first; only when that upload
+    has succeeded is the old asset deleted and the new one renamed. A run killed
+    half-way therefore leaves the previous complete asset in place.
+    """
     path = Path(path)
     try:
         s = _session(token)
         rel = _release(s, repo, tag, create=True)
+        part = path.name + ".part"
         for a in rel.get("assets", []):
-            if a["name"] == path.name:
+            if a["name"] == part:                      # left over from an interrupted upload
                 s.delete(f"{API}/repos/{repo}/releases/assets/{a['id']}", timeout=60)
         url = rel["upload_url"].split("{")[0]
         with open(path, "rb") as fh:
-            r = s.post(url, params={"name": path.name}, data=fh, timeout=3600,
+            r = s.post(url, params={"name": part}, data=fh, timeout=3600,
                        headers={"Content-Type": "application/zip"})
         if r.status_code not in (200, 201):
             raise RuntimeError(f"HTTP {r.status_code} {r.text[:200]}")
+        new_id = r.json()["id"]
+        for a in rel.get("assets", []):
+            if a["name"] == path.name:
+                s.delete(f"{API}/repos/{repo}/releases/assets/{a['id']}", timeout=60)
+        r = s.patch(f"{API}/repos/{repo}/releases/assets/{new_id}", json={"name": path.name}, timeout=60)
+        if r.status_code != 200:
+            raise RuntimeError(f"rename: HTTP {r.status_code} {r.text[:200]}")
         print(f"[github] {path.name} -> release {tag} ({path.stat().st_size / 1e6:.1f} MB)")
         return True
     except Exception as exc:
@@ -123,7 +136,12 @@ def push_text_results(remote_url, branch, results_dir, prefix="", message="resul
         git("add", "-A")
         git("-c", "user.name=trilens-kaggle", "-c", "user.email=trilens-kaggle@users.noreply.github.com",
             "commit", "-q", "-m", message)
-        git("push", "-q", "--force", remote_url, f"{branch}:{branch}")
+        auth = []        # token in a header for this one command; never in a URL or a config file
+        if token:
+            import base64
+            auth = ["-c", "http.extraheader=AUTHORIZATION: basic "
+                    + base64.b64encode(f"x-access-token:{token}".encode()).decode()]
+        git(*auth, "push", "-q", "--force", remote_url, f"{branch}:{branch}")
         print(f"[github] {n} text files -> branch {branch}")
         return True
     except subprocess.CalledProcessError as exc:
@@ -136,5 +154,5 @@ def push_text_results(remote_url, branch, results_dir, prefix="", message="resul
         shutil.rmtree(tmp, ignore_errors=True)
 
 
-def remote(repo, token):
-    return f"https://x-access-token:{token}@github.com/{repo}.git" if token else f"https://github.com/{repo}.git"
+def remote(repo, token=None):
+    return f"https://github.com/{repo}.git"

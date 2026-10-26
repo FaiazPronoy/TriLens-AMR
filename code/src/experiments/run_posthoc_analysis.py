@@ -67,9 +67,10 @@ BASE_NAMES = ["XGB_gene", "LGBM", "RF", "LogReg", "XGB_raw", "GAN"]
 V9_PRAUC_REF = dict(zip(AB_NAMES,
     [0.9412, 0.9774, 0.7569, 0.8346, 0.7037, 0.8931, 0.8215]))
 
-# CLSI thresholds: VME < 3%, ME < 3% for clinical acceptability
+# Acceptance limits for susceptibility testing (FDA / CLSI M52): very major error
+# (resistant called susceptible) at most 1.5%, major error at most 3%.
 # (conservative; CLSI M100 Table 4B uses VME<1.5% for some drug classes)
-CLSI_VME_MAX = 0.03
+CLSI_VME_MAX = 0.015
 CLSI_ME_MAX  = 0.03
 
 
@@ -853,7 +854,7 @@ def write_summary(
                      if "CLSI_VME_ok" in df05 else 0)
         lines += [
             "",
-            f"**CLSI criteria met (VME < 3% AND ME < 3%):**  "
+            f"**CLSI criteria met (VME <= 1.5% AND ME <= 3%):**  "
             f"{df05['CLSI_VME_ok'].values.tolist()}",
         ]
     else:

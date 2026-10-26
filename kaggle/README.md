@@ -20,7 +20,7 @@ GitHub repo (code)  ──clone──►  Kaggle notebook  ──outputs──�
 
 ## One-time setup
 
-1. **GitHub repository** `FaiazPronoy/TriLens-AMR`, private. It holds `code/`, `kaggle/`,
+1. **GitHub repository** `FaiazPronoy/TriLens-AMR` (public). It holds `code/`, `kaggle/`,
    `docs/`, `paper/` and the thesis sources (no data, no results arrays, no signatures;
    see `../.gitignore`).
 2. **A GitHub token for Kaggle.** github.com → Settings → Developer settings →
@@ -75,8 +75,11 @@ GPU notebook at a time; the next one starts when the previous one has finished.
 | 3 | `standard_random` | `standard_splits` |
 | 4, after all six | `analysis` (CPU, no GPU) | — |
 
-`classical` is finished when its release `outputs-classical` exists and the notebook's last
-line says "All steps finished".
+`classical` is finished when the notebook's last line says "All steps finished". A later
+notebook checks this itself: it stops with "not finished yet" if an earlier notebook it needs
+has not reached its last cell (its zip has no `_COMPLETE.txt`). A notebook that was started
+before this check existed writes no `_COMPLETE.txt`; run it once more (Save & Run All), it
+skips every finished step and only adds the marker.
 
 Account B, once:
 1. Accept the GitHub invitation to `FaiazPronoy/TriLens-AMR` (repo Settings → Collaborators).

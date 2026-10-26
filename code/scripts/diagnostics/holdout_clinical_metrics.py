@@ -20,6 +20,7 @@ HOW TO RUN
     python scripts/diagnostics/holdout_clinical_metrics.py
 """
 
+import os
 import pickle
 import sys
 from pathlib import Path
@@ -36,8 +37,8 @@ DIAG.mkdir(parents=True, exist_ok=True)
 # pre-fix one. Both write the same filename, and an earlier version of this
 # script hardcoded the second path, which is how holdout_clinical_metrics.csv
 # ended up describing the pre-fix model.
+# Only the current runs: no fallback to an older folder (it could silently be another model).
 PRED_CANDIDATES = [
-    ROOT / "results" / "pillar_mlst_final_comparison_attnfix" / "predictions_saved.npz",
     ROOT / "results" / "pillar_mlst_final_comparison" / "predictions_saved.npz",
 ]
 
@@ -46,8 +47,7 @@ PRED_CANDIDATES = [
 # numbers into every rerun. They are now recomputed from the same saved
 # predictions the rest of Chapter 5 uses, so the two columns cannot drift.
 RANDOM_CANDIDATES = [
-    ROOT / "results" / "trilens_attnfix" / "predictions_saved.npz",
-    ROOT / "results" / "trilens_v10" / "predictions_saved.npz",
+    ROOT / "results" / os.environ.get("TRILENS_MAIN_RUN", "trilens_attnfix") / "predictions_saved.npz",
 ]
 
 DATA_PKL = ROOT / "data" / "processed" / "arcadia_v2_gene_filtered__mlst_holdout.pkl"
@@ -166,8 +166,8 @@ def main():
     print(f"Mean VME  random split : {df.random_VME.mean():.3f}")
     print(f"Mean VME  holdout      : {df.holdout_VME.mean():.3f}")
     print(f"Mean VME  holdout, prevalence-matched : {df.matched_VME.mean():.3f}")
-    print(f"CLSI met (VME<0.03 AND ME<0.03) under holdout : "
-          f"{int(((df.holdout_VME < 0.03) & (df.holdout_ME < 0.03)).sum())} / 7")
+    print(f"CLSI met (VME<=0.015 AND ME<=0.03) under holdout : "
+          f"{int(((df.holdout_VME <= 0.015) & (df.holdout_ME <= 0.03)).sum())} / 7")
     print("-" * 100)
     print("""
 NOTE ON READING THIS

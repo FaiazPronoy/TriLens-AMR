@@ -38,6 +38,7 @@ Usage:
 """
 from __future__ import annotations
 
+import os
 import pickle
 from pathlib import Path
 
@@ -53,8 +54,8 @@ ROOT = Path(__file__).resolve().parents[2]
 RESULTS_DIR = ROOT / "results"
 PROCESSED_DIR = ROOT / "data" / "processed"
 
-# Delivered strain-conditioned model first; trilens_v10 (pre-fix) is only a fallback.
-T6_NPZ = next((d for d in (RESULTS_DIR / "trilens_attnfix", RESULTS_DIR / "trilens_v10") if d.exists()), RESULTS_DIR / "trilens_attnfix") / "predictions_saved.npz"
+# The main TriLens run only; no fallback to the pre-fix trilens_v10.
+T6_NPZ = RESULTS_DIR / os.environ.get("TRILENS_MAIN_RUN", "trilens_attnfix") / "predictions_saved.npz"
 MASTER_PKL = PROCESSED_DIR / "arcadia_v2_master_features.pkl"
 
 PHYLO_CLEAN_PKL = PROCESSED_DIR / "arcadia_v2_gene_filtered__phylogeny_clean.pkl"

@@ -73,19 +73,25 @@ def main() -> int:
     del snp
     if X_snp.shape[0] != X_old.shape[0]:
         return done(1, f"refused: {X_snp.shape[0]} rows in the SNP matrix, {X_old.shape[0]} in the file")
-    where, twice = {}, set()
+    where, twice = {}, {}
     for i, p in enumerate(pos_all):
         if p in where:
-            twice.add(p)
+            twice.setdefault(p, [where[p]]).append(i)
         where.setdefault(p, i)
     idx = np.array([where.get(p, -1) for p in pos_f], dtype=np.int64)
     rep["columns_not_found"] = int((idx < 0).sum())
     if (idx < 0).any():
         return done(1, "refused: some filtered columns are not in the SNP matrix")
-    ambiguous = sorted(twice & set(pos_f.tolist()))
+    # A name used twice in the matrix is harmless if both columns hold the same values;
+    # otherwise the mapping is ambiguous and the repair is refused.
+    used = set(pos_f.tolist())
+    dup_used = {p: cols for p, cols in twice.items() if p in used}
+    ambiguous = sorted(p for p, cols in dup_used.items()
+                       if any(not np.array_equal(X_snp[:, cols[0]], X_snp[:, c]) for c in cols[1:]))
+    rep["duplicated_position_names_used"] = len(dup_used)
     rep["ambiguous_position_names"] = ambiguous[:20]
     if ambiguous:
-        return done(1, "refused: some filtered columns name more than one column of the SNP matrix")
+        return done(1, "refused: some filtered columns name more than one, different, column of the SNP matrix")
 
     X_new = X_snp[:, idx]
     del X_snp

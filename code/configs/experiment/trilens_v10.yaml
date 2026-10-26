@@ -79,7 +79,9 @@ training:
 
 # ── K-fold OOF (T6/T7) ───────────────────────────────────────────────────────
 n_folds:    5
-kfold_seed: 42                 # MUST stay 42 — identical to v9.1 fold splits
+kfold_seed: 42                 # TriLens folds: KFold over all training strains. The classical
+                               # arm (v9) uses its own StratifiedKFold per antibiotic, so the
+                               # two arms' OOF folds differ (each is still out-of-fold).
 
 # ── Meta-stacking ─────────────────────────────────────────────────────────────
 meta_C: 1.0                    # LogReg regularization strength (per v9.1 protocol)

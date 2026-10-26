@@ -46,8 +46,8 @@ DIAG.mkdir(parents=True, exist_ok=True)
 # _attnfix folder; the pre-fix run wrote into the plain one. Both produce a
 # file with the same name, so hardcoding the second silently reproduces the
 # pre-fix table (raw PR-AUC for AMP = 0.9036 instead of 0.9043).
+# Only the current run: no fallback to an older folder (it could silently be another model).
 PRED_CANDIDATES = [
-    ROOT / "results" / "pillar_mlst_final_comparison_attnfix" / "predictions_saved.npz",
     ROOT / "results" / "pillar_mlst_final_comparison" / "predictions_saved.npz",
 ]
 PRED_NPZ = next((p for p in PRED_CANDIDATES if p.exists()), PRED_CANDIDATES[-1])

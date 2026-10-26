@@ -199,6 +199,54 @@ report mean and spread. That is the first experiment in `../../docs/next_steps.m
 
 ---
 
+## Pre-submission review (October 2026)
+
+An independent review (branch `review/pre-submission`, file `REVIEW_pre_submission.md`)
+found 23 items. Its verdict: no test label or test feature reaches training, the lineage
+holdout is ST-disjoint and the stacking arms are aligned by index; the paper is not ready
+until the full re-run has produced every number.
+
+### Fixed in the code
+
+| Review item | Fix |
+|---|---|
+| 3: switching strain conditioning on changed the initialisation of every later parameter and the random stream | `attn_Vc`/`attn_Uc` are created last on a forked RNG; both variants now share every other weight (`tests/test_expertb_init.py`) |
+| 4: pre-repair standard-model outputs survived under `standard/` | prefix stripped before the check (`tests/test_notebook_unpack.py`) |
+| 5: a resumed notebook's old copies overwrote newer upstream outputs; `analysis` could reuse stale derived files | own release unpacked first and never overwrites; `analysis` does not resume from its own release (`tests/test_notebook_resume_order.py`) |
+| 6: missing split indices counted as matching | the classical arm must carry its indices or the run stops; `check_leakage` fails on missing indices (`tests/test_classical_arm_loading.py`, `tests/test_check_leakage.py`) |
+| 7: unrecorded, unpinned environment | `pytorch-tabnet` and `entmax` pinned; every zip carries `_ENV.txt` (pip freeze, torch, CUDA, GPU) |
+| 8: a killed upload left an empty release; downstream could start on a partial upstream | upload under a temporary name, then swap; every finished notebook writes `_COMPLETE.txt` and later notebooks refuse an upstream without it |
+| 15: the TriLens early-stopping set was the last 10% of sorted indices | random 10% per fold (same in the stage-1 ablation) |
+| 18: the repair trusted clean-looking files and the first of two duplicated names | clean files are compared with the matrix too; duplicated names are refused only when their columns differ (`tests/test_repair_gene_filtered.py`) |
+| 10: VME limit | 1.5% for very major errors, 3% for major errors, in every script |
+| 19: fallbacks to pre-fix folders | removed from `holdout_clinical_metrics`, `matched_prevalence_check`, `diagnose_prevalence_invariant_metrics` |
+| 20: token in `.git/config` and URLs | passed as a one-command HTTP header only |
+| 21: CLOSE allowed 0.01 | 0.002 in `collect_paper_numbers.py` |
+| 2: Giessen reference | `collect_paper_numbers.py` reports retention against the classical stack (like for like) and, separately, against TriLens (as printed) |
+| 14: fold comment in `trilens_v10.yaml` | corrected |
+
+Run `python -m pytest tests` from `code/` (48 tests, CPU, seconds).
+
+### To change in the paper after the re-run
+
+1. All random-split numbers come from the re-run (provenance of the originals is unknown, issue 10).
+2. `tab:giessen_transfer`: the Giessen model is the classical stack; divide by the classical
+   stack on Arcadia (like for like) and fix the caption.
+3. `tab:attnfix`: "everything else identical" is now true for the initialisation, not for the
+   training noise; report it with seeds (review §4.3) or soften the claim.
+4. CLSI limits: VME ≤ 1.5%, ME ≤ 3% (cite the source). No drug passes either way.
+5. One sentence each: TabNet holdout uses the random-split gene ranking; PCA size chosen on
+   test; gene ranking used validation labels for early stopping; the two meta-learners differ
+   (`class_weight="balanced"` only in the classical arm); classical-file MCC/F2 use a
+   validation-tuned threshold, TriLens MCC uses 0.5.
+6. "can only raise our apparent very major error rate" → "is expected to raise".
+7. Prevalence matching: add the gap at the random-split test prevalence (review item 11) and
+   call the interval a resampling range.
+8. The holdout "+0.0038 over the best component" is smaller than the run-to-run drift of GPU
+   XGBoost; report it with spread or drop it.
+
+---
+
 ## Fixed while organising (October 2026)
 
 | What | Before | Now |

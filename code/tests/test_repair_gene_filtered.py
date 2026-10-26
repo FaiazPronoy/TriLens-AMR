@@ -58,3 +58,14 @@ def test_ambiguous_position_names_are_refused(tmp_path):
     bad[:, 2] = 120
     code, rep = _run(tmp_path, bad, pos[2:8], X, pos)
     assert code == 1 and rep["ambiguous_position_names"] == ["p4"]
+
+
+def test_duplicated_names_with_identical_columns_are_accepted(tmp_path):
+    X, pos = _matrix()
+    pos, X = pos.copy(), X.copy()
+    pos[9] = pos[4]
+    X[:, 9] = X[:, 4]                      # the same column stored twice
+    bad = X[:, 2:8].copy()
+    bad[:, 2] = 120
+    code, rep = _run(tmp_path, bad, pos[2:8], X, pos)
+    assert code == 0 and rep["duplicated_position_names_used"] == 1 and rep["ambiguous_position_names"] == []

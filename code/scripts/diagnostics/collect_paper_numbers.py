@@ -10,7 +10,7 @@ Usage (from code/):
 
 Output: results/diagnostics/paper_numbers.csv
     table, measure, paper, new, diff, status, source
-status: SAME (within 0.0005), CLOSE (within 0.01), CHANGED, MISSING
+status: SAME (within 0.0005), CLOSE (within 0.002), CHANGED, MISSING
 """
 from __future__ import annotations
 
@@ -75,12 +75,23 @@ def summary_number(rel, pattern, group=1):
     return float(m.group(group)) if m else None
 
 
-def giessen_retention():
+def giessen_retention(reference="classical"):
+    """Mean over drugs of Giessen PR-AUC / Arcadia PR-AUC.
+
+    The Giessen model is the classical stack retrained on Giessen, so the like-for-like
+    Arcadia reference is the classical stack on the random split (v9_results.csv).
+    reference="trilens" reproduces the paper's printed 90.0%, which divides by the full
+    TriLens model instead (the review found the caption mislabels this).
+    """
     g = _csv("pillar4_giessen_transfer/pillar4_per_ab_metrics.csv")
-    m = _csv("trilens_attnfix/ablation_results.csv")
+    if reference == "classical":
+        m = _csv("stage3_cascadestack_v9/v9_results.csv")
+        m = None if m is None else m.set_index("antibiotic").ensemble_pr_auc
+    else:
+        m = _csv("trilens_attnfix/ablation_results.csv")
+        m = None if m is None else m[(m.ablation == "T6") & (m.split_key == "random_split")].set_index("ab").prauc
     if g is None or m is None:
         return None
-    m = m[(m.ablation == "T6") & (m.split_key == "random_split")].set_index("ab").prauc
     r = [row.pr_auc / m[row.antibiotic] for row in g.itertuples() if row.antibiotic in m]
     return float(np.mean(r)) if r else None
 
@@ -145,7 +156,8 @@ ROWS = [
     ("tab:clinical", "Mean VME at 0.5, random split", 0.249, lambda: col_mean("diagnostics/threshold_tuning.csv", "VME_at_0p5"), "diagnostics/threshold_tuning.csv"),
     ("tab:holdoutclin", "Mean VME, random split", 0.249, lambda: col_mean(CLIN, "random_VME"), CLIN),
     ("tab:holdoutclin", "Mean VME, lineage holdout", 0.559, lambda: col_mean(CLIN, "holdout_VME"), CLIN),
-    ("tab:giessen_transfer", "Giessen retention (mean of per-drug ratios)", 0.900, giessen_retention, "pillar4_giessen_transfer/"),
+    ("tab:giessen_transfer", "Giessen retention vs classical stack on Arcadia (like for like)", 0.900, giessen_retention, "pillar4_giessen_transfer/ + stage3_cascadestack_v9/"),
+    ("tab:giessen_transfer", "Giessen retention vs full TriLens on Arcadia (as printed)", 0.900, lambda: giessen_retention("trilens"), "pillar4_giessen_transfer/ + trilens_attnfix/"),
     ("tab:umark", "U_ST of Lens B attended genes", 0.3569, lambda: col_mean("diagnostics/lineage_marker_test.csv", "attention_U_ST"), "diagnostics/lineage_marker_test.csv"),
     ("tab:umark", "U_res of Lens B attended genes", 0.0419, lambda: col_mean("diagnostics/lineage_marker_test.csv", "attention_U_res"), "diagnostics/lineage_marker_test.csv"),
     ("sec:statanalysis", "Near-duplicate test strains, random split", 47, lambda: summary_number("pillar_dedup_eval/SUMMARY.md", r"(\d+)/(\d+) test samples"), "pillar_dedup_eval/SUMMARY.md"),
@@ -172,8 +184,10 @@ def main() -> None:
             status, diff = "MISSING", None
         else:
             diff = new - paper
-            tol = 0.0005 * (100 if abs(paper) > 2 else 1)
-            status = "SAME" if abs(diff) <= tol else ("CLOSE" if abs(diff) <= 0.01 * (100 if abs(paper) > 2 else 1) else "CHANGED")
+            scale = 100 if abs(paper) > 2 else 1
+            # CLOSE is tight (0.002): the paper reads effects of a few thousandths
+            status = ("SAME" if abs(diff) <= 0.0005 * scale
+                      else "CLOSE" if abs(diff) <= 0.002 * scale else "CHANGED")
         out.append(dict(table=table, measure=measure, paper=paper,
                         new=None if new is None else round(new, 4),
                         diff=None if diff is None else round(diff, 4),

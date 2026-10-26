@@ -145,6 +145,9 @@ def run(cfg) -> None:
         set_seed(fold_seed)
         log.info(f"\n{'─'*60}\n  [Fold {fold+1}/{n_folds}]  seed={fold_seed}")
 
+        # Early-stopping set: a random 10% of the fold (it used to be the last 10% of
+        # the sorted indices, i.e. the highest genome numbers).
+        fit_es_local = np.random.RandomState(fold_seed).permutation(fit_es_local)
         n_fe = len(fit_es_local)
         n_es = max(int(n_fe * 0.1), 50)
         fit_l = fit_es_local[: n_fe - n_es]

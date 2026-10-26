@@ -38,7 +38,7 @@ import numpy as np
 import pandas as pd
 from sklearn.metrics import average_precision_score
 
-from src.experiments.run_posthoc_analysis import CLSI_VME_MAX, _clinical_at_threshold
+from src.experiments.run_posthoc_analysis import CLSI_ME_MAX, CLSI_VME_MAX, _clinical_at_threshold
 
 ROOT = Path(__file__).resolve().parents[2]
 RESULTS_DIR = ROOT / "results"
@@ -134,7 +134,7 @@ def main() -> None:
         yt, yp = Yt[valid, i], s3_npz["test_ens_probs"][valid, i]
         m = _clinical_at_threshold(yt, yp, 0.5)
         m["antibiotic"] = ab
-        m["CLSI_ok"] = bool(m["VME"] <= CLSI_VME_MAX and m["ME"] <= CLSI_VME_MAX)
+        m["CLSI_ok"] = bool(m["VME"] <= CLSI_VME_MAX and m["ME"] <= CLSI_ME_MAX)
         clinical_rows.append(m)
     clinical_df = pd.DataFrame(clinical_rows)
     clinical_df.to_csv(OUTPUT_DIR / "stage3_clinical_metrics.csv", index=False)
@@ -181,7 +181,7 @@ def _write_summary(s1_per_ab, s2_per_ab, s3_per_ab, clinical_df, stage1_done: bo
     lines.append("")
 
     lines.append("## Stage 3 clinical metrics (threshold = 0.5)\n")
-    lines.append("| AB | VME% | ME% | CA% | CLSI (VME<3% and ME<3%) |")
+    lines.append("| AB | VME% | ME% | CA% | CLSI (VME<=1.5% and ME<=3%) |")
     lines.append("|---|---|---|---|---|")
     n_pass = 0
     for _, r in clinical_df.iterrows():
@@ -189,7 +189,7 @@ def _write_summary(s1_per_ab, s2_per_ab, s3_per_ab, clinical_df, stage1_done: bo
         n_pass += int(r["CLSI_ok"])
         lines.append(f"| {r['antibiotic']} | {r['VME']*100:.2f} | {r['ME']*100:.2f} | {r['CA']*100:.2f} | {ok} |")
     lines.append("")
-    lines.append(f"**CLSI criteria met (VME<3% and ME<3%): {n_pass}/{len(clinical_df)} antibiotics.**\n")
+    lines.append(f"**CLSI criteria met (VME<=1.5% and ME<=3%): {n_pass}/{len(clinical_df)} antibiotics.**\n")
 
     lines.append("## Verdict\n")
     if stage1_done:

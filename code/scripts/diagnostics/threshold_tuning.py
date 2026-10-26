@@ -41,6 +41,7 @@ DATA_PKL = ROOT / "data" / "processed" / "arcadia_v2_gene_filtered__mlst_holdout
 OUT = DIAG / "threshold_tuning.csv"
 
 CLSI_ME = 0.03          # major error limit
+CLSI_VME = 0.015        # very major error limit (FDA / CLSI M52)
 GRID = np.arange(0.02, 0.99, 0.01)
 
 # ORDER MATTERS. trilens_attnfix is the delivered strain-conditioned model and
@@ -176,7 +177,7 @@ One line each. Then rerun this script and FR5 becomes satisfiable.
     print(f"Mean VME, F2-tuned       : {df.VME_F2.mean():.3f}")
     print(f"Mean VME, ME-capped      : {df.VME_MEcap.mean():.3f}")
     print(f"Antibiotics meeting BOTH CLSI limits: "
-          f"{int(((df.VME_F2 < 0.03) & (df.ME_F2 < 0.03)).sum())} / {len(df)}")
+          f"{int(((df.VME_F2 <= CLSI_VME) & (df.ME_F2 <= CLSI_ME)).sum())} / {len(df)}")
     print("-" * 100)
     df.to_csv(OUT, index=False)
     print(f"\nSaved -> {OUT}")
