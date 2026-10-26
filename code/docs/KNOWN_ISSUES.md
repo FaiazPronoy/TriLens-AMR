@@ -168,6 +168,14 @@ ECOR-core loci are mostly present, and prevalence follows ECOR frequency
 `pa_fix` and use its copy; their zips carry `_PA_FIXED.txt`, and a notebook stops if an
 upstream TriLens output lacks it.
 
+**Result (pa_fix, code 03af45d, 26 October 2026):** repaired. Letter `2` = present (ECOR-core
+loci: median prevalence 1.0 under `2`, 0.0 under `1`); 10,511 of 32,441 loci flipped, 21,930
+unchanged, 0 inconsistent; no missing or heterozygous calls; 2,924 loci are in one state in
+every strain (PLINK allele `0`). gyrA, parC, rpoB, recA now present in 100% of strains;
+prevalence follows ECOR frequency (Spearman 0.69). Loci per strain (CDS + intergenic):
+mean 11,846, range 9,569 to 18,620 (the old file said 3,709). The strains near the top of that
+range are worth a look (possible mixed samples).
+
 For the paper: every Lens B number and figure comes from the rebuilt matrix. State the
 orientation rule in Methods.
 
