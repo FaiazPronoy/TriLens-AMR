@@ -1,0 +1,15 @@
+split,antibiotic,train_R,train_S,test_R,test_S,train_prev,test_prev,feasible
+train United Kingdom -> test Norway,AMP,744,564,1165,1799,0.569,0.393,True
+train United Kingdom -> test Norway,CIP,713,1753,337,2626,0.289,0.114,True
+train United Kingdom -> test Norway,AMC,982,2393,1,0,0.291,1.0,False
+train United Kingdom -> test Norway,SXT,11,1,773,2191,0.917,0.261,False
+train United Kingdom -> test Norway,GEN,252,2212,231,2733,0.102,0.078,True
+train United Kingdom -> test Norway,CTX,453,1939,151,2614,0.189,0.055,True
+train United Kingdom -> test Norway,CAZ,353,2101,148,2815,0.144,0.05,True
+train Norway -> test United Kingdom,AMP,1165,1799,744,564,0.393,0.569,True
+train Norway -> test United Kingdom,CIP,337,2626,713,1753,0.114,0.289,True
+train Norway -> test United Kingdom,AMC,1,0,982,2393,1.0,0.291,False
+train Norway -> test United Kingdom,SXT,773,2191,11,1,0.261,0.917,False
+train Norway -> test United Kingdom,GEN,231,2733,252,2212,0.078,0.102,True
+train Norway -> test United Kingdom,CTX,151,2614,453,1939,0.055,0.189,True
+train Norway -> test United Kingdom,CAZ,148,2815,353,2101,0.05,0.144,True
