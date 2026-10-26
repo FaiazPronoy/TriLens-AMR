@@ -23,7 +23,8 @@ block are written to the report.
     python scripts/repair_gene_filtered.py --src old.pkl --snp arcadia_v2_snp_matrix.pkl \
         --out new.pkl --report report.json
 
-Exit codes: 0 repaired and written, 2 already clean (nothing written), 1 refused.
+Exit codes: 0 repaired and written, 2 already identical to the matrix (nothing written),
+1 refused.
 """
 from __future__ import annotations
 
@@ -61,9 +62,6 @@ def main() -> int:
     bad_cols = np.where(bad.any(axis=0))[0]
     rep.update(shape=list(X_old.shape), out_of_range_cells=int(bad.sum()),
                out_of_range_columns=int(len(bad_cols)), out_of_range_column_index=bad_cols.tolist()[:100])
-    if len(bad_cols) == 0:
-        return done(2, "clean: nothing to repair")
-
     if "snp_positions_filtered" not in gf:
         return done(1, "refused: file has no snp_positions_filtered")
     pos_f = np.asarray(gf["snp_positions_filtered"]).astype(str)
@@ -75,18 +73,30 @@ def main() -> int:
     del snp
     if X_snp.shape[0] != X_old.shape[0]:
         return done(1, f"refused: {X_snp.shape[0]} rows in the SNP matrix, {X_old.shape[0]} in the file")
-    where = {}
+    where, twice = {}, set()
     for i, p in enumerate(pos_all):
+        if p in where:
+            twice.add(p)
         where.setdefault(p, i)
     idx = np.array([where.get(p, -1) for p in pos_f], dtype=np.int64)
     rep["columns_not_found"] = int((idx < 0).sum())
     if (idx < 0).any():
         return done(1, "refused: some filtered columns are not in the SNP matrix")
+    ambiguous = sorted(twice & set(pos_f.tolist()))
+    rep["ambiguous_position_names"] = ambiguous[:20]
+    if ambiguous:
+        return done(1, "refused: some filtered columns name more than one column of the SNP matrix")
 
     X_new = X_snp[:, idx]
     del X_snp
     diff = X_new != X_old
     diff_cols = np.where(diff.any(axis=0))[0]
+    if len(bad_cols) == 0:
+        rep.update(cells_changed=int(diff.sum()), columns_changed=int(len(diff_cols)))
+        if len(diff_cols):
+            rep["example_columns_changed"] = diff_cols.tolist()[:20]
+            return done(1, "refused: values in 0..3 but different from the SNP matrix")
+        return done(2, "clean: identical to the SNP matrix, nothing to repair")
     lo, hi = int(bad_cols.min()), int(bad_cols.max())
     in_range_changed = np.setdiff1d(diff_cols, bad_cols)
     outside = diff_cols[(diff_cols < lo) | (diff_cols > hi)]
