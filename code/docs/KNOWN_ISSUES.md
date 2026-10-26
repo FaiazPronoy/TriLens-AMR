@@ -138,7 +138,7 @@ SNP codes are 0 to 3 and that the data files are checked for this.
 
 `docs/DATA.md` and `CITATION.cff` still contain `PASTE_LINK_HERE` / `PASTE_REPO_URL_HERE`.
 
-### 12. The presence/absence matrix marks the minority state, not presence (found October 2026)
+### 12. The presence/absence matrix marks the minority state, not presence (found October 2026, W0; fixed)
 
 `arcadia_v2_gene_presence_absence.pkl` was built with `present = (PLINK value == 0)`. PLINK
 picks the minor state of each locus as allele A1, so the meaning of 0 flips from locus to
@@ -178,6 +178,13 @@ range are worth a look (possible mixed samples).
 
 For the paper: every Lens B number and figure comes from the rebuilt matrix. State the
 orientation rule in Methods.
+
+### 13. SNP calls: missing = reference
+
+`notebooks/snp_matrix_from_vcf.ipynb` codes a missing genotype as the reference allele (Arcadia's
+convention), and the MAF filter counts missing as reference. In accessory genes, absence of the gene
+and the reference allele therefore have the same code. The share of missing calls was not recorded.
+Check: `../../docs/experiments/data_inventory.md` §4. State it as a limitation in the paper.
 
 ---
 
