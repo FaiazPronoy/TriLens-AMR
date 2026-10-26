@@ -75,4 +75,13 @@ The pilot numbers are reported here, whatever they are.
 
 ## Deviations
 
-(none)
+- **26 October 2026, before any run (clarification of what is saved).**
+  - TriLens trains 5 fold models whose representation spaces differ, so the probe uses the **last
+    fold's** model. Attention is already taken from the last fold, so this is consistent.
+  - `representations.npz` holds `z_A`, `z_B`, `z_C` and `z_fused`. `z_fused` is the concatenation the
+    gate reads; "gate-fused representation" above means `z_fused`.
+  - Rows: train (that fold's fit, early-stop and out-of-fold strains, order in `train_rep_indices`),
+    validation and test, for the trained model and for the same model before training (`init_*`,
+    reference iii).
+  - The probe is fitted on all training strains. It is also reported fitted on the fold's
+    out-of-fold strains only (`train_rep_indices` minus `fit_indices`), which the model never trained on.

@@ -576,6 +576,8 @@ class TriLens(nn.Module):
           l_A/B/C : (B, 7) or None          per-expert logits (for aux loss + ablation)
           gate    : (B, 7, n_active) or None per-AB routing weights
           a_A/B/C : attention arrays or None
+          z_A/B/C : (B, d) per-expert representations or None
+          z_fused : (B, d*n_active) concatenation the gate reads (moe fusion), else None
         """
         expert_z:   List[torch.Tensor] = []
         expert_l:   List[torch.Tensor] = []
@@ -598,6 +600,7 @@ class TriLens(nn.Module):
 
         # ── Fusion ────────────────────────────────────────────────────────────
         gate = None
+        z_all = None
         if self.n_active == 1 or self.fusion == "single":
             l_final = expert_l[0]
 
@@ -611,6 +614,10 @@ class TriLens(nn.Module):
             l_final = (gate * l_stk).sum(dim=-1)                   # (B, 7)
 
         return {
+            "z_A":     z_A,
+            "z_B":     z_B,
+            "z_C":     z_C,
+            "z_fused": z_all if self.fusion == "moe" and self.n_active > 1 else None,
             "l_final": l_final,
             "l_A":     l_A,
             "l_B":     l_B,

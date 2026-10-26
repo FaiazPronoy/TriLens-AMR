@@ -475,6 +475,52 @@ def _train_epoch(
     }
 
 
+REPRESENTATION_KEYS = ("z_A", "z_B", "z_C", "z_fused")
+
+
+def _representations(model: TriLens, dataset: TriLensDataset, device: torch.device,
+                     batch_size: int) -> Dict[str, np.ndarray]:
+    """Each lens' representation and the concatenation the gate reads, for every strain of dataset."""
+    model.eval()
+    loader = DataLoader(dataset, batch_size=batch_size, shuffle=False, num_workers=0)
+    parts: Dict[str, list] = {k: [] for k in REPRESENTATION_KEYS}
+    with torch.no_grad():
+        for batch in loader:
+            X_b, X_pa, X_gc, _, _ = [t.to(device, non_blocking=True) for t in batch]
+            out = model(X_b, X_pa, X_gc)
+            for k in REPRESENTATION_KEYS:
+                if out.get(k) is not None:
+                    parts[k].append(out[k].cpu().float().numpy())
+    return {k: np.concatenate(v, axis=0) for k, v in parts.items() if v}
+
+
+def save_representations(result: Dict, path: Path) -> bool:
+    """representations.npz for W3: the last fold's model (trained, and freshly initialised with
+    the same seed) on train, validation and test strains, plus which train strains it was fit on.
+    Keys: {trained,init}_{z_A,z_B,z_C,z_fused}_{train,val,test}; the *_train rows follow
+    train_rep_indices."""
+    reps = result.get("representations")
+    if not reps:
+        return False
+    payload = {"train_indices": result["train_idx"], "val_indices": result["val_idx"],
+               "test_indices": result["test_idx"],
+               # row order of the *_train arrays: the last fold's fit, early-stop and out-of-fold strains
+               "train_rep_indices": np.concatenate([reps["fit_idx"], reps["es_idx"], reps["oof_idx"]]),
+               "fit_indices": reps["fit_idx"],
+               "lens_b": np.array(os.environ.get("TRILENS_LENSB", "fixed")),
+               "fold": np.array(reps["fold"]), "fold_seed": np.array(reps["fold_seed"])}
+    for state in ("trained", "init"):
+        r = reps[state]
+        for k in REPRESENTATION_KEYS:
+            if k in r["fit"]:
+                payload[f"{state}_{k}_train"] = np.concatenate([r[p][k] for p in ("fit", "es", "oof")])
+                payload[f"{state}_{k}_val"] = r["val"][k]
+                payload[f"{state}_{k}_test"] = r["test"][k]
+    np.savez_compressed(str(path), **payload)
+    log.info(f"Saved {Path(path).name}  (last-fold representations, trained and untrained)")
+    return True
+
+
 @torch.no_grad()
 def _predict(
     model:        TriLens,
@@ -771,6 +817,7 @@ def run_kfold_oof(
     test_preds_f = []
     gate_test_f  = []
     histories    = []
+    representations = None
 
     val_ds  = _build_dataset(val_idx,  X_blocks, data["X_pa"], X_gene_agg, data["Y"], data["label_mask"])
     test_ds = _build_dataset(test_idx, X_blocks, data["X_pa"], X_gene_agg, data["Y"], data["label_mask"])
@@ -797,10 +844,24 @@ def run_kfold_oof(
         oof_ds = _build_dataset(oof_s, X_blocks, data["X_pa"], X_gene_agg, data["Y"], data["label_mask"])
 
         model = _create_model(cfg, M_blocks, use_a=True, use_b=True, use_c=True, fusion="moe", device=device)
+        bs = int(cfg.training.batch_size) * 2
+        last_fold = fold == n_folds - 1
+        # W3: the last fold's representations, before training (architecture-only reference) and
+        # after. Train strains are read from the fold's own datasets (fit, early-stop, out-of-fold),
+        # in that order, so no extra copy of the arrays is made.
+        rep_parts = (("fit", fit_ds), ("es", es_ds), ("oof", oof_ds), ("val", val_ds), ("test", test_ds))
+        if last_fold:
+            with torch.random.fork_rng(devices=[]):    # inference must not move the training RNG
+                rep_init = {part: _representations(model, ds, device, bs) for part, ds in rep_parts}
         model, hist = _train_until_convergence(model, fit_ds, es_ds, pw, cfg, device)
         histories.append(hist)
+        if last_fold:
+            representations = {
+                "fold": fold, "fold_seed": fold_seed, "fit_idx": fit_s, "es_idx": es_s, "oof_idx": oof_s,
+                "init": rep_init,
+                "trained": {part: _representations(model, ds, device, bs) for part, ds in rep_parts},
+            }
 
-        bs = int(cfg.training.batch_size) * 2
         oof_p, _, _, _, _         = _predict(model, oof_ds,  device, bs)
         val_p, _, _, _, _         = _predict(model, val_ds,  device, bs)
         tst_p, tst_g, aA, aB, aC = _predict(model, test_ds, device, bs, collect_gate=True, collect_attn=True)
@@ -837,6 +898,7 @@ def run_kfold_oof(
         "histories":   histories,
         # Attention from LAST fold (for interpretability — consistent choice)
         "a_A": aA, "a_B": aB, "a_C": aC,
+        "representations": representations,   # last fold, for W3 (save_representations)
     }
 
 
@@ -1045,6 +1107,7 @@ def run_kfold_and_stack(
         "a_A":             kfold.get("a_A"),
         "a_B":             kfold.get("a_B"),
         "a_C":             kfold.get("a_C"),
+        "representations": kfold.get("representations"),
         "history":         kfold["histories"],
         "meta_weights":    meta_weights,
         "base_names":      base_names,
@@ -1224,6 +1287,10 @@ def save_all_outputs(
             val_is_stack    = np.array(bool(t6_res.get("val_is_stack", False))),
         )
         log.info("Saved predictions_saved.npz  (v9.1-compatible format)")
+
+    # ── representations.npz (W3) ───────────────────────────────────────
+    if t6_res and "error" not in t6_res:
+        save_representations(t6_res, output_dir / "representations.npz")
 
     # ── attention_full.npz ─────────────────────────────────────────────
     # The per-gene attention for every test strain, not just the top-20
