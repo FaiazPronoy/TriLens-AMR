@@ -103,11 +103,14 @@ def main() -> int:
 
     bim = read_bim(bed.with_suffix(".bim"))
     fam = read_fam(bed.with_suffix(".fam"))
-    letters = sorted(set(bim.a1) | set(bim.a2))
+    # PLINK writes allele "0" for the missing second allele of a locus where every strain is
+    # in the same state (e.g. a core gene), so "0" is not a state of its own.
+    letters = sorted((set(bim.a1) | set(bim.a2)) - {"0"})
     rep.update(n_variants=len(bim), n_fam=len(fam), allele_letters=letters,
                allele_order_counts={f"{k[0]}/{k[1]}": int(v) for k, v in bim.groupby(["a1", "a2"]).size().items()})
+    rep["monomorphic_loci"] = int(((bim.a1 == "0") | (bim.a2 == "0")).sum())
     if len(letters) != 2:
-        return done(1, f"refused: expected two allele letters, found {letters}")
+        return done(1, f"refused: expected two allele letters besides 0, found {letters}")
 
     with open(a.old, "rb") as f:
         old = pickle.load(f)
@@ -132,6 +135,11 @@ def main() -> int:
     rep.update(missing_cells=int((codes == 1).sum()), het_cells=int((codes == 2).sum()),
                called_fraction=float(called.mean()))
     del codes
+    zero_a1 = (bim.a1.to_numpy() == "0")[None, :]
+    zero_a2 = (bim.a2.to_numpy() == "0")[None, :]
+    rep["cells_carrying_allele_0"] = int(((hom_a1 & zero_a1) | (hom_a2 & zero_a2)).sum())
+    if rep["cells_carrying_allele_0"]:
+        return done(1, "refused: some strains carry allele 0, which PLINK uses only as 'no allele'")
 
     def carries(L):
         """cells whose strain carries allele letter L at that locus"""

@@ -17,6 +17,10 @@ def write_plink(tmp, truth, present_letter="2", missing=()):
     absent_letter = "1" if present_letter == "2" else "2"
     a1, a2, codes = [], [], np.zeros((m, n), dtype=np.uint8)
     for j in range(m):
+        if truth[:, j].min() == truth[:, j].max():          # one state everywhere: PLINK writes A1 = "0"
+            a1.append("0"); a2.append(present_letter if truth[0, j] else absent_letter)
+            codes[j] = 0b11
+            continue
         minor_is_present = truth[:, j].mean() <= 0.5
         l1, l2 = (present_letter, absent_letter) if minor_is_present else (absent_letter, present_letter)
         a1.append(l1); a2.append(l2)
@@ -73,6 +77,8 @@ def truth_matrix(seed=0, n=41, m=30):
     t[:, : m // 3] = rng.random((n, m // 3)) < 0.97                    # core: present almost everywhere
     p = rng.uniform(0.02, 0.8, m - m // 3)
     t[:, m // 3:] = rng.random((n, m - m // 3)) < p
+    t[:, 0] = 1                                                        # present in every strain
+    t[:, m - 1] = 0                                                    # absent from every strain
     return t
 
 
@@ -111,3 +117,12 @@ def test_refuses_more_than_a_flip(tmp_path):
     pickle.dump(old, open(tmp_path / "old.pkl", "wb"))
     code, rep = run(tmp_path)
     assert code == 1 and "more than a flip" in rep["status"] and not (tmp_path / "new.pkl").exists()
+
+
+def test_monomorphic_loci_use_allele_zero(tmp_path):
+    t = truth_matrix(4)
+    setup(tmp_path, t)
+    code, rep = run(tmp_path)
+    assert code == 0 and rep["monomorphic_loci"] >= 2 and rep["cells_carrying_allele_0"] == 0
+    new = pickle.load(open(tmp_path / "new.pkl", "rb"))["X_pa"]
+    assert new[:, 0].all() and not new[:, -1].any()
