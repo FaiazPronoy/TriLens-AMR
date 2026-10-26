@@ -46,8 +46,9 @@ broken by the lower strain index).
 
 The existing `run_phylogroup_only_baseline.py` (logistic regression on the phylogroup one-hot) is the
 paper's number on S1. For the other splits, the same idea is computed as the smoothed resistant
-fraction of the phylogroup (formula of (a), α = 1). This is exactly what a one-hot logistic
-regression without regularisation converges to.
+fraction of the phylogroup (formula of (a), α = 1). An unregularised one-hot logistic regression
+converges to the unsmoothed fraction, so the two differ only for very small phylogroups. On S1
+both are reported.
 
 ## Splits and antibiotics
 
