@@ -15,6 +15,27 @@ M = "python -m src.experiments."
 D = "python scripts/diagnostics/"
 
 STAGES = {
+    "pa_fix": dict(
+        title="Gene presence/absence: rebuild with the correct orientation",
+        lensb="fixed", needs=[], gpu="None (CPU is enough; it saves GPU quota)",
+        about="The dataset's `arcadia_v2_gene_presence_absence.pkl` marks the minority state of each "
+              "pan-genome locus, not its presence (code/docs/KNOWN_ISSUES.md, issue 12). This notebook "
+              "rebuilds it from Arcadia's PLINK files using the allele letters in the .bim file, and "
+              "refuses if anything but the orientation would change. Every notebook that reads the "
+              "matrix (the four TriLens notebooks and analysis) takes the rebuilt copy from here. "
+              "Optional input: the raw-download dataset with presence_absence_data/; without it the "
+              "release is downloaded from Zenodo (2.4 GB, a few minutes).",
+        writes=["pa_fix"],
+        steps=[
+            ("Find Arcadia's PLINK presence/absence files",
+             "python scripts/fetch_gene_pa_source.py --dest /tmp/trilens/pa_source",
+             "pa_fix/arcadia_v2_gene_presence_absence.pkl"),
+            ("Rebuild the matrix (refuses if more than the orientation changes)",
+             "python scripts/repair_gene_pa.py --source /tmp/trilens/pa_source/paths.json "
+             "--old data/processed/arcadia_v2_gene_presence_absence.pkl "
+             "--out results/pa_fix/arcadia_v2_gene_presence_absence.pkl --report results/pa_fix/pa_repair.json",
+             "pa_fix/arcadia_v2_gene_presence_absence.pkl"),
+        ]),
     "classical": dict(
         title="Classical arm, baselines, Giessen and SHAP",
         lensb="fixed", needs=[], gpu="GPU T4 x2 (XGBoost runs on the GPU)",
@@ -51,7 +72,7 @@ STAGES = {
         ]),
     "trilens_random": dict(
         title="TriLens, random split, and the layer ablation",
-        lensb="fixed", needs=["classical"], gpu="GPU T4 x2",
+        lensb="fixed", needs=["pa_fix", "classical"], gpu="GPU T4 x2",
         about="The delivered model (strain-conditioned Lens B) on the random split: every headline "
               "number of the paper. Then the three-stage layer ablation on the same run.",
         writes=["trilens_attnfix", "pillar2_layer_ablation"],
@@ -64,7 +85,7 @@ STAGES = {
         ]),
     "trilens_splits": dict(
         title="TriLens, phylogroup split and lineage holdout",
-        lensb="fixed", needs=["classical"], gpu="GPU T4 x2",
+        lensb="fixed", needs=["pa_fix", "classical"], gpu="GPU T4 x2",
         about="The neural half of the model on the two harder splits. The analysis notebook stacks "
               "it with the classical half.",
         writes=["pillar_trilens_t7_clean_gene_set", "pillar_trilens_mlst"],
@@ -75,7 +96,7 @@ STAGES = {
         ]),
     "standard_random": dict(
         title="Strain-conditioning ablation: standard Lens B, random split",
-        lensb="standard", needs=["classical"], gpu="GPU T4 x2",
+        lensb="standard", needs=["pa_fix", "classical"], gpu="GPU T4 x2",
         about="The same model with standard gated attention in Lens B (TRILENS_LENSB=standard). "
               "Everything else is identical. This is the 'Standard' column of tab:attnfix.",
         writes=["trilens_attnfix"],
@@ -83,7 +104,7 @@ STAGES = {
                 "trilens_attnfix/predictions_saved.npz")]),
     "standard_splits": dict(
         title="Strain-conditioning ablation: standard Lens B, phylogroup split and lineage holdout",
-        lensb="standard", needs=["classical"], gpu="GPU T4 x2",
+        lensb="standard", needs=["pa_fix", "classical"], gpu="GPU T4 x2",
         about="Standard Lens B on the two harder splits.",
         writes=["pillar_trilens_t7_clean_gene_set", "pillar_trilens_mlst"],
         steps=[
@@ -101,7 +122,7 @@ STAGES = {
         steps=[("1D CNN, ordered vs shuffled variants", H + "pillar1_exp3", "pillar1/exp3/exp3_results.csv")]),
     "analysis": dict(
         title="Analysis: stacking, diagnostics, ablation table, figures, paper numbers",
-        lensb="fixed", needs=["classical", "trilens_random", "trilens_splits", "standard_random",
+        lensb="fixed", needs=["pa_fix", "classical", "trilens_random", "trilens_splits", "standard_random",
                               "standard_splits", "shuffle_test"],
         gpu="None (CPU is enough here; it saves GPU quota)",
         about="Reads the outputs of all other notebooks. Nothing is trained here except the "
@@ -271,12 +292,15 @@ USES_RANDOM_GF = {{"stage3_cascadestack_v9", "tabnet_baseline", "pillar_tabnet_p
                   "pillar2_layer_ablation", "pillar_dedup_eval", "pillar_metrics_full"}}
 _pre_repair = set()
 _unfinished = set()      # stages whose output has no _COMPLETE.txt (still running, or stopped)
+_pa_old = set()          # stages whose output was made with the old presence/absence matrix
 
 def _note(stage, names):
     if "_DATA_REPAIRED.txt" not in names:
         _pre_repair.add(stage)
     if "_COMPLETE.txt" not in names:
         _unfinished.add(stage)
+    if "_PA_FIXED.txt" not in names:
+        _pa_old.add(stage)
 
 def _take(stage, rel, read):
     t = _target(stage, rel)
@@ -334,6 +358,24 @@ if waiting:
     raise RuntimeError(f"not finished yet (or not found): {{waiting}}. Run this notebook after "
                        + ", ".join(waiting) + " says 'All steps finished'.")
 
+# The gene presence/absence matrix in the dataset marks the minority state of each locus,
+# not presence (KNOWN_ISSUES, issue 12). Notebooks that read it use the copy rebuilt by pa_fix.
+PA_STAGES = ("trilens_random", "trilens_splits", "standard_random", "standard_splits")
+PA_STATE = "original"
+if "pa_fix" in NEEDS:
+    pa_fixed = RES / "pa_fix" / "arcadia_v2_gene_presence_absence.pkl"
+    if not pa_fixed.exists():
+        raise RuntimeError("pa_fix finished without the rebuilt matrix: read its pa_repair.json")
+    pap = proc / pa_fixed.name
+    if pap.exists() or pap.is_symlink():
+        pap.unlink()
+    pap.symlink_to(pa_fixed)
+    PA_STATE = "fixed"
+    print("data   : gene presence/absence -> rebuilt copy from pa_fix")
+old_pa = sorted(set(NEEDS) & set(PA_STAGES) & _pa_old)
+if old_pa:
+    raise RuntimeError(f"{{old_pa}} ran on the old presence/absence matrix: run them again first.")
+
 os.chdir(WORK)
 os.environ.update(TRILENS_ROOT=str(WORK), TRILENS_MAIN_RUN="trilens_attnfix", TRILENS_LENSB=LENSB,
                   WANDB_MODE="disabled", PYTHONUNBUFFERED="1", MPLBACKEND="Agg")
@@ -361,12 +403,15 @@ def _keep(f):
 
 def package(complete=False):
     tmp = OUT_ZIP.with_suffix(".tmp")
-    dirs = [d for d in RES.iterdir() if d.is_dir()] if WRITES == ["*"] else [RES / d for d in WRITES]
+    dirs = ([d for d in RES.iterdir() if d.is_dir() and d.name != "pa_fix"] if WRITES == ["*"]
+            else [RES / d for d in WRITES])
     with zipfile.ZipFile(tmp, "w", zipfile.ZIP_DEFLATED) as z:
         z.writestr(f"_STAGE_{NAME}.txt", NAME)
         z.writestr("_CODE_VERSION.txt", f"{NAME}\n{GITHUB_REPO}\n{CODE_VERSION}\n")
         if DATA_STATE in ("repaired", "clean"):
             z.writestr("_DATA_REPAIRED.txt", DATA_STATE)
+        if PA_STATE == "fixed" or NAME == "pa_fix":
+            z.writestr("_PA_FIXED.txt", "presence/absence matrix rebuilt by pa_fix")
         z.writestr("_ENV.txt", ENV_TEXT)            # exact package versions and GPU of this run
         if complete:                                # the notebook reached its last cell
             z.writestr("_COMPLETE.txt", "failed steps:\n" + "\n".join(FAILED))
@@ -465,6 +510,16 @@ t = pd.read_csv(RES / "diagnostics" / "paper_numbers.csv")
 print(t[t.status != "MISSING"].drop(columns="source").to_string(index=False))
 '''
 
+PA_CHECK = r'''
+# {n}. Check: what the rebuild changed
+import json
+r = json.loads((RES / "pa_fix" / "pa_repair.json").read_text())
+for k in ("status", "present_letter", "allele_order_counts", "loci_flipped", "loci_unchanged", "loci_inconsistent",
+          "missing_cells", "core_median_prevalence", "spearman_prevalence_vs_ecor", "per_strain_loci",
+          "max_prevalence_old", "max_prevalence_new", "named_core_genes"):
+    print(f"{{k:30s}} {{r.get(k)}}")
+'''
+
 FINAL = r'''
 # {n}. Save (and send to GitHub)
 package(complete=True)
@@ -502,7 +557,7 @@ def notebook(name, st):
     cells = [md("\n".join(intro)),
              code(SETUP.format(name=name, lensb=st["lensb"], writes=json.dumps(st["writes"]),
                          needs=json.dumps(st["needs"]), resume_own=str(name != "analysis"),
-                         needs_gpu=str(name != "analysis"))),
+                         needs_gpu=str(name not in ("analysis", "pa_fix")))),
              code(HELPERS)]
     n = 3
     for title, cmd, marker in st["steps"]:
@@ -514,7 +569,7 @@ def notebook(name, st):
         cells.append(code(STD_ROOT)); n += 1
         cells.append(md(f"## {n}. Figures and the thesis-number check"))
         cells.append(code(FIGS)); n += 1
-    check = CHECK.format(n=n)
+    check = CHECK.format(n=n) if name != "pa_fix" else PA_CHECK.format(n=n)
     if st["lensb"] == "standard":
         check += '\nprint("\\n(these are STANDARD Lens B values; analysis.ipynb puts them side by side)")\n'
     cells.append(md(f"## {n}. Check"))

@@ -138,6 +138,39 @@ SNP codes are 0 to 3 and that the data files are checked for this.
 
 `docs/DATA.md` and `CITATION.cff` still contain `PASTE_LINK_HERE` / `PASTE_REPO_URL_HERE`.
 
+### 12. The presence/absence matrix marks the minority state, not presence (found October 2026)
+
+`arcadia_v2_gene_presence_absence.pkl` was built with `present = (PLINK value == 0)`. PLINK
+picks the minor state of each locus as allele A1, so the meaning of 0 flips from locus to
+locus. Evidence from the file itself:
+
+| Check | Value |
+|---|---|
+| highest prevalence of any locus | 50.3% (a true presence matrix has core loci near 100%) |
+| loci in all 72 ECOR genomes (2,652 CDS) | 99.6% of them "present" in under 1% of our strains |
+| gyrA, parC, rpoB, recA (in all 72 ECOR genomes) | "present" in 0 of 6,962 strains |
+
+The .bim file carries the allele letters (`1`/`2`, in either order per locus); they say which
+state is presence.
+
+**Not affected:** tree models, logistic regression and distance-based baselines (a column flip
+does not change them), the classical arm, the SNP lenses, `shuffle_test`.
+**Affected:** Lens B (it weights gene embeddings by `X_pa` and attends only to "present"
+genes, so it never saw core genes such as gyrA), the gate and stack built on it, and every
+presence-based reading: attended genes, U_res / U_ST, prevalence figures, tab:attnfix.
+`amr-genomic-data/src/amr_data/gene_pa.py` carries the same wrong rule; no run uses it.
+
+**Fix:** the Kaggle notebook `pa_fix` (CPU) rebuilds the matrix from the PLINK files with
+`scripts/repair_gene_pa.py`: presence = the allele letter carried by the ECOR-core loci. It
+refuses unless every locus is either unchanged or exactly flipped on all called cells, the
+ECOR-core loci are mostly present, and prevalence follows ECOR frequency
+(`scripts/reference/ecor72_frequency.csv`). The four TriLens notebooks and `analysis` need
+`pa_fix` and use its copy; their zips carry `_PA_FIXED.txt`, and a notebook stops if an
+upstream TriLens output lacks it.
+
+For the paper: every Lens B number and figure comes from the rebuilt matrix. State the
+orientation rule in Methods.
+
 ---
 
 ## Leakage audit (October 2026)
