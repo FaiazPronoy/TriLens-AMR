@@ -94,4 +94,11 @@ Step 4: Kaggle, CPU, about 0.5 h.
 
 ## Deviations
 
-(none)
+- **26 October 2026, before any data were scored (correction).** NCBI's own test output shows
+  AMRFinderPlus reporting `blaEC`, the chromosomal ampC every *E. coli* carries, with Class
+  BETA-LACTAM. Under the mapping above it would count as an AMP/AMC determinant in every strain, so
+  the W5 "any determinant" call would be resistant for all strains.
+  - Rule added: a **gene** determinant carried by ≥ 95% of strains (rebuilt P/A matrix) is excluded
+    from the drug counts, as intrinsic. It is still listed in `determinants.csv`, flagged `intrinsic`.
+  - Point mutations (for example ampC promoter variants) are not affected by this rule.
+  - Decided from the tool's documented behaviour, not from any of our results.
