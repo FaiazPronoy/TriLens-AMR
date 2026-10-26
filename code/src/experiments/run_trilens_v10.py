@@ -747,6 +747,49 @@ def run_standalone(
 
 # ─── K-fold OOF + Stacking T6/T7 ──────────────────────────────────────────────
 
+def _fold_path(fold_dir, split_key, fold):
+    return Path(fold_dir) / f"{split_key}_fold{fold}.npz"
+
+
+def _save_fold(fold_dir, split_key, fold, train_idx, oof_local, fold_seed, lensb, last,
+               oof_p, val_p, tst_p, tst_g, hist, aA, aB, aC):
+    """Save one finished fold (written to a temporary name, then renamed)."""
+    if fold_dir is None:
+        return
+    p = _fold_path(fold_dir, split_key, fold)
+    p.parent.mkdir(parents=True, exist_ok=True)
+    arrays = dict(train_idx=np.asarray(train_idx), oof_local=np.asarray(oof_local),
+                  fold_seed=np.array(fold_seed), lensb=np.array(lensb),
+                  oof=oof_p, val=val_p, test=tst_p,
+                  history=np.array(json.dumps(hist, default=float)))
+    if tst_g is not None:
+        arrays["gate"] = tst_g
+    if last:                                   # attention is kept from the last fold only
+        for k, v in (("a_A", aA), ("a_B", aB), ("a_C", aC)):
+            if v is not None:
+                arrays[k] = v
+    tmp = p.with_name(p.stem + ".part.npz")
+    np.savez_compressed(str(tmp), **arrays)
+    tmp.replace(p)
+
+
+def _load_fold(fold_dir, split_key, fold, train_idx, oof_local, fold_seed, lensb, last):
+    if fold_dir is None or not _fold_path(fold_dir, split_key, fold).exists():
+        return None
+    z = np.load(str(_fold_path(fold_dir, split_key, fold)), allow_pickle=False)
+    same = (np.array_equal(z["train_idx"], np.asarray(train_idx))
+            and np.array_equal(z["oof_local"], np.asarray(oof_local))
+            and int(z["fold_seed"]) == int(fold_seed) and str(z["lensb"]) == lensb)
+    if not same:
+        log.warning(f"  saved fold {fold} in {fold_dir} is from a different run; training it again")
+        return None
+    get = lambda k: z[k] if k in z.files else None
+    if last and get("a_A") is None and get("a_B") is None:
+        return None                            # attention missing: redo the last fold
+    return dict(oof=z["oof"], val=z["val"], test=z["test"], gate=get("gate"),
+                history=json.loads(str(z["history"])), a_A=get("a_A"), a_B=get("a_B"), a_C=get("a_C"))
+
+
 def run_kfold_oof(
     cfg:        DictConfig,
     data:       Dict,
@@ -756,8 +799,15 @@ def run_kfold_oof(
     split_key:  str,
     seed:       int,
     device:     torch.device,
+    fold_dir:   Optional[Path] = None,
 ) -> Dict:
-    """5-fold OOF on train_idx; average val/test across folds."""
+    """5-fold OOF on train_idx; average val/test across folds.
+
+    With fold_dir, every finished fold is saved there and reused when the run is
+    started again (a Kaggle session ends after 12 hours; one fold takes about an hour
+    on a T4). A saved fold is reused only if its split, fold indices and Lens B
+    variant match this run.
+    """
     train_idx, val_idx, test_idx = _get_split_indices(data, split_key)
     n_train = len(train_idx)
     n_folds = int(cfg.n_folds)
@@ -775,8 +825,23 @@ def run_kfold_oof(
     val_ds  = _build_dataset(val_idx,  X_blocks, data["X_pa"], X_gene_agg, data["Y"], data["label_mask"])
     test_ds = _build_dataset(test_idx, X_blocks, data["X_pa"], X_gene_agg, data["Y"], data["label_mask"])
 
+    lensb = os.environ.get("TRILENS_LENSB", "fixed")
+    aA = aB = aC = None
     for fold, (fit_es_local, oof_local) in enumerate(kf.split(np.arange(n_train))):
         fold_seed = seed + fold * 100
+        last = fold == n_folds - 1
+        saved = _load_fold(fold_dir, split_key, fold, train_idx, oof_local, fold_seed, lensb, last)
+        if saved is not None:
+            log.info(f"  [Fold {fold+1}/{n_folds}] reused from {fold_dir}")
+            oof_preds[oof_local] = saved["oof"]
+            val_preds_f.append(saved["val"])
+            test_preds_f.append(saved["test"])
+            if saved["gate"] is not None:
+                gate_test_f.append(saved["gate"])
+            histories.append(saved["history"])
+            if last:
+                aA, aB, aC = saved["a_A"], saved["a_B"], saved["a_C"]
+            continue
         set_seed(fold_seed)
         log.info(f"\n{'─'*60}\n  [Fold {fold+1}/{n_folds}]  seed={fold_seed}")
         # Early-stopping set: a random 10% of the fold (it used to be the last 10% of
@@ -810,6 +875,8 @@ def run_kfold_oof(
         test_preds_f.append(tst_p)
         if tst_g is not None:
             gate_test_f.append(tst_g)
+        _save_fold(fold_dir, split_key, fold, train_idx, oof_local, fold_seed, lensb, last,
+                   oof_p, val_p, tst_p, tst_g, hist, aA, aB, aC)
 
         # Log fold result
         fold_metrics = compute_metrics(tst_p, data["Y"][test_idx], data["label_mask"][test_idx], cfg)
@@ -964,10 +1031,12 @@ def run_kfold_and_stack(
     split_key:  str,
     seed:       int,
     device:     torch.device,
+    fold_dir:   Optional[Path] = None,
 ) -> Dict:
     """Full K-fold OOF + meta-stacking pipeline for T6/T7."""
     log.info(f"K-fold OOF ({split_key}) …")
-    kfold = run_kfold_oof(cfg, data, X_blocks, M_blocks, X_gene_agg, split_key, seed, device)
+    kfold = run_kfold_oof(cfg, data, X_blocks, M_blocks, X_gene_agg, split_key, seed, device,
+                          fold_dir=fold_dir)
 
     train_idx = kfold["train_idx"]
     val_idx   = kfold["val_idx"]
@@ -1440,7 +1509,8 @@ def run(cfg: DictConfig) -> None:
             if abl_id in ("T6", "T7"):
                 sk = "phylogeny_split" if abl_id == "T7" else split_key
                 result = run_kfold_and_stack(
-                    abl_id, cfg, data, X_blocks, M_blocks, X_gene_agg, sk, seed, device
+                    abl_id, cfg, data, X_blocks, M_blocks, X_gene_agg, sk, seed, device,
+                    fold_dir=output_dir / "folds",
                 )
             else:
                 result = run_standalone(

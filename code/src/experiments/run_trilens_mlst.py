@@ -150,6 +150,7 @@ def main() -> None:
     result = run_kfold_and_stack(
         "T7", cfg, data, X_blocks, M_blocks, X_gene_agg,
         SPLIT_KEY, SEED, device,
+        fold_dir=output_dir / "folds",
     )
     print(f"TriLens (MLST holdout) done in {(time.time() - t0)/60:.1f} min")
 

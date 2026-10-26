@@ -449,8 +449,13 @@ def run(cmd, marker=None, cwd=None, env=None):
     t = time.time()
     p = subprocess.Popen(cmd, shell=True, cwd=root, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
                          text=True, env={**os.environ, **(env or {})})
+    last_save = time.time()
     for line in p.stdout:
         print(line, end="")
+        if time.time() - last_save > 1200:        # a long step: save what it has so far
+            package()                              # (finished folds, cached runs) every 20 min,
+            sync()                                 # so a session that ends at 12 h loses little
+            last_save = time.time()
     p.wait()
     print(f"\n[{'ok' if p.returncode == 0 else 'FAILED'}] {cmd}  ({(time.time() - t) / 60:.1f} min)")
     package()
