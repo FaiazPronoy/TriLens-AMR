@@ -63,6 +63,32 @@ one week of quota. No run has been timed on a T4 yet; the earlier runs were on a
 
 ---
 
+## Two accounts (the plan in use)
+
+Two Kaggle accounts, each run by its own owner, split the GPU work. Each account runs one
+GPU notebook at a time; the next one starts when the previous one has finished.
+
+| Order | Account A (Faiaz) | Account B (team member) |
+|---|---|---|
+| 1, now | `classical` | `shuffle_test` |
+| 2, after `classical` is finished | `trilens_random` | `trilens_splits` |
+| 3 | `standard_random` | `standard_splits` |
+| 4, after all six | `analysis` (CPU, no GPU) | — |
+
+`classical` is finished when its release `outputs-classical` exists and the notebook's last
+line says "All steps finished".
+
+Account B, once:
+1. Accept the GitHub invitation to `FaiazPronoy/TriLens-AMR` (repo Settings → Collaborators).
+2. Make its own token at github.com/settings/personal-access-tokens/new: resource owner
+   **FaiazPronoy**, repository `TriLens-AMR`, Contents **Read and write**. Store it as the
+   Kaggle secret `GITHUB_TOKEN` in account B.
+3. Add the dataset shared by account A (Dataset → Settings → Sharing → add account B).
+
+Never run the same notebook from both accounts at once: both would write the same release.
+
+---
+
 ## Outputs
 
 | Where | What |
