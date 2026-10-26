@@ -237,19 +237,24 @@ class ExpertB(nn.Module):
         # Gated attention: V, U ∈ R^(attn_dim × d_token), w ∈ R^(attn_dim×1)
         self.attn_V = nn.Linear(d_token, attn_dim, bias=False)
         self.attn_U = nn.Linear(d_token, attn_dim, bias=False)
-        # Strain-context projections. Without these the score for a present
-        # gene reduces to a function of E_pa[g] alone, which is identical for
-        # every strain, so the attention degenerates to one global gene
-        # ranking filtered by presence and cannot express per-sample
-        # importance. See Section 5.6.1 of the thesis.
-        if self.strain_conditioned:
-            self.attn_Vc = nn.Linear(d_token, attn_dim, bias=False)
-            self.attn_Uc = nn.Linear(d_token, attn_dim, bias=False)
         self.attn_w  = nn.Linear(attn_dim, 1, bias=False)
 
         # Projection + heads
         self.proj     = nn.Sequential(nn.Linear(d_token, d_out), nn.GELU())
         self.ab_heads = _flat_heads(d_out, len(AB_NAMES))
+
+        # Strain-context projections. Without these the score for a present
+        # gene reduces to a function of E_pa[g] alone, which is identical for
+        # every strain, so the attention degenerates to one global gene
+        # ranking filtered by presence and cannot express per-sample
+        # importance. See Section 5.6.1 of the thesis.
+        # Initialised on a forked RNG so the standard and the strain-conditioned
+        # model draw identical weights for every other parameter, and leave the
+        # global RNG (later modules, dropout, batch order) in the same state.
+        if self.strain_conditioned:
+            with torch.random.fork_rng(devices=[]):
+                self.attn_Vc = nn.Linear(d_token, attn_dim, bias=False)
+                self.attn_Uc = nn.Linear(d_token, attn_dim, bias=False)
 
     def forward(self, X_pa: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
         """
