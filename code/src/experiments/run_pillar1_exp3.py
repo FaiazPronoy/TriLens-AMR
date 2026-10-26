@@ -13,13 +13,20 @@ The asymmetric drop is the cleanest mechanistic proof of the locality mismatch.
 
 Outputs in ``cfg.experiment.output_dir``:
     {dataset}_{antibiotic}_{order}_predictions.npz   (order ∈ {orig, shuf})
+    {dataset}_{antibiotic}_{order}_run.json          (one finished run; reused on a re-run)
     exp3_results.csv
     exp3_results.json
     config_used.yaml
+
+Each of the four runs is saved as soon as it finishes and skipped when its
+``_run.json`` exists. ``EXP3_ONLY=arcadia_CIP_orig,...`` runs only those keys and
+stops before the summary, so a notebook can save its output between runs (an Arcadia
+run takes hours on a T4, and a Kaggle session ends after 12 hours).
 """
 from __future__ import annotations
 
 import json
+import os
 import time
 from pathlib import Path
 
@@ -143,10 +150,24 @@ def run(cfg: DictConfig) -> None:
 
     rows: list[dict] = []
     nested: dict[str, dict] = {}
+    only = {k.strip() for k in os.environ.get("EXP3_ONLY", "").split(",") if k.strip()}
+
+    def _plain(o):
+        return o.item() if hasattr(o, "item") else (o.tolist() if hasattr(o, "tolist") else str(o))
 
     for ab in cfg.experiment.antibiotics:
         for dataset in cfg.experiment.datasets:
             for order_tag in ["orig", "shuf"]:
+                key = f"{dataset}_{ab}_{order_tag}"
+                cache = output_dir / f"{key}_run.json"
+                if only and key not in only:
+                    continue
+                if cache.exists():
+                    saved = json.loads(cache.read_text())
+                    rows.append(saved["row"])
+                    nested[key] = saved["nested"]
+                    print(f"  [cached] {key}: PR-AUC {saved['nested']['metrics']['pr_auc']:.4f}")
+                    continue
                 print("=" * 80)
                 print(f"  EXP 1.3 — {dataset.upper()} × {ab} × {order_tag.upper()}")
                 print("=" * 80)
@@ -191,7 +212,6 @@ def run(cfg: DictConfig) -> None:
                 )
                 rows.append(row)
 
-                key = f"{dataset}_{ab}_{order_tag}"
                 pred_path = output_dir / f"{key}_predictions.npz"
                 np.savez_compressed(pred_path, y_true=result.y_true,
                                     y_prob=result.y_prob)
@@ -203,11 +223,18 @@ def run(cfg: DictConfig) -> None:
                     "best_ckpt": result.best_ckpt,
                 }
 
+                cache.write_text(json.dumps({"row": row, "nested": nested[key]}, default=_plain, indent=1))
                 m = result.metrics
                 print(f"  PR-AUC: {m['pr_auc']:.4f} "
                       f"[{result.pr_auc_ci[0]:.4f}, {result.pr_auc_ci[1]:.4f}]")
 
     df = pd.DataFrame(rows)
+    if only:
+        bad = [r for r in rows if r.get("status", "ok") != "ok"]
+        if bad or not rows:
+            raise SystemExit(f"EXP3_ONLY={sorted(only)}: run failed or key unknown ({bad[:1]})")
+        print(f"  finished {sorted(only)}; the summary runs when all four are cached")
+        return
     failed = df[df["status"] != "ok"] if "status" in df else df
     if len(failed):
         # Do not write exp3_results.csv: the notebooks treat that file as "done".

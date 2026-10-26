@@ -119,7 +119,10 @@ STAGES = {
         about="The plain 1D CNN on the whole pan-genome, with and without shuffled variant order "
               "(the paper's locality argument for the Motif Pattern Encoder). Independent of the rest.",
         writes=["pillar1"],
-        steps=[("1D CNN, ordered vs shuffled variants", H + "pillar1_exp3", "pillar1/exp3/exp3_results.csv")]),
+        steps=[(f"1D CNN, {d} {o}", f"EXP3_ONLY={d}_CIP_{o} " + H + "pillar1_exp3",
+                f"pillar1/exp3/{d}_CIP_{o}_run.json")
+               for d in ("giessen", "arcadia") for o in ("orig", "shuf")]
+              + [("Ordered against shuffled: summary", H + "pillar1_exp3", "pillar1/exp3/exp3_results.csv")]),
     "analysis": dict(
         title="Analysis: stacking, diagnostics, ablation table, figures, paper numbers",
         lensb="fixed", needs=["pa_fix", "classical", "trilens_random", "trilens_splits", "standard_random",
