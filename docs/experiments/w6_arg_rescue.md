@@ -74,7 +74,7 @@ year, study and ST distribution is reported against the included ones.
 
 1. Δ for every drug (7 and 16), with CIs; the same on random 5-fold, so the random-to-ST gap can be
    compared with and without A.
-2. Within-ST pairwise concordance (`src.eval.metrics.within_st_concordance`): among
+2. Within-ST pairwise concordance (`src.evaluation.grouped.within_st_concordance`): among
    resistant–susceptible pairs from the same ST, the share ranked correctly; macro-averaged over STs
    with ≥ 1 such pair; reported for STs with ≥ 5 pairs too. An ST-only score is 0.5 by construction.
 3. Intermediate excluded instead of resistant.
