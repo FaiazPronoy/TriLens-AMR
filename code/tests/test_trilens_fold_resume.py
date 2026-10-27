@@ -69,3 +69,14 @@ def test_without_fold_dir_nothing_is_saved(patched, tmp_path):
     cfg, data = patched
     run(cfg, data, None)
     assert len(TRAINED) == 5 and not list(tmp_path.iterdir())
+
+
+def test_other_presence_matrix_is_not_reused(patched, tmp_path, monkeypatch):
+    cfg, data = patched
+    monkeypatch.setenv("TRILENS_LENSB", "fixed")
+    data["X_pa"] = np.zeros((N, 8), np.uint8)
+    run(cfg, data, tmp_path)
+    TRAINED.clear()
+    data["X_pa"] = np.ones((N, 8), np.uint8)               # rebuilt matrix
+    run(cfg, data, tmp_path)
+    assert len(TRAINED) == 5

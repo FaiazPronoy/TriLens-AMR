@@ -751,6 +751,16 @@ def _fold_path(fold_dir, split_key, fold):
     return Path(fold_dir) / f"{split_key}_fold{fold}.npz"
 
 
+def _pa_signature(X_pa) -> str:
+    """Fingerprint of the presence/absence matrix (per-column counts), so a fold trained
+    on another version of the matrix (KNOWN_ISSUES 12) is never reused."""
+    import hashlib
+    if X_pa is None:
+        return "none"
+    cnt = np.asarray(X_pa).sum(axis=0, dtype=np.int64)
+    return hashlib.md5(np.ascontiguousarray(cnt).tobytes()).hexdigest()
+
+
 def _save_fold(fold_dir, split_key, fold, train_idx, oof_local, fold_seed, lensb, last,
                oof_p, val_p, tst_p, tst_g, hist, aA, aB, aC):
     """Save one finished fold (written to a temporary name, then renamed)."""
@@ -759,7 +769,7 @@ def _save_fold(fold_dir, split_key, fold, train_idx, oof_local, fold_seed, lensb
     p = _fold_path(fold_dir, split_key, fold)
     p.parent.mkdir(parents=True, exist_ok=True)
     arrays = dict(train_idx=np.asarray(train_idx), oof_local=np.asarray(oof_local),
-                  fold_seed=np.array(fold_seed), lensb=np.array(lensb),
+                  fold_seed=np.array(fold_seed), lensb=np.array(lensb[0]), pa_sig=np.array(lensb[1]),
                   oof=oof_p, val=val_p, test=tst_p,
                   history=np.array(json.dumps(hist, default=float)))
     if tst_g is not None:
@@ -779,7 +789,8 @@ def _load_fold(fold_dir, split_key, fold, train_idx, oof_local, fold_seed, lensb
     z = np.load(str(_fold_path(fold_dir, split_key, fold)), allow_pickle=False)
     same = (np.array_equal(z["train_idx"], np.asarray(train_idx))
             and np.array_equal(z["oof_local"], np.asarray(oof_local))
-            and int(z["fold_seed"]) == int(fold_seed) and str(z["lensb"]) == lensb)
+            and int(z["fold_seed"]) == int(fold_seed) and str(z["lensb"]) == lensb[0]
+            and "pa_sig" in z.files and str(z["pa_sig"]) == lensb[1])
     if not same:
         log.warning(f"  saved fold {fold} in {fold_dir} is from a different run; training it again")
         return None
@@ -825,7 +836,7 @@ def run_kfold_oof(
     val_ds  = _build_dataset(val_idx,  X_blocks, data["X_pa"], X_gene_agg, data["Y"], data["label_mask"])
     test_ds = _build_dataset(test_idx, X_blocks, data["X_pa"], X_gene_agg, data["Y"], data["label_mask"])
 
-    lensb = os.environ.get("TRILENS_LENSB", "fixed")
+    lensb = (os.environ.get("TRILENS_LENSB", "fixed"), _pa_signature(data.get("X_pa")))  # run identity
     aA = aB = aC = None
     for fold, (fit_es_local, oof_local) in enumerate(kf.split(np.arange(n_train))):
         fold_seed = seed + fold * 100
