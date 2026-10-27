@@ -65,45 +65,57 @@ AMR dataset, so it is a recommendation other groups can adopt immediately.
 **Risk:** low. The numbers are computed and reproducible. The only work left is framing it
 fairly and running it on the remaining splits.
 
-### 2.2 The feature space does not contain the genes that cause resistance
+### 2.2 The feature space contains the causes for some drugs and not for others — and that ordering predicts which drugs generalise
 
 The SNP and presence/absence views are cut from a pan-genome built from the **72 ECOR
-reference strains**. Searching both annotation sources for the standard acquired
-determinants (**verified** today, over Roary's `gene_presence_absence.csv` annotations and
-`cds_eggNog.tsv`):
+reference strains**. AMRFinderPlus 4.2.7 (database 2026-08-07.1, `--organism Escherichia
+--plus`) on all 18,494 pan-genome CDS (notebook `w4_amrfinder`, results branch
+`results/w4_amrfinder`) gives the curated determinant panel. **Verified:**
 
-| Determinant | Clinical role | Found in the 32,441-locus feature space |
-|---|---|---|
-| CTX-M | dominant ESBL behind CTX/CAZ resistance | **none** |
-| TEM / class A β-lactamase | dominant AMP resistance | **none** (only chromosomal `ampC`, `ampH`) |
-| *dfrA* | trimethoprim (SXT) | **none** (only chromosomal `folA`) |
-| *sul1/2/3* | sulfonamide (SXT) | **none** (only chromosomal `folK`) |
-| *aac*, *aadA*, *aph* | aminoglycoside (GEN) | 1–2 ambiguous hits, no clear *aac/aadA* |
-| *intI1* (class 1 integron) | carries the cassette | **none** (only chromosomal integrases) |
-| *qnr*, OXA, *catA* | quinolone / β-lactam / chloramphenicol | **none** |
-| gyrA, parC | CIP, chromosomal point mutations | **present** |
+| Drug | Main acquired mechanism in *E. coli* | In the feature space (prevalence in our strains) | Classical arm, lineage holdout PR-AUC |
+|---|---|---|---|
+| CIP | gyrA / parC point mutations (chromosomal) | **yes** — the loci are there, variants are SNP columns | **0.916** |
+| AMP | TEM-1 | **yes** — *bla*TEM-1 (49%) | **0.901** |
+| SXT | *sul1/2* + *dfrA* | **half** — *sul1* (28%), *sul2* (36%); **no *dfrA*** | 0.774 |
+| CTX | CTX-M (ESBL) | **no** — no CTX-M, no ESBL of any kind | 0.602 |
+| AMC | OXA-1, TEM hyperproduction, *ampC* promoter | **mostly no** — only TEM-1 and intrinsic *bla*EC | 0.476 |
+| CAZ | CTX-M / other ESBL | **no** | 0.464 |
+| GEN | *aac(3)-II*, *aac(3)-IV*, *ant(2'')-Ia* | **no** — no gentamicin determinant at all | **0.222** |
 
-The one drug whose mechanism is chromosomal (CIP, via gyrA/parC) is the one drug whose
-causal variants are in the feature space — and it is also the drug the model predicts best
-(0.975 on the random split). For every drug whose mechanism is an acquired gene, the model
-is asked to predict a phenotype whose cause it cannot see.
+Other determinants present: *aadA1*, *aadA7*, *aph(3'')-Ib*, *aph(6)-Id*, *aph(3')-Ia*
+(streptomycin/kanamycin, not gentamicin), *tet(A/B/C)*, *catA1*, *fosA7.5*. No CTX-M was found
+anywhere (`ctx_m_hits: []`).
 
-**This is the mechanism behind the field's lineage problem.** Lineage reliance is not a
-modelling failure to be fixed with a better architecture; it is what any model must do when
-the feature space is built from reference genomes and the causal elements are mobile. That
-reframes Yu et al.'s diagnosis into an explanation, and it is a statement about study
-design that applies well beyond this dataset.
+**The ordering is the finding.** The four drugs whose causal determinant is in the feature
+space generalise to unseen lineages (0.77–0.92). The three whose determinant is absent
+collapse (0.22–0.60), with gentamicin — the drug with no determinant at all — worst. The model
+is not failing on hard drugs; it is failing exactly where it was never shown the cause, and
+on those drugs it can only reach resistance through lineage, which is why the lineage
+holdout breaks it.
 
-**Confirmed independently:** the project's own `KNOWN_ISSUES` issue 7 recorded "no CTX-M"
-as a hypothesis from a motif search. Today's annotation search over two independent sources
-agrees and extends it to the whole acquired-determinant panel.
+**This turns the field's lineage problem into an explanation.** Yu et al. (2025) show that
+models lean on lineage; this shows *when they must*: whenever the feature space is built
+from reference genomes and the causal element is mobile and absent from them. That is a
+statement about study design that applies to any reference-panel or reference-mapping
+feature space, not only to this dataset.
 
-**What would make it conclusive (hypothesis until then):** AMRFinderPlus on the
-pan-genome CDS (notebook `w4_amrfinder`, running) gives the determinant panel from NCBI's
-curated database rather than from annotation text. The decisive experiment is the one after
-that: get the determinants from the strains' own assemblies, add them as features, and
-measure whether lineage reliance falls. That needs assemblies or ARG calls per strain,
-which this repository does not have — see §4.
+**It also answers one of Arcadia's open questions (hypothesis, one check away).** Arcadia
+found the SXT signal on aminoglycoside markers (*aadA*) and called it puzzling. In the ECOR
+pan-genome, *aadA1*, *sul1* and *catA1* sit side by side on one reference genome
+(`DHJNCGMO_04398`–`04406`), the arrangement of a class 1 integron, and no *dfrA* exists in the
+feature space at all. So the trimethoprim half of SXT resistance has no direct marker, and the
+nearest available proxy is the cassette neighbour *aadA1* that travels with *sul1* on the same
+element. Check needed: that Arcadia's top SXT marker is this *aadA1* locus or its contig.
+
+**Correction to an earlier draft.** A first pass searched annotation *text* and reported no
+TEM and no *sul*. That was wrong: the annotations did not name them. AMRFinderPlus is the
+authority here, and the table above replaces that pass.
+
+**What would make it conclusive (hypothesis until then):** with 7 drugs the ordering is
+suggestive, not a test. Two steps turn it into one: (1) extend to the 16 drugs with enough
+labels (§4.2) and test whether "determinant present in feature space" predicts the holdout
+gap; (2) the intervention — add each strain's own determinant calls as features and measure
+whether the gap closes for CTX, CAZ and GEN. Step 2 needs per-strain ARG calls (§4.1).
 
 ### 2.3 A metric that separates resistance from lineage: within-lineage discrimination
 
@@ -194,7 +206,7 @@ Stated plainly so nobody pretends otherwise.
 | The floor is dismissed as "assembly size is biology" | Reviewer says the baseline is not a confounder | Already handled: report the blocks separately (assembly stats 0.596, country+year 0.516, publication 0.397) and frame it as a floor, not an artefact |
 | Within-lineage discrimination is near chance for every model | §2.3 table is flat | Publish it. It is the strongest possible support for §2.1 and §2.2, and it is the honest answer |
 | Lens B strain conditioning is noise | multi-seed CIs overlap | The §3 framing survives; the ablation becomes a negative result reported with CIs |
-| BV-BRC ARG tables unavailable for these genome IDs | §2.2 stays a hypothesis | Fall back on the Arcadia resistance VCF, and state the limitation |
+| BV-BRC ARG tables unavailable for these genome IDs | §2.2 stays correlational | Fall back on the Arcadia resistance VCF, and state the limitation |
 | 16-drug expansion changes the headline | some drugs do much worse | That is the point of the analysis; report per-drug, grouped by mechanism class |
 
 ---
@@ -208,7 +220,7 @@ CPU-only and no new data, so these can start now:
 2. Within-lineage discrimination (§2.3) from the saved predictions of the re-run.
 3. The 16-drug expansion: labels and splits exist; the classical arm and the lookup
    baselines run per drug.
-4. `w4_amrfinder` (running) → the curated determinant panel for §2.2.
+4. `w4_amrfinder` → the curated determinant panel for §2.2 — **done**.
 
 Needs a decision from the owner:
 

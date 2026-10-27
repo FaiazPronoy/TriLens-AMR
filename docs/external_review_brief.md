@@ -102,13 +102,15 @@ k-mer: nothing read from the genome sequence. Broken into blocks on the random s
 assembly statistics alone 0.596, country + year 0.516, publication alone 0.397, all together
 0.710.
 
-**Feature-space audit** (searched both the Roary annotations and eggNOG annotations of all
-32,441 loci): the pan-genome contains **no CTX-M, no TEM / class A β-lactamase, no *dfrA*,
-no *sul1/2/3*, no clear *aac* or *aadA*, no *intI1*, no *qnr*, no OXA, no *catA***. It does
-contain chromosomal *ampC*, *ampH*, *folA*, *folK*, *gyrA* and *parC*. In other words, for
-every drug whose resistance mechanism is an acquired gene, the causal element is absent from
-the feature space; the one drug with a chromosomal mechanism (CIP, gyrA/parC) is both
-present and the best predicted.
+**Feature-space audit** (AMRFinderPlus 4.2.7, database 2026-08-07.1, on all 18,494 pan-genome
+CDS). Present: *bla*TEM-1 (in 49% of strains), *sul1* (28%), *sul2* (36%), *aadA1*, *aadA7*,
+*aph(3'')-Ib*, *aph(6)-Id*, *aph(3')-Ia*, *tet(A/B/C)*, *catA1*, *fosA7.5*, intrinsic *bla*EC;
+gyrA/parC loci (CIP mutations are SNP columns). **Absent: any CTX-M or other ESBL, any
+gentamicin determinant (*aac(3)-II/IV*, *ant(2'')-Ia*), any *dfrA*.** Against the classical
+arm's lineage-holdout PR-AUC: CIP 0.916, AMP 0.901, SXT 0.774 (determinant present or half
+present) versus CTX 0.602, AMC 0.476, CAZ 0.464, GEN 0.222 (determinant absent or mostly
+absent). *aadA1*, *sul1* and *catA1* sit side by side on one reference genome, a class 1
+integron arrangement.
 
 **Within-lineage phenotype discordance** (strains with a known ST = 6,487): sequence types
 containing both resistant and susceptible strains — AMP 121 STs / 4,060 strains, CIP 56 /
