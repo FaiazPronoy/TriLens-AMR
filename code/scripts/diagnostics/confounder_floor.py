@@ -55,6 +55,10 @@ FEATURE_SETS = {
     "publication_only": ["publication"],
     "country_year": ["country", "year"],
     "all_metadata": list(BLOCKS),
+    # after the external review (docs/novelty.md §7): assembly statistics partly track plasmid load,
+    # so the purely epidemiological fields are scored on their own as well
+    "epi_only": ["year", "country", "platform", "publication"],
+    "epi_no_publication": ["year", "country", "platform"],
 }
 
 
@@ -79,10 +83,18 @@ def load_splits(names):
 
 def metadata_frame(genome_names):
     """One row per strain, in the processed data's order. No sequence is read."""
-    md = pd.read_csv(RAW / "strains_metadata.csv", low_memory=False)
-    if md["Genome.Name"].duplicated().any():
-        raise ValueError("duplicate genome names in strains_metadata.csv")
-    md = md.set_index("Genome.Name").reindex(np.asarray(genome_names).astype(str))
+    if (RAW / "strains_metadata.csv").exists():
+        md = pd.read_csv(RAW / "strains_metadata.csv", low_memory=False)
+        if md["Genome.Name"].duplicated().any():
+            raise ValueError("duplicate genome names in strains_metadata.csv")
+        md = md.set_index("Genome.Name").reindex(np.asarray(genome_names).astype(str))
+    else:   # a Kaggle notebook: the committed copy, already in the processed data's order
+        import os
+        repo = os.environ.get("TRILENS_REPO_RESULTS")
+        md = pd.read_csv((Path(repo) if repo else RES) / "data_inventory" / "covariates.csv",
+                         dtype={"Publication": str})
+        if len(md) != len(genome_names):
+            raise ValueError("covariates.csv does not match the processed data")
     cols = {}
     for block, fields in BLOCKS.items():
         for c in fields:
@@ -119,12 +131,14 @@ def main() -> int:
                                  n_train=len(i_tr), n_test=len(i_te),
                                  test_prevalence=round(float(y_te.mean()), 4),
                                  pr_auc=round(float(average_precision_score(y_te, p)), 4),
+                                 nap=round(float((average_precision_score(y_te, p) - y_te.mean())
+                                                 / (1 - y_te.mean())), 4),
                                  roc_auc=round(float(roc_auc_score(y_te, p)), 4)))
     df = pd.DataFrame(rows)
     if df.empty:
         print("nothing computed")
         return 1
-    means = (df.groupby(["split", "feature_set"])[["pr_auc", "roc_auc"]].mean().round(4)
+    means = (df.groupby(["split", "feature_set"])[["pr_auc", "nap", "roc_auc"]].mean().round(4)
              .reset_index().assign(antibiotic="MEAN"))
     out = RES / "diagnostics" / "confounder_floor.csv"
     out.parent.mkdir(parents=True, exist_ok=True)

@@ -281,6 +281,19 @@ STAGES["w6_rescue"] = dict(
            ("Sensitivity: intermediate excluded (ST-grouped and random only)",
             M + "run_arg_rescue --drugs paper --labels no_intermediate",
             "w6_rescue/paper_no_intermediate/verdict.json")])
+STAGES["shortcut_floor"] = dict(
+    code_ref="extension",
+    title="Metadata-only baseline on every split, epidemiological and assembly fields apart",
+    lensb="fixed", needs=[], cpu=True, gpu="None (CPU)",
+    hours="about 10 minutes",
+    about="No sequence feature at all. Feature sets: assembly statistics only, publication only, "
+          "country + year, epidemiological fields only (with and without publication), everything. "
+          "Splits: random, ST holdout, UK to Norway, Norway to UK, Norway time. Reports PR-AUC, the "
+          "prevalence-normalised score and AUROC.",
+    writes=["diagnostics"],
+    steps=[("Rebuild the split files from code/results/splits/*.json", "python -m src.splits.from_json", None),
+           ("Metadata-only baseline", D + "confounder_floor.py --splits random,mlst,country_uk_to_norway,"
+            "country_norway_to_uk,time_norway_2013", "diagnostics/confounder_floor.csv")])
 STAGES["w6_rescue_16"] = dict(
     code_ref="extension",
     title="W6: the same test on all 16 eligible drugs",
