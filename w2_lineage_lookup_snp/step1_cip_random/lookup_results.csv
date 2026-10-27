@@ -1,0 +1,4 @@
+note,split,antibiotic,tier,baseline,status,n_train,n_val,n_test,n_test_resistant,train_prev,test_prev,val_pr_auc,best_on_val,test_pr_auc,ci_lo,ci_hi,test_roc_auc,pr_auc_matched_train_prev,pr_auc_matched_random_test_prev,vme_0p5,me_0p5,test_share_st_seen,k,n_unmatched_excluded
+SNP-distance lookups (the paper's W2 table),S1_random,CIP,primary,st_lookup,ok,4206,917,910,198,0.2344,0.2176,0.7546,False,0.7454,0.6885,0.7951,0.9129,0.76,0.7454,0.3182,0.066,0.8901098901098901,,0
+SNP-distance lookups (the paper's W2 table),S1_random,CIP,primary,phylogroup,ok,4206,917,910,198,0.2344,0.2176,0.2555,False,0.2482,0.2144,0.2904,0.5694,0.2666,0.2482,1.0,0.0,,,0
+SNP-distance lookups (the paper's W2 table),S1_random,CIP,primary,knn_snp,ok,4206,917,910,198,0.2344,0.2176,0.9293,True,0.8984,0.8581,0.9317,0.9556,0.9037,0.8984,0.2172,0.0183,,10.0,0
