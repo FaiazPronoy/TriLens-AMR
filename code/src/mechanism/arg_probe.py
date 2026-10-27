@@ -19,6 +19,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import re
 import shutil
 import subprocess
@@ -33,8 +34,10 @@ from src.data.metadata import AB_NAMES
 from src.mechanism.amrfinder import parse_hits
 
 ROOT = Path(__file__).resolve().parents[2]
-MANIFEST = ROOT / "results" / "data_inventory" / "genome_ids.csv"
-LABELS = ROOT / "results" / "data_inventory" / "strain_table.csv"
+# committed tables: in a Kaggle notebook they are in the cloned repository, not in WORK/results
+_INV = Path(os.environ.get("TRILENS_REPO_RESULTS") or ROOT / "results") / "data_inventory"
+MANIFEST = _INV / "genome_ids.csv"
+LABELS = _INV / "strain_table.csv"
 BVBRC = ["https://ftp.bvbrc.org/genomes/{g}/{g}{ext}", "ftp://ftp.bvbrc.org/genomes/{g}/{g}{ext}"]
 EXTS = [".fna", ".PATRIC.spgene.tab"]
 NCBI_PD = "https://ftp.ncbi.nlm.nih.gov/pathogen/Results/Escherichia_coli_Shigella/"
