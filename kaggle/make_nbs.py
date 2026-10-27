@@ -200,6 +200,7 @@ STAGES = {
                 "PATH=$(tail -1 /tmp/amr_bin.txt):$PATH python -m src.mechanism.arg_probe --out results/arg_probe",
                 "arg_probe/probe.json")]),
     "analysis": dict(
+        code_ref="extension",      # holdout_validity.py and the grouped metrics are on extension
         title="Analysis: stacking, diagnostics, ablation table, figures, paper numbers",
         lensb="fixed", needs=["pa_fix", "classical", "trilens_random", "trilens_splits", "standard_random",
                               "standard_splits", "shuffle_test"],
