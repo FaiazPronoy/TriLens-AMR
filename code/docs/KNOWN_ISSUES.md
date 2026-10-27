@@ -179,7 +179,46 @@ range are worth a look (possible mixed samples).
 For the paper: every Lens B number and figure comes from the rebuilt matrix. State the
 orientation rule in Methods.
 
-### 13. SNP calls: missing = reference
+
+### 13. The re-run's shuffle test does not support the paper's locality claim (October 2026)
+
+The paper (Methods, Motif Pattern Encoder; Pillar 1) says the plain 1D CNN on the whole
+pan-genome "performed equally well with the shuffled input". The re-run (notebook
+`shuffle_test`, code 3261258, CIP, seed 42, one fixed permutation) says otherwise:
+
+| Dataset | Ordered | Shuffled | Drop |
+|---|---|---|---|
+| Arcadia (pan-genome) | 0.775 [0.719, 0.829] | 0.632 [0.572, 0.691] | **0.143** |
+| Giessen (one reference) | 0.840 [0.731, 0.936] | 0.660 [0.523, 0.786] | 0.180 |
+
+The pre-registered rule (Giessen drop >= 0.05 and Arcadia drop <= 0.02) fails on the
+Arcadia side; the script calls it inconclusive. The CIs of the Arcadia pair do not overlap.
+A likely reason: the pan-genome columns are ordered by ECOR contig, so neighbouring columns
+often come from the same contig and are in linkage; order is not meaningless there.
+
+For the paper: drop the sentence that shuffling did not hurt, and the table row that says
+variant order "carries no information". Report both drops. The case for convolving only
+inside gene blocks must rest on the layer ablation and on the within-gene design, not on this
+test. One seed and one permutation only; more seeds/permutations would make it firmer.
+
+### 14. TriLens T7 inside `trilens_v10` removed (October 2026)
+
+`trilens_v10` ran T6 (random split) and T7 (phylogeny split). T7 stacks with the
+random-split classical arm, whose strains differ from the phylogeny split, so the index
+check added in PR #4 now refuses it (it failed in the re-run after 3.5 GPU hours). The
+paper's phylogroup number comes from `run_trilens_t7_clean_gene_set` (notebook
+`trilens_splits`). `configs/experiment/trilens_v10.yaml` now runs T6 only.
+
+### 15. First `trilens_splits` re-run used the old presence/absence matrix (October 2026)
+
+The notebook was imported before `pa_fix` existed, so its cells did not take the rebuilt
+matrix (its zip has no `_PA_FIXED.txt`; `analysis` refuses it). It must run again from a
+freshly imported notebook. The setup cell now discards a TriLens notebook's own release when
+it was made on the old matrix, and saved folds carry a fingerprint of the matrix, so nothing
+from that run is reused. Its numbers (phylogroup T7 0.7776; holdout neural lenses 0.4740)
+are not for the paper.
+
+### 16. SNP calls: missing = reference
 
 `notebooks/snp_matrix_from_vcf.ipynb` codes a missing genotype as the reference allele (Arcadia's
 convention), and the MAF filter counts missing as reference. In accessory genes, absence of the gene

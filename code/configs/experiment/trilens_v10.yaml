@@ -97,7 +97,10 @@ split_key: random_split        # override with phylogeny_split for T7
 # T5 All 3, MoE gate (full TriLens standalone)
 # T6 T5 + K-fold OOF + 5 classical bases + LogReg meta  ← HEADLINE
 # T7 T6 on phylogeny_split  ← leakage-corrected reviewer number
-ablations: [T6, T7]
+# T7 is not run here: it would stack with the random-split classical arm (stage3_cascadestack_v9),
+# whose strains differ from the phylogeny split, and the index check refuses that. The paper's
+# phylogroup-split number is run_trilens_t7_clean_gene_set (notebook trilens_splits).
+ablations: [T6]
 
 # ── Evaluation ────────────────────────────────────────────────────────────────
 evaluation:

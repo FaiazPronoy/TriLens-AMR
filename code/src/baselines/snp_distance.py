@@ -2,7 +2,7 @@
 SNP Hamming distance between all strains (W2, kNN on SNPs), as pre-registered in
 docs/experiments/w2_lineage_lookup.md: every non-zero genotype code counts as "differs from
 reference", and the distance is the number of the 535,439 SNP columns where exactly one of the two
-strains differs from reference. Missing calls are reference (KNOWN_ISSUES 13).
+strains differs from reference. Missing calls are reference (KNOWN_ISSUES 16).
 
     python -m src.baselines.snp_distance            # -> data/cache/snp_hamming.npy (int32, ~194 MB)
 

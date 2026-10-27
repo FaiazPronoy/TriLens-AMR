@@ -126,6 +126,7 @@ def main() -> None:
     result = run_kfold_and_stack(
         "T7", cfg, data, X_blocks, M_blocks, X_gene_agg,
         "phylogeny_split", SEED, device,
+        fold_dir=output_dir / "folds",
     )
     elapsed_min = (time.time() - t0) / 60
     print(f"T7 (clean gene set) done in {elapsed_min:.1f} min")

@@ -137,7 +137,7 @@ Last update: 26 October 2026, night run (working alone; the owner was asleep). B
    - Predictive numbers are not affected (trees, LogReg, Hamming kNN do not care). Lens B and every
      "attended gene" interpretation are.
    - Strong hypothesis; needs the raw `.bim`/`.bed` on Kaggle to confirm.
-2. **SNP calls code missing as reference** (Arcadia convention, KNOWN_ISSUES 13). In accessory
+2. **SNP calls code missing as reference** (Arcadia convention, KNOWN_ISSUES 16; renumbered when merged with main). In accessory
    genes, gene absence and reference allele are the same value.
 3. **Country = study; host is unusable.** UK (3,387) and Norway (2,964) hold 91% of strains.
    - Norway has no AMC, the UK almost no SXT, so the country split works for AMP, CIP, GEN, CTX, CAZ.
@@ -184,7 +184,7 @@ Since this PR was written, on `main` (merged into `extension`):
 - **Finding 1 is confirmed and fixed** by the Kaggle notebook `pa_fix` (`scripts/repair_gene_pa.py`):
   `.bim` letter `2` = present, 10,511 loci flipped, gyrA/parC/rpoB/recA now 100% present. The TriLens
   notebooks and `analysis` take the rebuilt matrix from the release `outputs-pa_fix`. `w0_encoding`
-  is no longer needed for the orientation; the VCF part (missing calls, issue 13) still is.
+  is no longer needed for the orientation; the VCF part (missing calls, issue 16) still is.
 - The rebuilt matrix has 9,569 to 18,620 loci per strain (mean 11,846). Look at the strains at the top
   of that range in W0 (possible mixed samples) and report how many there are.
 - The P/A Hamming distance of the W2 pilot is unchanged by the flip for all matched strains (both

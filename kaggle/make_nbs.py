@@ -364,6 +364,8 @@ USES_RANDOM_GF = {{"stage3_cascadestack_v9", "tabnet_baseline", "pillar_tabnet_p
                   "pillar3_xgb_importance", "pillar3_shap", "pillar_shap_t6", "trilens_attnfix",
                   "pillar2_layer_ablation", "pillar_dedup_eval", "pillar_metrics_full"}}
 _pre_repair = set()
+# Notebooks whose runs read the gene presence/absence matrix (rebuilt by pa_fix, issue 12).
+PA_STAGES = ("trilens_random", "trilens_splits", "standard_random", "standard_splits")
 _unfinished = set()      # stages whose output has no _COMPLETE.txt (still running, or stopped)
 _pa_old = set()          # stages whose output was made with the old presence/absence matrix
 
@@ -381,6 +383,8 @@ def _take(stage, rel, read):
         return 0
     if stage == NAME and t.exists():
         return 0                          # a newer copy from an earlier stage is already here
+    if stage == NAME and NAME in PA_STAGES and stage in _pa_old:
+        return 0                          # own earlier run used the old presence/absence matrix: redo it
     if stage in _pre_repair and rel.removeprefix("standard/").split("/")[0] in USES_RANDOM_GF:
         return 0
     t.parent.mkdir(parents=True, exist_ok=True)
@@ -433,8 +437,9 @@ if waiting:
 
 # The gene presence/absence matrix in the dataset marks the minority state of each locus,
 # not presence (KNOWN_ISSUES, issue 12). Notebooks that read it use the copy rebuilt by pa_fix.
-PA_STAGES = ("trilens_random", "trilens_splits", "standard_random", "standard_splits")
 PA_STATE = "original"
+if NAME in _pa_old and NAME in PA_STAGES:
+    print(f"earlier: {{NAME}} own release was made with the old presence/absence matrix - not reused")
 if "pa_fix" in NEEDS:
     pa_fixed = RES / "pa_fix" / "arcadia_v2_gene_presence_absence.pkl"
     if not pa_fixed.exists():
@@ -521,8 +526,13 @@ def run(cmd, marker=None, cwd=None, env=None):
     t = time.time()
     p = subprocess.Popen(cmd, shell=True, cwd=root, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
                          text=True, env={**os.environ, **(env or {})})
+    last_save = time.time()
     for line in p.stdout:
         print(line, end="")
+        if time.time() - last_save > 1200:        # a long step: save what it has so far
+            package()                              # (finished folds, cached runs) every 20 min,
+            sync()                                 # so a session that ends at 12 h loses little
+            last_save = time.time()
     p.wait()
     print(f"\n[{'ok' if p.returncode == 0 else 'FAILED'}] {cmd}  ({(time.time() - t) / 60:.1f} min)")
     package()

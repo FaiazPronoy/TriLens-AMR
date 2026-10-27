@@ -116,3 +116,33 @@ def test_rebuilt_presence_matrix_replaces_the_dataset_copy(nb, tmp_path):
             sys.modules["github_sync"] = saved
     assert (proc / "arcadia_v2_gene_presence_absence.pkl").read_text() == "rebuilt"
     assert ns["PA_STATE"] == "fixed"
+
+
+@pytest.mark.parametrize("nb", NBS, ids=lambda n: n.stem)
+def test_own_release_on_old_presence_matrix_is_not_reused(nb, tmp_path):
+    own = tmp_path / "trilens_splits_outputs.zip"
+    with zipfile.ZipFile(own, "w") as z:                     # finished, but on the old matrix
+        z.writestr("_DATA_REPAIRED.txt", "repaired")
+        z.writestr("_COMPLETE.txt", "failed steps:\n")
+        z.writestr("pillar_trilens_mlst/predictions_saved.npz", "old matrix")
+    src = "".join(json.loads(nb.read_text(encoding="utf-8"))["cells"][1]["source"])
+    if "PA_STAGES" not in src:
+        pytest.skip("notebook made before pa_fix")
+    start, end = src.index("def _target"), src.index("waiting = sorted")
+    gh = types.ModuleType("github_sync")
+    gh.download_asset = lambda repo, token, tag, name, dest: {"trilens_splits": own}.get(tag[len("outputs-"):])
+    inp = tmp_path / "input"
+    inp.mkdir()
+    ns = {"Path": Path, "sys": sys, "zipfile": zipfile, "RES": tmp_path / "results", "LENSB": "fixed",
+          "FIXED_TRILENS": ("trilens_random", "trilens_splits"), "INPUT": inp, "NAME": "trilens_splits",
+          "NEEDS": [], "GITHUB_REPO": "x/y", "TOKEN": None, "BASE": tmp_path, "WORK": tmp_path}
+    saved = sys.modules.get("github_sync")
+    sys.modules["github_sync"] = gh
+    try:
+        exec(src[start:end], ns)
+    finally:
+        if saved is None:
+            sys.modules.pop("github_sync", None)
+        else:
+            sys.modules["github_sync"] = saved
+    assert not (tmp_path / "results" / "pillar_trilens_mlst" / "predictions_saved.npz").exists()

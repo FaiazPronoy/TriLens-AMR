@@ -42,7 +42,7 @@ Per strain and drug:
 
 - The pan-genome is ECOR72-based, so acquired genes outside it are invisible (W4).
 - AMC and the cephalosporins depend on enzyme variant and expression, which presence cannot capture.
-- Missing SNP calls count as reference (KNOWN_ISSUES 13), so point mutations in absent genes are not
+- Missing SNP calls count as reference (KNOWN_ISSUES 16), so point mutations in absent genes are not
   called.
 
 ## Pass/fail

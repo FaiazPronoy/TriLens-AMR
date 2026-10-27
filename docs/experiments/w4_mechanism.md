@@ -72,7 +72,7 @@ ESBL family) are absent from the feature space, the mapping and the W5 rules ali
   - Codon = ⌈POS/3⌉. The reference codon is checked against the translated CDS of `pangenome_cds.fa`:
     gyrA codon 83 must be Ser and 87 Asp; parC codon 80 Ser.
   - If a check fails, step 4 stops and reports. Positions are not "fixed" by hand.
-  - Calls: gyrA S83L; gyrA D87N/H/Y/G; parC S80I/R. Missing calls are coded reference (KNOWN_ISSUES 13);
+  - Calls: gyrA S83L; gyrA D87N/H/Y/G; parC S80I/R. Missing calls are coded reference (KNOWN_ISSUES 16);
     gyrA and parC are core genes, so absence is rare and is reported.
 - **Interaction.** Logistic regression CIP-R ~ gyrA83 + gyrA87 + parC80 + gyrA(any) × parC80 +
   phylogroup, on CIP-tested strains. Report:
