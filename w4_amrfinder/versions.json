@@ -1,0 +1,18 @@
+{
+ "command": "amrfinder -n data/raw/pangenome/pangenome_cds.fa --organism Escherichia --plus --threads 4 -o results/w4_amrfinder/amrfinder_hits.tsv",
+ "software": "4.2.7",
+ "database": "Software directory: '/tmp/amr/env/bin/'\nSoftware version: 4.2.7\nDatabase directory: '/tmp/amr/env/share/amrfinderplus/data/2026-08-07.1'\nDatabase version: 2026-08-07.1",
+ "hits": 163,
+ "amr_hits": 18,
+ "ctx_m_hits": [],
+ "counted_per_drug": {
+  "AMP": 1,
+  "CIP": 0,
+  "AMC": 1,
+  "SXT": 2,
+  "GEN": 0,
+  "CTX": 0,
+  "CAZ": 0
+ },
+ "loci_not_in_pa_matrix": 0
+}
