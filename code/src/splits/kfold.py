@@ -6,7 +6,8 @@ K-fold splits for W6 (docs/experiments/w6_arg_rescue.md):
                      Strains with unknown ST are in training in every fold and never scored.
   random_5fold       sklearn KFold(shuffle, seed 0) over all strains.
 
-    python -m src.splits.kfold            writes results/splits/{st_grouped_5fold,random_5fold}.json
+    python -m src.splits.kfold            writes results/splits_kfold/{st_grouped_5fold,random_5fold}.json
+    (not results/splits: src.splits.from_json reads every file there as a train/val/test split)
     load_kfold(name) -> dict(folds=[test index arrays], never_tested=array, rules=...)
 
 ST per strain comes from results/data_inventory/strain_table.csv (the committed copy of the
@@ -57,7 +58,7 @@ def random_folds(n, k=K, seed=0):
 
 def write():
     st = strain_st()
-    out = results_dir() / "splits"
+    out = results_dir() / "splits_kfold"
     out.mkdir(parents=True, exist_ok=True)
     specs = {
         "st_grouped_5fold": (st_grouped(st), "STs whole in one fold, largest first to the emptiest fold; "
@@ -74,7 +75,7 @@ def write():
 
 
 def load_kfold(name):
-    d = json.loads((results_dir() / "splits" / f"{name}.json").read_text())
+    d = json.loads((results_dir() / "splits_kfold" / f"{name}.json").read_text())
     folds = [np.asarray(f, int) for f in d["folds"]]
     allidx = np.concatenate(folds + [np.asarray(d["never_tested"], int)])
     if len(allidx) != d["n_strains"] or len(np.unique(allidx)) != d["n_strains"]:

@@ -42,7 +42,7 @@ tuning than another.
 
 ## Splits
 
-- **Primary: ST-grouped 5-fold** (`results/splits/st_grouped_5fold.json`). Every Achtman ST, large
+- **Primary: ST-grouped 5-fold** (`results/splits_kfold/st_grouped_5fold.json`). Every Achtman ST, large
   ones included, lies whole in one fold; STs are dealt largest first to the fold with the fewest
   strains. Strains with unknown ST are in training in every fold and are never scored.
 - Secondary: random 5-fold; the country (S4a, S4b) and time (S5) splits.
@@ -88,3 +88,9 @@ A gene being present does not show it is expressed or that it causes the phenoty
 that the catalogue omits information that predicts resistance in unseen lineages; it does not show
 that omission is the only cause of the gap. Assemblies are short-read and BV-BRC-built; genes split
 across contigs can be missed.
+
+## Amendments
+
+- 2026-10-28 (before any ARG data): the k-fold files moved from `results/splits/` to
+  `results/splits_kfold/`, because `src.splits.from_json` reads every file in `results/splits/` as a
+  train/val/test split. Content unchanged; no rule changed.

@@ -47,6 +47,9 @@ def main():
         st = pickle.load(f)["st_per_genome"]
     for p in files:
         d = json.loads(p.read_text())
+        if "folds" in d:      # a k-fold file put here by mistake: not a train/val/test split
+            print(f"[skip] {p.name}: k-fold file (belongs in results/splits_kfold)")
+            continue
         split = split_from_json(d, len(st), st)
         out = PROCESSED / f"{d['name']}_split.pkl"
         with open(out, "wb") as f:

@@ -80,12 +80,11 @@ def load_splits(names):
     from src.splits.kfold import load_kfold
     out = {}
     for n in names:
-        p = repo_results() / "splits" / f"{n}.json"
-        d = json.loads(p.read_text())
-        if "folds" in d:
+        if (repo_results() / "splits_kfold" / f"{n}.json").exists():
             k = load_kfold(n)
             out[n] = [(np.setdiff1d(np.arange(k["n_strains"]), f), f) for f in k["folds"]]
         else:   # a train/val/test split: one fold, validation strains join training
+            d = json.loads((repo_results() / "splits" / f"{n}.json").read_text())
             tr = np.r_[np.asarray(d["train_idx"], int), np.asarray(d["val_idx"], int)]
             out[n] = [(tr, np.asarray(d["test_idx"], int))]
     return out
