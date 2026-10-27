@@ -231,6 +231,8 @@ STAGES = {
             ("Attention diagnosis", D + "attention_diagnosis.py", "diagnostics/attention_diagnosis.csv"),
             ("Pillar 1 summary", M + "aggregate_pillar1_results --paper-outline /tmp/outline.md",
              "pillar1/pillar1_combined.csv"),
+            ("Lineage holdout read with prevalence, AUROC, within-ST concordance and ST-clustered CIs",
+             D + "holdout_validity.py", "diagnostics/holdout_validity.csv"),
             ("Leakage and split checks (a FAIL stops the paper numbers being used)",
              D + "check_leakage.py", None),
         ]),
