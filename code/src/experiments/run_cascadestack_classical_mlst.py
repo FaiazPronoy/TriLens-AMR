@@ -131,9 +131,12 @@ def main() -> None:
     )
 
     n_ab = len(ANTIBIOTICS)
-    gan_oof_dummy = np.zeros((len(tr_idx), n_ab), dtype=np.float32)
-    gan_val_dummy = np.zeros((len(va_idx), n_ab), dtype=np.float32)
-    gan_test_dummy = np.zeros((len(te_idx), n_ab), dtype=np.float32)
+    # placeholder columns are indexed by the label's position among ALL label_names (ab_idx below),
+    # not by its position in ANTIBIOTICS: a split that fits only some drugs (W1) must not run past them
+    n_cols = len(label_names)
+    gan_oof_dummy = np.zeros((len(tr_idx), n_cols), dtype=np.float32)
+    gan_val_dummy = np.zeros((len(va_idx), n_cols), dtype=np.float32)
+    gan_test_dummy = np.zeros((len(te_idx), n_cols), dtype=np.float32)
 
     all_rows = []
     all_test_preds: dict[str, np.ndarray] = {}
