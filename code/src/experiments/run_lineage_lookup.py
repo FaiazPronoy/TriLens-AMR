@@ -5,7 +5,8 @@ W2: lineage-lookup baselines on every split (docs/experiments/w2_lineage_lookup.
     python -m src.experiments.run_lineage_lookup             # all splits, all antibiotics
 
 Distance: gene presence/absence (Hamming), the CPU stand-in. The SNP-distance variant runs on
-Kaggle (w2_snp_knn). Output: results/w2_lineage_lookup_pa_pilot/ (step 1, CIP on S1, in step1_cip_random/).
+Kaggle (w2_snp_knn) with --distance snp -> results/w2_lineage_lookup_snp/. P/A output:
+results/w2_lineage_lookup_pa_pilot/ (step 1, CIP on S1, in step1_cip_random/).
 """
 from __future__ import annotations
 
@@ -46,17 +47,23 @@ def load_splits():
 
 
 def pa_distance():
-    CACHE.mkdir(parents=True, exist_ok=True)
-    p = CACHE / "pa_hamming.npy"
-    if p.exists():
-        return np.load(p)
+    """Hamming distances on the rebuilt presence/absence matrix (KNOWN_ISSUES 12), and the mask of
+    strains that have a presence/absence profile at all (13 do not: all zeros)."""
     with open(PROCESSED / "arcadia_v2_gene_presence_absence.pkl", "rb") as f:
         pa = pickle.load(f)
+    if not str(pa.get("encoding_rule", "")).startswith("present = (allele letter"):
+        raise ValueError("arcadia_v2_gene_presence_absence.pkl is the old minority-state file; "
+                         "use the rebuilt one from the outputs-pa_fix release")
+    matched = np.asarray(pa["matched_mask"]).astype(bool)
+    CACHE.mkdir(parents=True, exist_ok=True)
+    p = CACHE / "pa_hamming_rebuilt.npy"
+    if p.exists():
+        return np.load(p), matched
     t0 = time.time()
     D = hamming_matrix(pa["X_pa"])
     np.save(p, D)
     print(f"P/A Hamming matrix {D.shape} in {time.time() - t0:.0f}s -> {p}")
-    return D
+    return D, matched
 
 
 def tier(split, ab):
@@ -64,14 +71,14 @@ def tier(split, ab):
     return "primary" if ab in a["primary"] else ("secondary" if ab in a.get("secondary", []) else "below minimum")
 
 
-def run(t, D, splits, abs_, random_test_prev, out_scores):
+def run(t, D, splits, abs_, random_test_prev, out_scores, keep, knn_name="knn_pa"):
     rows = []
     st = np.array(t.st.values, dtype=object)
     pg = np.array(t.phylogroup.values, dtype=object)
     for sid, sp in splits.items():
         for ab in abs_:
             y_all = t[ab].values
-            lab = lambda idx: idx[~np.isnan(y_all[idx])]
+            lab = lambda idx: idx[~np.isnan(y_all[idx]) & keep[idx]]
             tr, va, te = lab(sp["train"]), lab(sp["val"]), lab(sp["test"])
             ytr, yva, yte = (y_all[i].astype(int) for i in (tr, va, te))
             if min(ytr.sum(), (1 - ytr).sum(), yte.sum(), (1 - yte).sum(), yva.sum(), (1 - yva).sum()) == 0:
@@ -86,7 +93,7 @@ def run(t, D, splits, abs_, random_test_prev, out_scores):
             kv = knn_scores(D[np.ix_(va, tr)], ytr)
             k, _ = choose_k(kv, yva)
             kt = knn_scores(D[np.ix_(te, tr)], ytr, ks=(k,))[k]
-            base["knn_pa"] = (kv[k], kt, {"k": k})
+            base[knn_name] = (kv[k], kt, {"k": k})
             val_ap = {b: average_precision_score(yva, v[0]) for b, v in base.items()}
             best = max(val_ap, key=val_ap.get)
             for b, (sv, sc, extra) in base.items():
@@ -115,7 +122,7 @@ def run(t, D, splits, abs_, random_test_prev, out_scores):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--pilot", action="store_true", help="S1 random split, CIP only")
-    ap.add_argument("--distance", default="pa", choices=["pa"])
+    ap.add_argument("--distance", default="pa", choices=["pa", "snp"])
     a = ap.parse_args()
     t = load_strain_table()
     splits = load_splits()
@@ -124,21 +131,36 @@ def main():
         splits, abs_ = {"S1_random": splits["S1_random"]}, ["CIP"]
     else:
         abs_ = AB_NAMES
-    D = pa_distance()
-    out = ROOT / "results" / f"w2_lineage_lookup_{a.distance}_pilot"
+    if a.distance == "pa":
+        D, keep = pa_distance()
+        print(f"{int((~keep).sum())} strains without a presence/absence profile are left out of every partition")
+        out = ROOT / "results" / "w2_lineage_lookup_pa_pilot"
+        note = "P/A-only pilot (rebuilt presence/absence matrix; the SNP variant runs on Kaggle)"
+        about = ("Distance = Hamming on the 32,441 gene presence/absence columns of the rebuilt matrix "
+                 "(KNOWN_ISSUES 12), with the 13 strains that have no presence/absence profile left out of "
+                 "every partition; a stand-in for the SNP distance that runs on Kaggle.")
+    else:
+        snp = CACHE / "snp_hamming.npy"
+        if not snp.exists():
+            raise FileNotFoundError(f"{snp} missing: run python -m src.baselines.snp_distance first")
+        D, keep = np.load(snp), np.ones(len(t), bool)       # SNP analyses keep all strains
+        out = ROOT / "results" / "w2_lineage_lookup_snp"
+        note = "SNP-distance lookups (the paper's W2 table)"
+        about = ("Distance = Hamming on the 535,439 SNP columns, every non-reference code counted as "
+                 "'differs from reference' (`src/baselines/snp_distance.py`); all strains kept.")
     if a.pilot:
         out = out / "step1_cip_random"
     out.mkdir(parents=True, exist_ok=True)
     scores = {}
-    df = run(t, D, splits, abs_, random_test_prev, scores)
-    df.insert(0, "note", "P/A-only pilot (gene presence/absence distance; the SNP variant runs on Kaggle)")
+    df = run(t, D, splits, abs_, random_test_prev, scores, keep, knn_name=f"knn_{a.distance}")
+    df.insert(0, "note", note)
+    df["n_unmatched_excluded"] = int((~keep).sum())
     df.to_csv(out / "lookup_results.csv", index=False)
     np.savez_compressed(out / "test_scores.npz", **{k.replace("|", "__"): v for k, v in scores.items()})
     (out / "README.md").write_text(
-        "# W2 lineage-lookup baselines: P/A-only pilot\n\n"
-        "Pre-registration: `docs/experiments/w2_lineage_lookup.md`. Distance = Hamming on the 32,441 gene "
-        "presence/absence columns, a stand-in for the SNP distance that runs on Kaggle. Produced by "
-        f"`python -m src.experiments.run_lineage_lookup{' --pilot' if a.pilot else ''}`.\n\n"
+        f"# W2 lineage-lookup baselines ({a.distance.upper()} distance)\n\n"
+        f"Pre-registration: `docs/experiments/w2_lineage_lookup.md`. {about} Produced by "
+        f"`python -m src.experiments.run_lineage_lookup --distance {a.distance}{' --pilot' if a.pilot else ''}`.\n\n"
         f"k grid: {list(K_GRID)}; smoothing alpha = 1; bootstrap 2,000 resamples.\n", encoding="utf-8")
     (out / "random_test_prevalence.json").write_text(json.dumps(random_test_prev, indent=1))
     print(f"wrote {out}")

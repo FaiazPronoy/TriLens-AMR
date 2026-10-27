@@ -1,0 +1,49 @@
+{
+ "strains_with_profile": 6949,
+ "strains_without_profile": 13,
+ "median_loci": 11802.0,
+ "robust_sd_loci": 676.1,
+ "z_cut": 4.0,
+ "loci_cut": 14506.3,
+ "n_flagged": 61,
+ "flagged_by_study": {
+  "unpublished:Norway": 48,
+  "30127495": 10,
+  "28877757, 30550564": 2,
+  "27965630": 1
+ },
+ "flagged_by_year": {
+  "2002": 1,
+  "2005": 1,
+  "2007": 14,
+  "2008": 12,
+  "2009": 11,
+  "2010": 6,
+  "2011": 3,
+  "2013": 1,
+  "2014": 3,
+  "2015": 1,
+  "2016": 2,
+  "2017": 5
+ },
+ "flagged_norway_sra_range": [
+  "ERR4034079",
+  "ERR4037430"
+ ],
+ "norway_flagged_in_ERR4034361_to_ERR4034705": 27,
+ "norway_strains_in_that_sra_range": 296,
+ "median_assembly_mb_flagged_vs_rest": [
+  5.107,
+  5.088
+ ],
+ "median_annotated_cds_flagged_vs_rest": [
+  5102.0,
+  5080.0
+ ],
+ "median_contigs_flagged_vs_rest": [
+  119.0,
+  113.0
+ ],
+ "flagged_with_assembly_above_5p8mb": 0,
+ "spearman_loci_vs_annotated_cds": 0.685
+}

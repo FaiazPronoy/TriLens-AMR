@@ -371,3 +371,11 @@ The split files themselves (`country_uk_to_norway_split.pkl`, `country_norway_to
 `strains_metadata.csv` and are small; their indices are also committed in `code/results/splits/*.json`. They can also be built here and uploaded to the Kaggle dataset
 next to `mlst_lineage_holdout_split.pkl`, so the Kaggle notebooks do not need the raw metadata.
 This is the plan in `docs/PLAN.md`.
+
+## 6. Strains with unusually many loci (added in session 2)
+
+On the rebuilt presence/absence matrix, 61 strains carry more than median + 4 robust SD loci
+(14,506; median 11,802). 48 are Norway (27 in one block of SRA runs), and 10 come from PMID 30127495.
+Their assemblies are of normal size. The excess is shell accessory genes, consistent with mixed
+samples but not proven. Description, the check, and the pre-registered handling:
+`docs/experiments/w0_high_locus_strains.md`.

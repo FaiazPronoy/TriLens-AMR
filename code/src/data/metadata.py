@@ -13,6 +13,7 @@ columns the split builders and the data inventory use:
 """
 from __future__ import annotations
 
+import os
 import pickle
 from pathlib import Path
 
@@ -32,10 +33,33 @@ def _host(common, name):
     return "Human" if s.lower().startswith("human") else "Non-human"
 
 
+def _committed_table(master) -> pd.DataFrame:
+    """Fallback when raw/strains_metadata.csv is absent (a Kaggle notebook): the strain table that
+    scripts/inventory/data_inventory.py committed, checked label for label against the master file."""
+    repo = os.environ.get("TRILENS_REPO_RESULTS")
+    p = (Path(repo) if repo else ROOT / "results") / "data_inventory" / "strain_table.csv"
+    if not p.exists():
+        raise FileNotFoundError(f"neither data/raw/strains_metadata.csv nor {p} exists")
+    t = pd.read_csv(p, dtype={"st": str, "study": str})
+    Y = np.asarray(master["Y"], dtype=float)
+    M = np.asarray(master["label_mask"]).astype(bool)
+    for a, ab in enumerate(AB_NAMES):
+        if not np.array_equal(np.where(M[:, a], Y[:, a], np.nan), t[ab].values, equal_nan=True):
+            raise ValueError(f"{p}: {ab} labels differ from arcadia_v2_master_features.pkl")
+    t.insert(0, "genome_name", np.asarray(master["genome_names"]).astype(str))
+    t.insert(1, "sra", np.asarray(master["sra_ids"]).astype(str))
+    t["year"] = [int(y) if pd.notna(y) else None for y in t.year]
+    for c in ("country", "host", "st"):
+        t[c] = [v if isinstance(v, str) else None for v in t[c]]
+    return t.drop(columns=["strain_index"])
+
+
 def load_strain_table(raw=RAW, processed=PROCESSED) -> pd.DataFrame:
     """One row per strain, in the order of the processed data (index 0..6961)."""
     with open(Path(processed) / "arcadia_v2_master_features.pkl", "rb") as f:
         master = pickle.load(f)
+    if not (Path(raw) / "strains_metadata.csv").exists():
+        return _committed_table(master)
     with open(Path(processed) / "mlst_lineage_holdout_split.pkl", "rb") as f:
         mlst = pickle.load(f)
     names = np.asarray(master["genome_names"]).astype(str)

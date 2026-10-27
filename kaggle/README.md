@@ -94,6 +94,24 @@ Never run the same notebook from both accounts at once: both would write the sam
 
 ---
 
+## Journal extension notebooks (branch `extension`)
+
+These clone the branch `extension` (`CODE_REF`), not `main`. The new splits (country, time) are rebuilt
+inside each notebook from `code/results/splits/*.json`; nothing has to be uploaded for them. Plan,
+hours and pass/fail rules: `../docs/PLAN.md` and `../docs/experiments/`.
+
+| notebook | needs | accelerator | est. time | what it computes |
+|---|---|---|---|---|
+| `w1_gene_sets` | nothing | CPU | about 12 h (resumes) | gene ranking + 5,000-gene set on S4a, S4b, S5 |
+| `w1_classical` | `w1_gene_sets` | GPU T4 x2 | about 4.5 h | classical arm and solo learners on S4a, S4b, S5 |
+| `w2_snp_knn` | nothing | CPU | about 1 h | SNP Hamming distances; lineage-lookup baselines on all six splits |
+| `w4_amrfinder` | `pa_fix` | CPU, Internet on | about 0.5 h | AMRFinderPlus on the pan-genome; determinants mapped to drugs and P/A columns |
+
+`w4_amrfinder` needs `pangenome_cds.fa` (from `small_data.zip`, `raw/pangenome/`) in a dataset
+attached to the notebook, for example added to `trilens-data`. The setup cell finds it by name.
+
+---
+
 ## Outputs
 
 | Where | What |

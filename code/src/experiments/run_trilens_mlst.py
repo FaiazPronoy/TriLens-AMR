@@ -57,6 +57,7 @@ from src.experiments.run_trilens_v10 import (
     build_expert_c_features,
     load_all_data,
     run_kfold_and_stack,
+    save_representations,
 )
 from src.utils.seeds import set_global_seed
 
@@ -174,6 +175,7 @@ def main() -> None:
         base_names=np.array(result.get("base_names", ["TriLens"])),
     )
     print(f"\nSaved predictions_saved.npz -> {output_dir}")
+    save_representations(result, output_dir / "representations.npz")
     print("STEP 4 COMPLETE")
 
 
