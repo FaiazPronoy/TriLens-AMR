@@ -1,0 +1,126 @@
+{
+  "split_used_for_importance": "time_norway_2013_split",
+  "n_genes": 18975,
+  "n_genes_filter_5snps": 13799,
+  "per_antibiotic_metadata": {
+    "AMP": {
+      "status": "completed",
+      "train_time_sec": 16.649086713790894,
+      "val_pr_auc": 0.9118793473210832,
+      "n_features_used": 586,
+      "best_iteration": 39,
+      "n_train": 1545,
+      "n_val": 273,
+      "prefilter": {
+        "n_total": 535439,
+        "n_after_variance_filter": 533489,
+        "n_after_chi2_topk": 50000,
+        "chi2_cutoff": 36.82801818847656,
+        "min_variance": 1e-06,
+        "prefilter_top_k": 50000
+      }
+    },
+    "CIP": {
+      "status": "completed",
+      "train_time_sec": 10.080535650253296,
+      "val_pr_auc": 0.9963235294117647,
+      "n_features_used": 218,
+      "best_iteration": 5,
+      "n_train": 1545,
+      "n_val": 273,
+      "prefilter": {
+        "n_total": 535439,
+        "n_after_variance_filter": 533489,
+        "n_after_chi2_topk": 50000,
+        "chi2_cutoff": 45.07554244995117,
+        "min_variance": 1e-06,
+        "prefilter_top_k": 50000
+      }
+    },
+    "SXT": {
+      "status": "completed",
+      "train_time_sec": 13.319213390350342,
+      "val_pr_auc": 0.9189273919502838,
+      "n_features_used": 492,
+      "best_iteration": 26,
+      "n_train": 1545,
+      "n_val": 273,
+      "prefilter": {
+        "n_total": 535439,
+        "n_after_variance_filter": 533489,
+        "n_after_chi2_topk": 50000,
+        "chi2_cutoff": 50.03402328491211,
+        "min_variance": 1e-06,
+        "prefilter_top_k": 50000
+      }
+    },
+    "GEN": {
+      "status": "completed",
+      "train_time_sec": 10.115092039108276,
+      "val_pr_auc": 0.15686047618797455,
+      "n_features_used": 313,
+      "best_iteration": 10,
+      "n_train": 1545,
+      "n_val": 273,
+      "prefilter": {
+        "n_total": 535439,
+        "n_after_variance_filter": 533489,
+        "n_after_chi2_topk": 50000,
+        "chi2_cutoff": 7.25925350189209,
+        "min_variance": 1e-06,
+        "prefilter_top_k": 50000
+      }
+    },
+    "CTX": {
+      "status": "completed",
+      "train_time_sec": 15.489023208618164,
+      "val_pr_auc": 0.53596944642134,
+      "n_features_used": 485,
+      "best_iteration": 48,
+      "n_train": 1378,
+      "n_val": 244,
+      "prefilter": {
+        "n_total": 535439,
+        "n_after_variance_filter": 533377,
+        "n_after_chi2_topk": 50000,
+        "chi2_cutoff": 9.465466499328613,
+        "min_variance": 1e-06,
+        "prefilter_top_k": 50000
+      }
+    },
+    "CAZ": {
+      "status": "completed",
+      "train_time_sec": 9.1052725315094,
+      "val_pr_auc": 0.16263623367660632,
+      "n_features_used": 200,
+      "best_iteration": 4,
+      "n_train": 1545,
+      "n_val": 273,
+      "prefilter": {
+        "n_total": 535439,
+        "n_after_variance_filter": 533489,
+        "n_after_chi2_topk": 50000,
+        "chi2_cutoff": 8.172558784484863,
+        "min_variance": 1e-06,
+        "prefilter_top_k": 50000
+      }
+    }
+  },
+  "gene_size_stats": {
+    "n_genes": 18975,
+    "total_snps": 535439,
+    "min_size": 1,
+    "max_size": 717,
+    "median_size": 12.0,
+    "mean_size": 28.21812911725955,
+    "p25": 4.0,
+    "p75": 34.0,
+    "p95": 108.0,
+    "n_with_at_least_5": 13799,
+    "n_with_at_least_10": 10670
+  },
+  "prefilter": {
+    "top_k": 50000,
+    "min_variance": 1e-06
+  }
+}
