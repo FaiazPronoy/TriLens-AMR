@@ -264,6 +264,33 @@ STAGES["arg_build"] = dict(
           "with the pre-registered filters, plus the coverage report.",
     writes=["arg_matrix"],
     steps=[("Build the matrices", "python -m src.mechanism.arg_fetch build", "arg_matrix/coverage.json")])
+_W6_SPLITS = "st_grouped_5fold,random_5fold,country_uk_to_norway,country_norway_to_uk,time_norway_2013"
+STAGES["w6_rescue"] = dict(
+    code_ref="extension",
+    title="W6: catalogue genes with and without each strain's own resistance genes (7 drugs)",
+    lensb="fixed", needs=["pa_fix", "arg_build"], cpu=True, gpu="None (CPU; XGBoost on the CPU)",
+    hours="about 5-6 CPU hours; it resumes if a session stops",
+    about="The pre-registered test (docs/experiments/w6_arg_rescue.md): arms F0, F0+A, A and metadata on "
+          "ST-grouped 5-fold (primary), random 5-fold, and the country and time splits. verdict.json "
+          "states pass or fail by the rule fixed before the data. Then the intermediate-excluded "
+          "sensitivity run.",
+    writes=["w6_rescue/paper_ri", "w6_rescue/paper_no_intermediate"],
+    steps=[("Primary: 7 drugs, intermediate = resistant",
+            M + f"run_arg_rescue --drugs paper --labels ri --splits {_W6_SPLITS}",
+            "w6_rescue/paper_ri/verdict.json"),
+           ("Sensitivity: intermediate excluded (ST-grouped and random only)",
+            M + "run_arg_rescue --drugs paper --labels no_intermediate",
+            "w6_rescue/paper_no_intermediate/verdict.json")])
+STAGES["w6_rescue_16"] = dict(
+    code_ref="extension",
+    title="W6: the same test on all 16 eligible drugs",
+    lensb="fixed", needs=["pa_fix", "arg_build"], cpu=True, gpu="None (CPU; XGBoost on the CPU)",
+    hours="about 6-8 CPU hours; it resumes if a session stops",
+    about="Secondary analysis 1 of the pre-registration: every drug with >= 500 tested, >= 100 resistant "
+          "and >= 100 susceptible strains, on ST-grouped and random 5-fold.",
+    writes=["w6_rescue/all16_ri"],
+    steps=[("16 drugs, ST-grouped and random 5-fold", M + "run_arg_rescue --drugs all16 --labels ri",
+            "w6_rescue/all16_ri/verdict.json")])
 
 
 def md(text):
