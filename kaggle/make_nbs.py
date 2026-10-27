@@ -185,6 +185,20 @@ STAGES = {
                 "PATH=$(tail -1 /tmp/amr_bin.txt):$PATH "
                 "python -m src.mechanism.amrfinder --fasta data/raw/pangenome/pangenome_cds.fa --out results/w4_amrfinder",
                 "w4_amrfinder/determinants.csv")]),
+    "arg_probe": dict(
+        code_ref="extension",      # the extension code is not on main yet
+        title="ARG route probe: 20 strain assemblies from BV-BRC, AMRFinderPlus on each",
+        lensb="fixed", needs=[], cpu=True, gpu="None (CPU)",
+        hours="about 0.5 CPU hours (installation included); internet must be on",
+        about="Before anyone downloads 6,962 assemblies: does BV-BRC serve each strain's own .fna and "
+              "specialty-gene table, how big and slow are they, does NCBI Pathogen Detection publish an "
+              "AMR-genotype table we could join on SRA, how long does AMRFinderPlus take per genome, and "
+              "do its calls agree with the phenotypes. Nothing here is used for training.",
+        writes=["arg_probe"],
+        steps=[("Install AMRFinderPlus, probe the routes on 20 strains",
+                "bash scripts/install_amrfinder.sh /tmp/amr > /tmp/amr_bin.txt && "
+                "PATH=$(tail -1 /tmp/amr_bin.txt):$PATH python -m src.mechanism.arg_probe --out results/arg_probe",
+                "arg_probe/probe.json")]),
     "analysis": dict(
         title="Analysis: stacking, diagnostics, ablation table, figures, paper numbers",
         lensb="fixed", needs=["pa_fix", "classical", "trilens_random", "trilens_splits", "standard_random",

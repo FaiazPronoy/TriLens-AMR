@@ -153,10 +153,12 @@ publishing, and it is the kind of result that makes reviewers trust the rest of 
 
 Not "another AMR model". The claim becomes:
 
-> Reported genomic AMR prediction scores are not comparable to zero. On the standard random
-> and phylogroup splits, strain metadata alone reaches 84% of a strong model's PR-AUC, and
-> the feature spaces built from reference pan-genomes do not contain the acquired genes that
-> cause resistance for most drugs — so models predict lineage by necessity, not by choice.
+> (Revised after the external review, §7: "not comparable to zero" and "84% of the PR-AUC" are
+> dropped — PR-AUC must be read against prevalence, and the phylogroup split is not a holdout.)
+> On the standard random split, strain metadata alone carries much of a strong model's signal,
+> and a feature space built from 72 reference genomes does not contain the acquired genes that
+> cause resistance for several drugs. We test whether that, rather than the model, is why
+> lineage-held-out prediction fails, by adding each strain's own determinants back.
 > We give three measurements any such study can report (a confounder floor, a lineage
 > holdout, and within-lineage discrimination), show what each one does to a
 > state-of-the-art stacked model, and show which drugs survive.
@@ -226,3 +228,73 @@ Needs a decision from the owner:
 
 5. Request BV-BRC AMR gene tables by `Genome.ID` (§4.1). This is the one thing that turns
    §2.2 from a strong argument into a demonstration.
+
+---
+
+## 7. External review (8 independent AI reviews, 2026-10-28) and what we checked ourselves
+
+Every review got `docs/external_review_brief.md`. Literature they say they **opened**: Yu,
+Wheeler & Barquist 2025 (PLOS Biol, 10.1371/journal.pbio.3003539); Fistarol et al. 2025
+(npj Antimicrob Resist, 10.1038/s44259-025-00172-6); Cheon et al. 2026 (Brief Bioinform,
+10.1093/bib/bbag451, abstract only); Bell, McGeever, Patton, Sandler & York 2025 (Arcadia,
+10.57844/arcadia-8391-465f). We still have to read each one ourselves before citing it.
+
+### 7.1 Where all eight agree
+
+- **Contribution 1 (floor)** is a control, not a contribution. Assembly statistics are not a
+  pure confounder (size, CDS and contig count track plasmid load), so call it a *shortcut
+  baseline*, split epidemiological fields from assembly fields, and never say "confounder floor".
+- **Contribution 2 (feature space)** is the spine — but only if the per-strain ARG experiment
+  is run. "Absent from the 72-reference catalogue" ≠ "absent from the strains".
+- **Contribution 3 (within-lineage)** must be redefined: a pooled PR-AUC over discordant STs
+  still rewards between-ST ranking. Use within-ST pairwise concordance (resistant vs
+  susceptible pairs from the *same* ST), macro-averaged over STs, against an ST-only baseline
+  that scores exactly 0.5 by construction.
+- **TriLens is the instrument, not the method.** Benchmark / diagnostic paper; NAR Genomics
+  and Bioinformatics first choice (one review: *Bioinformatics*; another: *Briefings*).
+- Report prevalence, CIs (ST-clustered bootstrap), all 16 drugs, an intermediate-excluded
+  sensitivity run, and pre-registered pass/fail rules committed *before* the ARG run.
+
+### 7.2 Checked against our own code and data today
+
+| Question raised | Answer from the repository |
+|---|---|
+| Is the "phylogroup split" a holdout? | **No.** `build_mlst_lineage_holdout_split.py` documents it as a *stratified re-partition*. That is why it scores 0.853 > random 0.850. It must be renamed (or dropped) in the paper. |
+| Where do the 475 unknown-ST strains go? | Train only. So do STs with >5% of genomes (e.g. the largest ST, 884 genomes). Test = 103 STs, 1,045 strains, one split, not k-fold. |
+| Test prevalence under ST holdout | AMP 0.428, CIP 0.145, AMC 0.269, SXT 0.275, **GEN 0.042, CTX 0.088, CAZ 0.047** (train: 0.131 / 0.163 / 0.146). Low GEN/CAZ PR-AUC is partly low prevalence. |
+| Does the determinant ordering survive prevalence? | Yes, on the paper's classical-arm numbers, (PR-AUC − prev)/(1 − prev): CIP 0.90, AMP 0.83, SXT 0.69, CTX 0.56, CAZ 0.44, AMC 0.28, GEN 0.19. Still to do: AUROC from saved predictions. |
+| Discordant STs *inside* the test set | AMP 30, CIP 15, AMC 23, SXT 23, GEN 18, CTX 14, CAZ 14. Below the 30-ST bar one review proposed for most drugs — the within-ST metric needs ST-grouped k-fold, not this single split. |
+| How many intermediates are counted as resistant? | CAZ 223 of 786 positives (28%), GEN 119/713 (17%), CIP 91/1,382, AMC 59/1,181, CTX 39/828, SXT 38/1,064, AMP 4/2,444. The intermediate-excluded run is mandatory for CAZ and GEN. |
+| How many publications for a leave-study-out split? | 13 PubMed IDs, of which three are large (1,439 / 1,015 / 921 strains); 3,206 strains have none. A study holdout has ~4 usable groups. |
+| Single-phenotype publications (label leakage)? | Small: e.g. CTX 6 publications / 176 strains, AMP 7 / 188, others ≤42 strains. |
+| Can NCBI assemblies be used? | `Assembly.Accession` is filled for only **198** strains. All 6,985 are BV-BRC "WGS" records with contig statistics, so BV-BRC's own assemblies are the route. Mean assembly 5.07 MB → ~35 GB for 6,962. |
+
+### 7.3 Claims from the reviews we could **not** verify (do not build on them yet)
+
+- BV-BRC per-genome FTP files `ftp.bvbrc.org/genomes/<id>/<id>.fna` and `.PATRIC.spgene.tab`
+  (several reviews; two cite the BV-BRC FTP docs). Our web tools are blocked by robots.txt.
+- An NCBI Pathogen Detection metadata table with an `AMR_genotypes` column joinable on SRA
+  run accession (one review). If true it is the fastest route; if not, nothing is lost.
+- → `kaggle/notebooks/arg_probe.ipynb` tests both on 20 strains (half CTX-resistant), times
+  AMRFinderPlus, and checks determinant–phenotype concordance (CTX-M/ESBL vs CTX, aac(3)/
+  ant(2'') vs GEN, dfrA vs SXT). Its result decides the full run.
+
+### 7.4 Final plan (replaces §6)
+
+1. **Validity first (CPU, no new data):** rename the phylogroup split; prevalence, AUROC and
+   ST-clustered bootstrap CIs for every headline number; intermediate-excluded sensitivity;
+   classical arm vs full stack paired CI.
+2. **`arg_probe`** (CPU, internet) → go / no-go for the full ARG matrix.
+3. **Pre-register and commit** the ARG pass/fail rules before the run: on ST-grouped folds,
+   adding per-strain AMRFinderPlus calls raises the prevalence-normalised score of the
+   determinant-missing drugs (CTX, CAZ, GEN; AMC reported separately) by ≥ 0.10 with the
+   clustered CI above zero, and leaves CIP within ±0.03. Below that, contribution 2 is dead and
+   the paper is the benchmark alone. (Thresholds are ours, set now, before any data.)
+4. **ARG matrix** for all strains (BV-BRC `.fna` → AMRFinderPlus, streamed in chunks over the
+   three accounts), then classical arm ± ARG on random, ST-grouped k-fold, country and time
+   splits; 16 drugs.
+5. **Within-ST pairwise concordance** on ST-grouped k-fold predictions, against the ST-only
+   (0.5) and metadata-only baselines.
+6. **Shortcut baseline split** into epidemiological fields vs assembly fields, plus a
+   UK↔Norway transfer of the metadata model.
+7. Neural stack only on the final feature set, as the instrument.
