@@ -35,6 +35,9 @@ ROOT = Path(__file__).resolve().parents[2]
 URLS = ["https://ftp.bvbrc.org/genomes/{g}/{g}.fna", "ftp://ftp.bvbrc.org/genomes/{g}/{g}.fna"]
 MIN_STRAINS = 5          # pre-registered: symbols seen in fewer strains are dropped
 MAX_FAILS = 2
+# every row of status.csv has these columns, whatever happened (a failure first must not fix a shorter header)
+STATUS_COLUMNS = ["strain_index", "genome_id", "time", "status", "scheme", "mb", "download_s", "amrfinder_s",
+                  "error"]
 
 
 def manifest():
@@ -136,7 +139,8 @@ def run_pass(todo, a, tsv_dir, tmp, status_p, deadline):
             fut = next(as_completed(futs))
             idx, gid = futs.pop(fut)
             row = dict(strain_index=idx, genome_id=gid, time=time.strftime("%Y-%m-%d %H:%M:%S"), **fut.result())
-            pd.DataFrame([row]).to_csv(status_p, mode="a", header=not status_p.exists(), index=False)
+            pd.DataFrame([row]).reindex(columns=STATUS_COLUMNS).to_csv(
+                status_p, mode="a", header=not status_p.exists(), index=False)
             done += 1
             if done % 25 == 0:
                 print(f"  {done}/{len(todo)}  last: {gid} {row['status']}", flush=True)

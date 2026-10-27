@@ -108,3 +108,16 @@ def test_time_budget_stops_with_code_3(env):
     with pytest.raises(SystemExit) as e:
         af.fetch(args(tmp, shard=1, hours=0.0))
     assert e.value.code == 3
+
+
+def test_status_csv_survives_a_failure_first(env, monkeypatch):
+    tmp, _ = env
+    def dl(gid, dest, tries=3):
+        if gid == "562.0":                       # the first strain of shard 0 fails
+            raise RuntimeError("HTTPError: 404")
+        dest.write_bytes(b"A" * 2_000_000)
+        return "https"
+    monkeypatch.setattr(af, "download", dl)
+    af.fetch(args(tmp, shard=0, workers=1))
+    st = pd.read_csv(tmp / "calls" / "shard_0" / "status.csv")
+    assert list(st.columns) == af.STATUS_COLUMNS and (st.status == "ok").sum() == 3
