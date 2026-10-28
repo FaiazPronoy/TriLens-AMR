@@ -413,7 +413,7 @@ STAGES["species_probe"] = dict(
           "No model is fitted and no phenotype is related to any feature.",
     writes=["species_probe"],
     steps=[("Count every organism and apply the gate", "python -m src.mechanism.species_probe "
-            "--out results/species_probe", "species_probe/gate.csv")])
+            "--out results/species_probe", "species_probe/cluster_source.json")])
 
 
 def md(text):

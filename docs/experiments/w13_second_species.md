@@ -78,3 +78,16 @@ If the export covers fewer than 1,000 W8 isolates for a drug, that drug is not a
   "held-out cluster" is a stricter split than "held-out ST", and results are not numerically
   comparable with the *E. coli* ST-grouped numbers.
 - The isolates are surveillance-heavy, which W8 showed is where the determinant rule is strongest.
+
+## Amendment 2026-10-29, a data-plumbing fix, before any gate is read
+
+The first probe run (commit 20736fa) reported a SNP-cluster share of 0% for every organism,
+including Acinetobacter and Campylobacter, which Pathogen Detection does cluster. The cause is in
+the probe, not the data: the metadata table has no `PDS_acc` column; cluster membership is
+published in a separate file, `latest_snps/Clusters/*.cluster_list.tsv`. That run was stopped and
+its gate is not used.
+
+The probe now reads the newest file in `Clusters/`, joins it to the metadata on `target_acc`, and
+records the file name and its column names per organism (`cluster_source.json`), so a reader can
+check the join. An organism with no `Clusters/` file gets a cluster share of 0 and fails gate 3,
+as before. The gate, its thresholds and the species-choice rule are unchanged.

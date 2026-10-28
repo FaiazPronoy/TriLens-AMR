@@ -59,6 +59,34 @@ def newest_metadata(base, org):
     return (url + files[-1], None) if files else (None, f"no *.metadata.tsv at {url}")
 
 
+def newest_clusters(base, org):
+    """The SNP-cluster membership file. Pathogen Detection keeps it beside Metadata/, not in it."""
+    url = f"{base}{org}/latest_snps/Clusters/"
+    try:
+        files = sorted(n for n in listing(url) if n.endswith(".tsv"))
+    except urllib.error.HTTPError as e:
+        return None, f"HTTP {e.code} at {url}"
+    pick = [f for f in files if "cluster_list" in f] or files
+    return (url + pick[-1], None) if pick else (None, f"no *.tsv at {url}")
+
+
+def read_clusters(url, tmp):
+    """target_acc -> SNP cluster, with whichever column names the file uses (reported, not assumed)."""
+    path = tmp / ("clusters_" + Path(url).name)
+    with urllib.request.urlopen(url, timeout=1800) as r, open(path, "wb") as f:
+        shutil.copyfileobj(r, f, length=1 << 20)
+    try:
+        c = pd.read_csv(path, sep="\t", dtype=str, low_memory=False)
+    finally:
+        path.unlink()
+    tcol = next((k for k in c.columns if k.lower() in ("target_acc", "target")), None)
+    pcol = next((k for k in c.columns if "pds" in k.lower()), None)
+    info = {"file": Path(url).name, "columns": list(c.columns), "target_column": tcol, "cluster_column": pcol}
+    if not tcol or not pcol:
+        return None, info
+    return c.dropna(subset=[tcol]).drop_duplicates(tcol).set_index(tcol)[pcol], info
+
+
 def parse_ast(s):
     out = {}
     if isinstance(s, str):
@@ -79,7 +107,7 @@ def count(path, chunksize=100_000):
             continue
         c = chunk[chunk.AST_phenotypes.notna()]
         if len(c):
-            rows.append(c[[k for k in KEEP if k in c.columns]])
+            rows.append(c[[k for k in c.columns if k in KEEP or "pds" in k.lower()]])
     ast = pd.concat(rows, ignore_index=True) if rows else pd.DataFrame(columns=KEEP)
     return ast, n_total, columns or []
 
@@ -151,8 +179,21 @@ def main():
         finally:
             if path.exists():
                 path.unlink()
+        own = [c for c in cols if "pds" in c.lower()]
+        if own and "PDS_acc" not in ast.columns:          # the metadata table carries it after all
+            ast["PDS_acc"] = ast[own[0]] if own[0] in ast.columns else None
+        cl_url, cl_err = newest_clusters(a.base, org)
+        cl_info = {"error": cl_err}
+        if cl_url:
+            try:
+                cmap, cl_info = read_clusters(cl_url, a.tmp)
+                if cmap is not None and "target_acc" in ast.columns:
+                    ast["PDS_acc"] = ast["target_acc"].map(cmap)
+            except Exception as e:
+                cl_info = {"error": f"{type(e).__name__}: {e}"}
         rec, per, sw = summarise(org, ast, n_total, cols)
         rec["metadata_file"] = Path(url).name
+        rec["cluster_source"] = cl_info
         recs.append(rec)
         pers.append(per)
         kept[org] = sw
@@ -166,6 +207,9 @@ def main():
     for org in chosen:
         kept[org].to_csv(a.out / f"candidates_{org}.tsv.gz", sep="\t", index=False)
     (a.out / "per_species.json").write_text(json.dumps(recs, indent=1, default=str))
+    # written last: marks a probe run that read the Clusters/ file (the earlier version did not)
+    (a.out / "cluster_source.json").write_text(json.dumps(
+        {r["organism"]: r.get("cluster_source") for r in recs}, indent=1, default=str))
     (pd.concat(pers, ignore_index=True) if pers else pd.DataFrame()).to_csv(a.out / "per_drug.csv", index=False)
     gate = pd.DataFrame([{"organism": r["organism"], "passes": r.get("passes", False),
                           "ast_isolates": r.get("ast_with_amrfinder_4_2_7"),
