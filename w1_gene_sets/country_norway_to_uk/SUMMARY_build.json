@@ -1,0 +1,30 @@
+{
+  "input_n_snps": 535439,
+  "input_n_genes": 18975,
+  "output_n_snps": 231633,
+  "output_n_genes": 5000,
+  "gene_set_overlaps": {
+    "locked_random_split": 2233,
+    "phylogeny_clean": 2243
+  },
+  "filter_metadata": {
+    "min_snps_per_gene": 5,
+    "final_gene_cap": 5000,
+    "gene_filter_formula": "(variability_pass \u2229 importance_top_k)",
+    "importance_source": "xgb_gain_summed_across_antibiotics__RANKED_ON_MLST_LINEAGE_HOLDOUT_TRAIN",
+    "n_genes_original": 18975,
+    "n_genes_after_variability": 13799,
+    "n_genes_selected": 5000,
+    "gene_set_overlaps": {
+      "locked_random_split": 2233,
+      "phylogeny_clean": 2243
+    },
+    "stats_filtered_sizes": {
+      "min": 5,
+      "median": 27,
+      "mean": 46.3266,
+      "max": 630,
+      "p95": 149
+    }
+  }
+}
