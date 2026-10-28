@@ -58,7 +58,7 @@ restated on the de-overlapped cohort. An overlap of more than 1% of the cohort w
 
 **Primary (AP − M): pass.** Nine BioProjects have ≥ 100 labelled primary-drug isolates. Dropping
 each in turn, the mean nAP advantage over the assembly arm stays in **0.723–0.777** and the
-clustered CI lower bound never falls below **0.648**. Every replicate clears the W8 rule, so the
+clustered CI lower bound never falls below **0.643**. Every replicate clears the W8 rule, so the
 external result does not depend on any one project.
 
 **Accession audit: no overlap.** Zero external isolates match any identifier we hold for our own
@@ -69,6 +69,12 @@ under unrelated accessions would not be caught by any accession comparison.)
 
 **Secondary (AP − R), reported without a pass rule.** The margin over the determinant rule is
 spread across projects rather than produced by one: point estimates 0.037–0.086 across the nine
-replicates, with the CI above zero in **7 of 9**. The two replicates whose CI touches zero are the
-drops of PRJNA809394 (0.037, CI low −0.003) and PRJNA278886 (0.056, CI low −0.001). So the small
-external margin is consistent across the cohort but remains small, exactly as W8 reported it.
+replicates, with the CI above zero in **6 of 9**. The three replicates whose CI touches zero are the
+drops of PRJNA809394 (0.037, CI low −0.005), PRJNA278886 (0.056, −0.004) and PRJNA592140
+(0.061, −0.001). So the small external margin is consistent in sign across the cohort but its
+interval is fragile, exactly as W8 reported it.
+
+*Correction, same day:* these figures are from the Kaggle run (commit 64df73c, 2,000 bootstrap
+replicates, log of `w11_w12_robustness`). An earlier version of this section quoted a local
+run with 400 replicates (CI low 0.648; 7 of 9), in which PRJNA592140's interval fell just above
+zero. The W12 figures are identical in both runs.
