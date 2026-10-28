@@ -104,3 +104,29 @@ Coverage by stratum: covered 5,072, uncovered 1,890 (344 and 252 distinct STs).
 
 So Part A is adequately powered for CTX, CAZ, GEN and CIP, and the two strata differ most in
 country and study composition, which is stated as the limit above.
+
+## Result, parts B and C (read 2026-10-29, after the pre-registration above was committed)
+
+Part A fits models and is run on Kaggle; its result is not yet read and is recorded separately
+below when it is.
+
+**B, primary: the model does add over the rule on unseen lineages.** On the ST-grouped 5-fold,
+mean nAP over CTX, CAZ, GEN: **F0A − R = +0.122 [0.074, 0.196]** (ST-clustered, 306 STs), which
+clears the pre-registered +0.05. Per drug, every CI above zero: CTX +0.128 [0.052, 0.253],
+CAZ +0.204 [0.141, 0.325], GEN +0.035 [0.009, 0.067], CIP +0.131 [0.029, 0.199].
+
+This is the answer to the objection every external review raised. The rule and the model are close
+*externally* (+0.065 [0.005, 0.140], and inconclusive with intermediates excluded) but not on
+unseen lineages internally (+0.122 [0.074, 0.196]). The two settings differ in what they ask: the
+external cohort is largely surveillance, where the determinant-to-phenotype map is the cleaner one
+Lipworth et al. (2024) describe, whereas the ST-grouped split asks for prediction in lineages the
+model has never seen. The paper reports both numbers side by side and claims only this: a
+determinant rule is the baseline any such model must beat, it is hard to beat where the mapping is
+clean, and the margin that remains is largest exactly where the mapping is diffuse (AMC, CAZ, and
+externally AMC +0.214, SXT +0.065).
+
+**C, sensitivity: the rescue holds inside each country.** W6's primary endpoint recomputed within
+one country at a time: United Kingdom **+0.256 [0.115, 0.442]** (2,466 strains, 78 STs), Norway
+**+0.308 [0.190, 0.364]** (2,964 strains, 254 STs). Per drug, UK: CTX +0.211, CAZ +0.285,
+GEN +0.273; Norway: CTX +0.333, CAZ +0.223, GEN +0.367. So the rescue is not an artefact of the
+UK/Norway contrast; it is present within each collection on its own.
