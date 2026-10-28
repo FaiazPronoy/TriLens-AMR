@@ -20,6 +20,8 @@
 !/results/**/*.md
 !/results/**/*.yaml
 !/results/**/*.txt
+# frozen inputs the Kaggle notebooks read from the cloned repository
+!/results/data_inventory/pd_amr_joined.tsv.gz
 
 # Hydra / logging run folders
 /experiments/
