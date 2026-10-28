@@ -295,6 +295,24 @@ STAGES["ext_probe"] = dict(
     writes=["ext_probe"],
     steps=[("Count external candidates", "python -m src.mechanism.ext_probe --out results/ext_probe",
             "ext_probe/ext_probe.json")])
+STAGES["w8_external"] = dict(
+    code_ref="extension",
+    title="W8: models trained on our strains, applied unchanged to NCBI Pathogen Detection isolates",
+    lensb="fixed", needs=["ext_probe"], cpu=True, gpu="None (CPU)",
+    hours="about 15-30 minutes",
+    about="Trains the gene arms (every AMRFinderPlus call; acquired genes only), the assembly-statistics "
+          "arm and applies them, frozen, to the ~10,000 external isolates found by ext_probe, against a "
+          "pre-registered determinant rule. CIs bootstrap over BioProject. Needs ext_probe re-run once "
+          "with the version that keeps bioproject_acc. Pre-registration: docs/experiments/w8_external_cohort.md.",
+    writes=["arg_matrix", "w8_external"],
+    steps=[_ARG_BUILD,
+           ("Primary: database 2026-03-24.1, intermediate = resistant",
+            M + "run_external --db primary --labels ri", "w8_external/primary_ri/verdict.json"),
+           ("Sensitivity: every AMRFinderPlus 4.2.7 database version",
+            M + "run_external --db all --labels ri", "w8_external/all_ri/verdict.json"),
+           ("Sensitivity: intermediate excluded",
+            M + "run_external --db primary --labels no_intermediate",
+            "w8_external/primary_no_intermediate/verdict.json")])
 STAGES["assembly_shortcut"] = dict(
     code_ref="extension",
     title="W7: what the assembly-statistics shortcut is",

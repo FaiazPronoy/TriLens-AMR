@@ -36,7 +36,7 @@ PD = "https://ftp.ncbi.nlm.nih.gov/pathogen/Results/Escherichia_coli_Shigella/la
 DRUGS = {"AMP": "ampicillin", "CIP": "ciprofloxacin", "AMC": "amoxicillin-clavulanic acid",
          "SXT": "trimethoprim-sulfamethoxazole", "GEN": "gentamicin", "CTX": "cefotaxime",
          "CAZ": "ceftazidime", "CRO": "ceftriaxone"}
-KEEP = ["Run", "biosample_acc", "target_acc", "asm_acc", "geo_loc_name", "collection_date", "epi_type",
+KEEP = ["Run", "biosample_acc", "bioproject_acc", "bioproject_center", "target_acc", "asm_acc", "geo_loc_name", "collection_date", "epi_type",
          "isolation_source", "host", "asm_stats_length_bp", "asm_stats_n_contig", "asm_stats_contig_n50",
          "AST_phenotypes", "AMR_genotypes", "amrfinder_version", "refgene_db_version",
          "amrfinder_analysis_type", "number_drugs_tested"]

@@ -62,3 +62,46 @@ Per drug, prevalence-normalised average precision `nAP = (AP − prevalence) / (
   gentamicin, 83.8% ciprofloxacin, 94.0% trimethoprim, but only 75.5% for amoxicillin–clavulanic
   acid, with a 75.4% very-major-error rate. So an ARG-based arm has a ceiling, and AMC is expected
   to be the weakest drug in any arm. (Read: full text, Table 1.)
+
+## Amendment 2026-10-28, after the feasibility count and before any model or label is read
+
+The probe (`PDG000000004.6394`) found **10,876** external isolates (AST present, not ours,
+AMRFinderPlus 4.2.7); all seven of our drugs have ≥ 100 resistant and ≥ 100 susceptible, so the gate
+is met. 7,388 are from the USA, 1,334 Canada, 718 UK; 6,158 environmental/food, 4,704 clinical;
+median year 2019. Counts per drug (R/S): AMP 3,835/4,204, CIP 1,482/6,473, AMC 888/5,640,
+SXT 1,440/5,928, GEN 1,226/6,399, CTX 733/291, CAZ 972/2,617. CTX is tested on only 1,054
+isolates and is 70% resistant, so it is a selected panel and is reported but not in the primary mean.
+
+Fixed now:
+
+1. **Same database as training.** Primary analysis uses external isolates called with database
+   2026-03-24.1 (10,232), the same version as the training block. All 4.2.7 rows are a sensitivity.
+2. **Calls.** `AMR_genotypes` parsed with the W6 rules (`src.mechanism.arg_pd.tokens`): a token
+   without suffix is a gene, `=POINT` goes to the point block, `PARTIAL`, `PARTIAL_END_OF_CONTIG`,
+   `MISTRANSLATION`, `HMM` are not counted. External genes not among the training columns are
+   dropped (a frozen model cannot use a column it never saw).
+3. **The metadata arm** uses only the fields both sources have: assembly length, contig count, contig
+   N50. Country, year and publication are left out: the training set has no USA strain, and W7
+   showed these fields carry nothing across countries anyway. So this arm is the W7 assembly
+   shortcut, frozen and transferred.
+4. **Arms.** AP = acquired genes plus point mutations, i.e. every AMRFinderPlus call (**primary**,
+   because CIP's determinants are point mutations and an acquired-only arm would be handicapped on
+   it by construction), A = acquired genes only (secondary), M = the three assembly fields,
+   R = the determinant rule below. Model: the W6 XGBoost
+   settings, trained once on all our strains with a call (5,072), no tuning.
+5. **Determinant rule** (symbol patterns, fixed here, not tuned):
+   - AMP: any acquired β-lactamase `bla*` other than the chromosomal `blaEC*`
+   - AMC: `blaOXA-1`, plasmid AmpC (`blaCMY`, `blaDHA`, `blaFOX`, `blaACC`), or a carbapenemase
+     (`blaKPC`, `blaNDM`, `blaVIM`, `blaIMP`, `blaOXA-48`-like `blaOXA-48`/`-181`/`-232`/`-244`)
+   - CTX, CAZ: `blaCTX-M`, `blaSHV` other than `blaSHV-1`/`-11`, `blaTEM` other than `blaTEM-1`,
+     plasmid AmpC, or a carbapenemase
+   - GEN: `aac(3)`, `ant(2'')`, `armA`, `rmt`
+   - SXT: `dfrA` or `dfrB`
+   - CIP: any `gyrA` point mutation, or `qnr`, or `aac(6')-Ib-cr`
+6. **Clustering.** CIs bootstrap over `bioproject_acc`; isolates with none are their own cluster.
+   `ext_probe` is extended to keep `bioproject_acc` and must be re-run once to supply it.
+7. **Endpoint:** arm AP minus arm M, mean nAP over AMP, CIP, AMC, SXT, GEN, CAZ (CTX reported
+   separately), pass if ≥ 0.10 with the clustered CI above zero. (The original text named arm A; it
+   is AP for the CIP reason in point 4, changed before any model was fitted.) Secondary: arm AP
+   against the rule R, per drug, so the paper can say how much a model adds over gene presence, which
+   Lipworth et al. (2024) already show is strong for most of these drugs.
