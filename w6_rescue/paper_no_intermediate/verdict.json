@@ -1,0 +1,15 @@
+{
+ "split": "st_grouped_5fold",
+ "delta": 0.2933075616425934,
+ "ci": [
+  0.21659806523889902,
+  0.3453659118193941
+ ],
+ "pass_rule": "delta >= 0.1 and ci_low > 0",
+ "primary_pass": true,
+ "control_cip_delta": 0.000114467888167602,
+ "control_pass": true,
+ "reading": "supported: the catalogue omits determinants that predict unseen lineages",
+ "strains_used": 5067,
+ "strains_total": 6962
+}

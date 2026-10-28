@@ -1,0 +1,33 @@
+{
+ "covered_strains": 5072,
+ "uncovered_strains": 1890,
+ "parts_run": [
+  "a",
+  "b",
+  "c"
+ ],
+ "a_f0_covered": 0.4492,
+ "a_f0_uncovered": 0.6408,
+ "a_difference": 0.1917,
+ "a_pass_rule": "abs(uncovered - covered) <= 0.1",
+ "a_pass": false,
+ "a_reading": "the uncovered strains behave differently from the catalogue alone: the rescue is demonstrated on the annotated subset and may not extend beyond it",
+ "b_f0a_minus_rule": 0.12240424702779919,
+ "b_ci": [
+  0.07535079848341576,
+  0.19720835569187964
+ ],
+ "b_pass_rule": "delta >= 0.05 and ci_low > 0",
+ "b_model_adds_over_rule": true,
+ "b_reading": "the model adds measurably over the determinant rule on unseen lineages",
+ "c_united_kingdom_delta": 0.25597710161342274,
+ "c_united_kingdom_ci": [
+  0.1190542199474747,
+  0.45688595571691626
+ ],
+ "c_norway_delta": 0.3076041493129774,
+ "c_norway_ci": [
+  0.18964337374274667,
+  0.3629500773245536
+ ]
+}
