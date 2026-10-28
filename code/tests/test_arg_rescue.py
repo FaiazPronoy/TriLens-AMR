@@ -63,3 +63,15 @@ def test_resume_skips_cached_columns(data, tmp_path, monkeypatch):
     rr.run(data, splits, ["F0"], ["CTX"], tmp_path, n_boot=10)
     monkeypatch.setattr(rr, "oof", lambda *a, **k: (_ for _ in ()).throw(AssertionError("refit")))
     rr.run(data, splits, ["F0"], ["CTX"], tmp_path, n_boot=10)
+
+
+def test_metadata_arm_survives_an_empty_field():
+    import pandas as pd
+    rng = np.random.default_rng(0)
+    X = pd.DataFrame({c: rng.random(200) for c in rr.META_NUM})
+    X["Collection.Year"] = np.nan                       # no year in this fold's training strains
+    for c in rr.META_CAT:
+        X[c] = rng.integers(0, 3, 200)
+    y = rng.integers(0, 2, 200)
+    p = rr.fit_predict("M", X.iloc[:150], y[:150], X.iloc[150:])
+    assert p.shape == (50,) and np.isfinite(p).all()

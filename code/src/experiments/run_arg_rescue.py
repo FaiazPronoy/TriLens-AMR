@@ -94,6 +94,10 @@ def load_splits(names):
 def fit_predict(arm, Xtr, ytr, Xte):
     if arm == "M":
         from sklearn.ensemble import HistGradientBoostingClassifier
+        # a field with no value in this fold's training strains (e.g. year, for a study-specific subset)
+        # carries nothing and breaks the binning: drop it for this fold
+        empty = [c for c in Xtr.columns if Xtr[c].isna().all()]
+        Xtr, Xte = Xtr.drop(columns=empty), Xte.drop(columns=empty)
         cat = [Xtr.columns.get_loc(c) for c in META_CAT if c in Xtr.columns]
         m = HistGradientBoostingClassifier(random_state=0, categorical_features=cat or None)
         return m.fit(Xtr, ytr).predict_proba(Xte)[:, 1]
