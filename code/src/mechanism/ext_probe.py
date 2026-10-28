@@ -15,7 +15,7 @@ year spread. Nothing is trained and no model is touched: this decides whether W8
 
     python -m src.mechanism.ext_probe --out results/ext_probe
 
-Writes ext_probe.json, per_drug.csv, and candidates.tsv.gz (the matching rows, ~1 column set).
+Writes ext_probe.json, per_drug.csv, columns.json and candidates.tsv.gz (the matching rows, ~1 column set).
 """
 from __future__ import annotations
 
@@ -95,6 +95,7 @@ def main():
     path.unlink()
     cand = pd.concat(rows, ignore_index=True) if rows else pd.DataFrame(columns=KEEP)
     cand.to_csv(a.out / "candidates.tsv.gz", sep="\t", index=False)
+    (a.out / "columns.json").write_text(json.dumps(list(cand.columns)))   # marker: this version kept bioproject_acc
 
     per = []
     for ab, pdname in DRUGS.items():

@@ -294,7 +294,7 @@ STAGES["ext_probe"] = dict(
           "feasibility gate is in docs/experiments/w8_external_cohort.md.",
     writes=["ext_probe"],
     steps=[("Count external candidates", "python -m src.mechanism.ext_probe --out results/ext_probe",
-            "ext_probe/ext_probe.json")])
+            "ext_probe/columns.json")])
 STAGES["w8_external"] = dict(
     code_ref="extension",
     title="W8: models trained on our strains, applied unchanged to NCBI Pathogen Detection isolates",
