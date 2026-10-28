@@ -107,8 +107,7 @@ country and study composition, which is stated as the limit above.
 
 ## Result, parts B and C (read 2026-10-29, after the pre-registration above was committed)
 
-Part A fits models and is run on Kaggle; its result is not yet read and is recorded separately
-below when it is.
+Part A is recorded in its own section below.
 
 **B, primary: the model does add over the rule on unseen lineages.** On the ST-grouped 5-fold,
 mean nAP over CTX, CAZ, GEN: **F0A − R = +0.122 [0.074, 0.196]** (ST-clustered, 306 STs), which
@@ -130,3 +129,32 @@ one country at a time: United Kingdom **+0.256 [0.115, 0.442]** (2,466 strains, 
 **+0.308 [0.190, 0.364]** (2,964 strains, 254 STs). Per drug, UK: CTX +0.211, CAZ +0.285,
 GEN +0.273; Norway: CTX +0.333, CAZ +0.223, GEN +0.367. So the rescue is not an artefact of the
 UK/Norway contrast; it is present within each collection on its own.
+
+## Result, part A (read 2026-10-29 from the Kaggle run, commit 64df73c, 400 trees)
+
+**A, primary: fail.** Mean nAP over CTX, CAZ, GEN of the catalogue arm F0, each stratum on its own
+ST-grouped folds: covered **0.449**, uncovered **0.641**, a difference of **0.192**, outside the
+pre-registered ±0.10. So the catalogue-only collapse that W6 rescued is **not** equally present in
+the strains Pathogen Detection has no call for, and by the rule written above the paper states:
+the rescue is demonstrated on the annotated subset (5,067 strains) and may not extend to the
+remaining 1,890.
+
+| stratum | arm | CTX | CAZ | GEN | CIP |
+|---|---|---|---|---|---|
+| covered | F0 | 0.483 | 0.517 | 0.347 | 0.793 |
+| covered | M | 0.105 | 0.280 | 0.106 | 0.297 |
+| uncovered | F0 | 0.875 | 0.778 | 0.270 | 0.620 |
+| uncovered | M | 0.735 | 0.570 | 0.178 | 0.325 |
+
+Reported without a test, because the pre-registration did not anticipate it: the difference is
+carried by CTX and CAZ. GEN collapses in both strata (0.347 and 0.270). And in the uncovered
+stratum the **metadata arm alone** reaches 0.735 for CTX and 0.570 for CAZ, against 0.105 and
+0.280 in the covered stratum. 1,439 of the 1,890 uncovered strains come from one study (PMID
+28720578), so within that stratum the cephalosporin phenotype is largely predictable without any
+gene at all. That is consistent with a study-specific structure rather than with the catalogue
+genuinely capturing the cephalosporin determinants there, but W10 was not designed to separate the
+two and the paper does not claim either; it reports the failure and these numbers.
+
+The Kaggle run reproduces parts B and C: F0A − R +0.122 [0.075, 0.197]; UK +0.256
+[0.119, 0.457]; Norway +0.308 [0.190, 0.363] (2,000 bootstrap replicates; the figures above it
+used 400).
