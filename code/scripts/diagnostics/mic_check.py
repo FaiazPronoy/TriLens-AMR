@@ -199,6 +199,21 @@ def main():
     m1 = pd.DataFrame(m1)
     m1.to_csv(out / "m1_endpoints.csv", index=False)
 
+    # exploratory (not pre-registered): the same isolates under both labels, so a change in the
+    # endpoint can be put down to the labels and not to the EUCAST labels covering more isolates
+    both = {d: ext["Y"][d].notna() & Ye[d].notna() for d in drugs}
+    same = []
+    for labels, Y in (("submitter", ext["Y"][drugs]), ("eucast", Ye[drugs])):
+        Yb = pd.DataFrame({d: Y[d].where(both[d]) for d in drugs})
+        for b, c in (("AP", "M"), ("AP", "R")):
+            Sa = pd.DataFrame({d: (S[f"{c}|{d}"] if c != "R" else R[d]) for d in drugs})
+            Sb = pd.DataFrame({d: S[f"{b}|{d}"] for d in drugs})
+            pt, lo, hi, ng = cluster_bootstrap(Yb, Sa, Sb, codes, drugs, n_boot=a.n_boot)
+            same.append(dict(labels=labels, comparison=f"{b} - {c}", delta=pt, ci_low=lo, ci_high=hi,
+                             n_groups=ng, isolate_drug_pairs=int(sum(both[d].sum() for d in drugs))))
+    pd.DataFrame(same).to_csv(out / "m1_same_isolates_exploratory.csv", index=False)
+    print(pd.DataFrame(same).round(4).to_string(index=False))
+
     m2_out, m2_per = m2(Ye[drugs], S, R, prox, groups, drugs, a.n_boot)
     m2_per.to_csv(out / "m2_per_drug.csv", index=False)
     v = {"breakpoints": Path(a.breakpoints).name, "drugs": drugs, "m1": m1.round(4).to_dict(orient="records"),

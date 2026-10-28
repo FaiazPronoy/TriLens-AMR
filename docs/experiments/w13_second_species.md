@@ -209,3 +209,61 @@ clindamycin"; cfr is not discussed. So the clindamycin rule is **any `23S` point
 `erm(` gene**; `lnu(` and `cfr(` are dropped. The same paper reports gyrA T86I in all 53
 ciprofloxacin/nalidixic-acid-resistant isolates and in none of the 61 susceptible, and 100%
 concordance for tetracycline with tet(O), consistent with the rules above.
+
+## Result, *Campylobacter* (read 2026-10-29, after the amendments above were committed)
+
+4,426 isolates, 1,206 SNP clusters; 129 features (genes and point mutations in ≥ 5 isolates).
+
+**Primary (W10-B replication): fail.** Model − rule, mean nAP over CIP, NAL, TET, CLI:
+**−0.006 [−0.017, 0.004]**; three classes −0.007. Mean nAP: rule **0.928**, model 0.922, assembly
+arm 0.116. Per drug the model never beats the rule (CIP −0.002, NAL −0.003, TET −0.001,
+CLI −0.016, every CI spanning zero). In *Campylobacter* the determinants are few and nearly
+monogenic — gyrA T86I, tet(O), 23S A2075G — and a fixed rule already reaches 0.93. So the
+*E. coli* result that a model beats the rule on unseen lineages (+0.122) does **not** generalise
+to this species. The paper says so, and reads the two together: the model adds where the
+determinant-to-phenotype map is diffuse (*E. coli* cephalosporins, AMC) and adds nothing where it
+is close to one gene per phenotype (*Campylobacter*, and *E. coli* GEN/CTX externally).
+
+**W12 replication: pass, carried by one drug.** Within-SNP-cluster concordance of assembly length,
+mean over the four drugs **0.595** (≥ 0.55). Per drug: TET **0.832** (145 clusters, 3,064 pairs),
+CIP 0.548, NAL 0.549, CLI 0.450 (27 clusters, 324 pairs). Contigs and N50 are at chance for every
+drug (0.42–0.57). Not tested, but consistent with the mechanism stated in the pre-registration's
+source: tet(O) is "more commonly [encoded] on the plasmids pTet" (Iovine 2013), while the
+quinolone and clindamycin determinants are chromosomal point mutations. The assembly-length
+signal appears for the plasmid-borne determinant and not for the point mutations, which is what
+an accessory-content explanation predicts. The pass is stated together with this dependence on
+tetracycline.
+
+## Result, MIC (read 2026-10-29, after the amendments above were committed)
+
+**M3, label agreement** (submitter call against EUCAST v16.1 from the MIC):
+
+| | with MIC | undetermined | compared | agreement | sub. R → EUCAST S | sub. S → EUCAST R |
+|---|---|---|---|---|---|---|
+| AMP | 9,166 | 93 | 7,583 | 1.000 | 0 | 0 |
+| CIP | 8,228 | 1,735 | 5,848 | 0.938 | 215 | 145 |
+| AMC | 8,512 | 93 | 6,574 | 0.999 | 1 | 3 |
+| SXT | 8,548 | 417 | 6,658 | 0.991 | 0 | 58 |
+| GEN | 9,346 | 92 | 7,269 | 0.995 | 0 | 38 |
+| CAZ | 5,405 | 3,192 | 1,435 | 0.818 | 75 | 186 |
+
+**M1, endpoints with EUCAST labels.** AP − M **+0.770 [0.720, 0.813]** (submitter labels
++0.762); AP − R **+0.123 [0.081, 0.174]** (submitter +0.065 [0.005, 0.140]). The EUCAST label
+set is larger (89 BioProjects against 62), because many isolates have an MIC but a submitter
+call of "not defined". So:
+
+*Exploratory, not pre-registered:* on the **same** 35,367 isolate–drug pairs (50 BioProjects)
+under both labels, AP − R is **+0.064 [−0.009, 0.159]** with the submitter's calls and
+**+0.101 [0.066, 0.158]** with EUCAST calls. On identical isolates, harmonising the breakpoint
+raises the model's margin over the rule and moves its interval clear of zero. This suggests that
+part of the fragility W8 reported is label heterogeneity across laboratories, not the model. It
+is exploratory and is reported as such.
+
+**M2, where the errors are: not concentrated by the pre-registered rule.** Pooled, the error rate
+near the breakpoint against far from it: model **1.64 [1.05, 2.96]**, rule **1.87 [1.15, 3.39]**.
+Both CIs exclude 1, so errors are more frequent near the breakpoint, but neither reaches the
+pre-registered factor of 2. Per drug the picture splits (reported without a rule): near/far ratios
+CIP model 47.2 (57% near vs 1.2% far), rule 14.4; SXT 4.5 and 5.8; CAZ 3.7 and 2.7 — there the
+errors are breakpoint errors. AMP, AMC and GEN go the other way. For GEN the model's far-from-
+breakpoint error rate is **18.1%** against the rule's **2.7%**: the model's gentamicin errors are
+not borderline MICs but confident mistakes, which is where W8 found the rule ahead of the model.
