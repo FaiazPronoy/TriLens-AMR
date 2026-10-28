@@ -1,0 +1,156 @@
+{
+ "metadata_file": "PDG000000004.6395.metadata.tsv",
+ "rows_in_table": 592175,
+ "rows_with_AST": 11100,
+ "candidates": 10876,
+ "note": "candidates = has AST, not one of our strains, AMRFinderPlus 4.2.7",
+ "db_versions": {
+  "2026-03-24.1": 10232,
+  "2026-05-15.1": 324,
+  "2026-08-07.1": 320
+ },
+ "analysis_type": {
+  "COMBINED": 7951,
+  "NUCLEOTIDE": 2925
+ },
+ "countries": {
+  "USA": 7388,
+  "Canada": 1334,
+  "United Kingdom": 718,
+  "Netherlands": 508,
+  "Mexico": 154,
+  "Thailand": 108,
+  "Germany": 91,
+  "Australia": 89,
+  "Brazil": 62,
+  "Pakistan": 57,
+  "Portugal": 39,
+  "Zambia": 36,
+  "Ireland": 31,
+  "Guadeloupe": 28,
+  "Algeria": 25
+ },
+ "epi_type": {
+  "environmental/other": 6158,
+  "clinical": 4704,
+  "NaN": 14
+ },
+ "isolation_source": {
+  "urine": 3381,
+  "ground turkey": 937,
+  "clinical": 718,
+  "Ground Beef": 473,
+  "cecal content": 380,
+  "blood": 218,
+  "URINE, CLEAN VOID": 200,
+  "feces": 189,
+  "Pork Chop": 189,
+  "Chicken Breasts": 180,
+  "hospital": 120,
+  "Pork Chops": 114
+ },
+ "host": {
+  "Homo sapiens": 4117,
+  "Canis lupus familiaris": 1435,
+  "Chicken [NCBITaxon:9031]": 1128,
+  "Sus scrofa domesticus": 160,
+  "Sus scrofa domestica": 154,
+  "veal calf": 103,
+  "Bos taurus": 70,
+  "pig": 47
+ },
+ "year_quartiles": {
+  "count": 10671.0,
+  "mean": 2018.5030456377096,
+  "std": 2.8161012986989027,
+  "min": 2004.0,
+  "25%": 2017.0,
+  "50%": 2019.0,
+  "75%": 2020.0,
+  "max": 2025.0
+ },
+ "per_drug": [
+  {
+   "drug": "AMP",
+   "pd_name": "ampicillin",
+   "R": 3835,
+   "S": 4204,
+   "I": 18,
+   "ND": 1587,
+   "tested": 9644
+  },
+  {
+   "drug": "CIP",
+   "pd_name": "ciprofloxacin",
+   "R": 1482,
+   "S": 6473,
+   "I": 158,
+   "ND": 762,
+   "tested": 8892
+  },
+  {
+   "drug": "AMC",
+   "pd_name": "amoxicillin-clavulanic acid",
+   "R": 888,
+   "S": 5640,
+   "I": 436,
+   "ND": 2019,
+   "tested": 8983
+  },
+  {
+   "drug": "SXT",
+   "pd_name": "trimethoprim-sulfamethoxazole",
+   "R": 1440,
+   "S": 5928,
+   "I": 1,
+   "ND": 1563,
+   "tested": 8932
+  },
+  {
+   "drug": "GEN",
+   "pd_name": "gentamicin",
+   "R": 1226,
+   "S": 6399,
+   "I": 107,
+   "ND": 2087,
+   "tested": 9819
+  },
+  {
+   "drug": "CTX",
+   "pd_name": "cefotaxime",
+   "R": 733,
+   "S": 291,
+   "I": 21,
+   "ND": 9,
+   "tested": 1054
+  },
+  {
+   "drug": "CAZ",
+   "pd_name": "ceftazidime",
+   "R": 972,
+   "S": 2617,
+   "I": 108,
+   "ND": 2097,
+   "tested": 5795
+  },
+  {
+   "drug": "CRO",
+   "pd_name": "ceftriaxone",
+   "R": 1510,
+   "S": 5568,
+   "I": 11,
+   "ND": 25,
+   "tested": 7114
+  }
+ ],
+ "drugs_with_at_least_100_each": [
+  "AMC",
+  "AMP",
+  "CAZ",
+  "CIP",
+  "CRO",
+  "CTX",
+  "GEN",
+  "SXT"
+ ]
+}
