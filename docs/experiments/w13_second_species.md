@@ -91,3 +91,55 @@ The probe now reads the newest file in `Clusters/`, joins it to the metadata on 
 records the file name and its column names per organism (`cluster_source.json`), so a reader can
 check the join. An organism with no `Clusters/` file gets a cluster share of 0 and fails gate 3,
 as before. The gate, its thresholds and the species-choice rule are unchanged.
+
+## Amendment 2026-10-29, the MIC analysis, fixed before any MIC is related to any score
+
+The AST-browser export (*E. coli* and *Shigella*, all rows) has 171,750 rows for **11,100**
+isolates, exactly the number of AST isolates `ext_probe` counted, so no download cap cut it. It
+matches **all 10,232** isolates of the W8 primary cohort by PDT accession (`Isolate` =
+`target_acc`). Isolates with an MIC, per drug: AMP 9,166, CIP 8,228, AMC 8,512, SXT 8,548,
+GEN 9,346, CAZ 5,405, **CTX 950**. By the rule above, **CTX is not analysed** (under 1,000).
+Testing standards on the matched rows: CLSI 137,349, EUCAST 16,050, NARMS 2,784, SFM 415,
+missing 2,903. Only counts and value lists were read to write this; no MIC has been set against
+any model score or rule call.
+
+**Harmonisation, fixed now.**
+
+1. *Breakpoints:* EUCAST Clinical Breakpoint Tables **v16.1** (valid from 2026-06-24),
+   Enterobacterales, systemic/iv lines, transcribed into
+   `results/data_inventory/eucast_v16_1_enterobacterales.csv` and committed before the analysis
+   runs. Read from the official PDF so far: ampicillin S≤8 R>8; amoxicillin–clavulanic acid iv
+   S≤8 R>8 (clavulanate fixed at 2 mg/L); cefotaxime S≤1 R>2; ceftazidime S≤1 R>4.
+   Ciprofloxacin, gentamicin and trimethoprim–sulfamethoxazole are transcribed from the same
+   file when it is in hand; the analysis does not run with a value taken from memory.
+2. *Censored values:* `==v` is [v, v]; `<=v` is (0, v]; `<v` is (0, v/2]; `>=v` is [v, ∞);
+   `>v` is [2v, ∞). A harmonised label is R if the whole interval is above the R breakpoint, S if
+   the whole interval is at or below the S breakpoint, I if it lies wholly between them, and
+   **undetermined** (excluded) if the interval straddles a breakpoint. I is counted as resistant,
+   as everywhere in the paper.
+3. *Trimethoprim–sulfamethoxazole:* EUCAST expresses the breakpoint as the trimethoprim
+   concentration (1:19). The export mixes conventions: Vitek reports the sulfamethoxazole
+   component (9.5, 19, 38, 76, 152, 304 = 19 × a trimethoprim dilution). Those six values are
+   divided by 19; any other value above 32 mg/L, and the single `>26.95`, are excluded.
+4. *One doubling dilution:* with S≤s and R>r, an isolate is **near** the breakpoint if its MIC
+   interval lies within [s/2, 2r], **far** if it lies wholly outside that range, and is excluded
+   from the near/far comparison otherwise.
+
+**Questions and rules.** All use the frozen W8 scores (`scores.csv.gz`), so nothing is refitted.
+
+- **M1, endpoints under harmonised labels.** W8's AP − M and AP − R, mean nAP over AMP, CIP, AMC,
+  SXT, GEN, CAZ, BioProject-clustered, recomputed with EUCAST labels in place of the submitter's.
+  Reported, no new pass rule: W8's verdict is restated, and any change in sign or in whether a CI
+  excludes zero is stated.
+- **M2, where the errors are.** The model is binarised at 0.5 (as in the paper's clinical tables)
+  and the rule is already binary. Over all analysed drugs pooled, the error rate among **near**
+  isolates against the error rate among **far** isolates, as a ratio with a BioProject-clustered
+  bootstrap CI, for each arm. **Concentrated** if the ratio is ≥ 2 with the CI's lower bound > 1.
+  Per drug: reported without a rule.
+- **M3, label agreement.** Per drug, agreement of the submitter's call with the EUCAST call, and
+  the count of undetermined isolates. Descriptive.
+
+**Limit.** MICs come from different platforms and vendors, and a broth-microdilution panel's
+lowest and highest wells censor the value, which is why the interval rule above is used.
+EUCAST is applied to isolates most of which were interpreted under CLSI; M1 is therefore a
+harmonisation, not a correction of anyone's call.
