@@ -64,3 +64,34 @@ accessory content. Reported as it comes out.
 - W12 cannot establish that the assembly block inflates the *full model's* internal score. That
   would need an ablation of the full stack with the assembly features removed, which is not run
   here, so the paper does not use the word "inflates" of the full model.
+
+## Result (read 2026-10-29, after the pre-registration above was committed)
+
+**Primary: pass.** Assembly size's mean within-cell concordance over AMC, SXT, GEN, CTX, CAZ is
+**0.613 within ST and 0.592 within (ST × study)** — a fall of only 0.022, well above the 0.55 level.
+The correlation with acquired-gene count is likewise unmoved: within-ST rho 0.325, within
+(ST × study) rho 0.321, on 3,951 strains in 75 cells. Conditioning on the submitting study does
+not remove the signal, so the within-lineage assembly signal is not a study artefact.
+
+**Secondary: the content group carries it, the technical group does not.** Within (ST × study),
+mean concordance over the acquired-determinant drugs is 0.554 for content (Size, CDS, GC.Content)
+and 0.531 for technical (Contigs, Contig.N50). Per statistic:
+
+| | AMC | AMP | CAZ | CIP | CTX | GEN | SXT |
+|---|---|---|---|---|---|---|---|
+| Size | 0.623 | 0.643 | 0.576 | 0.595 | 0.616 | 0.556 | 0.588 |
+| CDS | 0.600 | 0.660 | 0.597 | 0.580 | 0.636 | 0.535 | 0.597 |
+| Contigs | 0.586 | 0.648 | 0.594 | 0.599 | 0.631 | 0.611 | 0.606 |
+| GC.Content | 0.474 | 0.515 | 0.435 | 0.513 | 0.426 | 0.488 | 0.565 |
+| Contig.N50 | 0.470 | 0.474 | 0.473 | 0.416 | 0.383 | 0.490 | 0.469 |
+
+Contig N50 sits **below** 0.5 for every drug (0.383–0.490) and correlates *negatively* with
+acquired-gene count (rho −0.185): a more contiguous assembly carries fewer acquired genes, which is
+what a plasmid-content explanation predicts and the opposite of a "better sequencing, more
+resistance" batch effect. GC content is near chance throughout.
+
+**Wording this fixes.** The paper does not call this a batch artefact, and does not say assembly
+quality "inflates" the full model (not tested; see the limits above). It says: assembly size and
+CDS count act as a within-lineage proxy for accessory gene content, which is real biology but is a
+proxy a model can lean on instead of the determinants, and it does not transfer to the external
+cohort (W8: metadata-arm mean nAP 0.045).

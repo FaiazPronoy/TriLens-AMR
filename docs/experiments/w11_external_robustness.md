@@ -53,3 +53,22 @@ restated on the de-overlapped cohort. An overlap of more than 1% of the cohort w
   external assemblies are not downloaded here, so this limit stands.
 - Projects with fewer than 100 labelled isolates are not dropped individually; their joint effect
   is not tested.
+
+## Result (read 2026-10-29, after the pre-registration above was committed)
+
+**Primary (AP − M): pass.** Nine BioProjects have ≥ 100 labelled primary-drug isolates. Dropping
+each in turn, the mean nAP advantage over the assembly arm stays in **0.723–0.777** and the
+clustered CI lower bound never falls below **0.648**. Every replicate clears the W8 rule, so the
+external result does not depend on any one project.
+
+**Accession audit: no overlap.** Zero external isolates match any identifier we hold for our own
+strains, checking `asm_acc`, `target_acc`, `Run` and `biosample_acc` against our `genome_id`,
+`genome_name`, `sra`, `biosample` and `assembly_accession`. Overlap fraction 0.000, so W8's
+"not ours" claim stands as written. (The limit above still applies: an isolate deposited twice
+under unrelated accessions would not be caught by any accession comparison.)
+
+**Secondary (AP − R), reported without a pass rule.** The margin over the determinant rule is
+spread across projects rather than produced by one: point estimates 0.037–0.086 across the nine
+replicates, with the CI above zero in **7 of 9**. The two replicates whose CI touches zero are the
+drops of PRJNA809394 (0.037, CI low −0.003) and PRJNA278886 (0.056, CI low −0.001). So the small
+external margin is consistent across the cohort but remains small, exactly as W8 reported it.
