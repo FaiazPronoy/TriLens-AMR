@@ -200,7 +200,7 @@ def main():
         print(f"{org}: {n_total} rows, {rec['rows_with_AST']} with AST, {rec['ast_with_amrfinder_4_2_7']} "
               f"on 4.2.7, clusters {rec['cluster_share']:.0%} ({rec['clusters']}), asm {rec['assembly_stats_share']:.0%}, "
               f"drugs>=100 each: {len(rec['drugs_with_100_each'])}, gate {'PASS' if rec['passes'] else 'fail'} "
-              f"({time.time() - t0:.0f}s)", flush=True)
+              f"({time.time() - t0:.0f}s) | clusters from: {cl_info.get('file') or cl_info.get('error')}", flush=True)
 
     passing = sorted([r for r in recs if r.get("passes")], key=lambda r: -r["ast_with_amrfinder_4_2_7"])
     chosen = [r["organism"] for r in passing[:MAX_SPECIES]]
