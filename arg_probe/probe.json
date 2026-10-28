@@ -1,0 +1,42 @@
+{
+ "strains": 20,
+ "fna_found": 0,
+ "fna_scheme_used": {},
+ "fna_mb_mean": null,
+ "fna_seconds_mean": null,
+ "spgene_found": 0,
+ "failures": {
+  ".PATRIC.spgene.tab ftp": {
+   "URLError": 20
+  },
+  ".PATRIC.spgene.tab https": {
+   "URLError": 20
+  },
+  ".fna ftp": {
+   "URLError": 20
+  },
+  ".fna https": {
+   "URLError": 20
+  }
+ },
+ "amrfinder_ran": true,
+ "amrfinder_seconds_mean": null,
+ "ncbi_pathogen_detection": {
+  "listing_status": {
+   "/": 200,
+   "latest_snps/": 200,
+   "latest_snps/Metadata/": 200,
+   "latest_snps/AMR/": 200
+  },
+  "candidate_files": [
+   "latest_snps/AMR/",
+   "latest_snps/AMR/PDG000000004.6393.amr.metadata.tsv",
+   "latest_snps/AMR/PDG000000004.6393.amr.metadata.xml",
+   "latest_snps/Metadata/",
+   "latest_snps/Metadata/PDG000000004.6393.metadata.tsv",
+   "latest_snps/Metadata/PDG000000004.6393.metadata.xml"
+  ]
+ },
+ "amrfinder_version": "4.2.7",
+ "amrfinder_database": "Software directory: '/tmp/amr/env/bin/'\nSoftware version: 4.2.7\nDatabase directory: '/tmp/amr/env/share/amrfinderplus/data/2026-08-07.1'\nDatabase version: 2026-08-07.1"
+}
