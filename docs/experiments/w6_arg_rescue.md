@@ -94,3 +94,22 @@ across contigs can be missed.
 - 2026-10-28 (before any ARG data): the k-fold files moved from `results/splits/` to
   `results/splits_kfold/`, because `src.splits.from_json` reads every file in `results/splits/` as a
   train/val/test split. Content unchanged; no rule changed.
+- 2026-10-28 (before any ARG–phenotype analysis; only route probes have run): **source of the ARG
+  block changed.** `arg_probe` found BV-BRC's ftp host unreachable from Kaggle (https timed out, ftp
+  refused) and `arg_probe2` found its API host refusing (HTTP 403). NCBI Pathogen Detection publishes
+  AMRFinderPlus results for the same public SRA runs (`PDG000000004.6394.metadata.tsv`,
+  `AMR_genotypes`), covering 5,225 of the 6,962 strains, 5,224 of them run with AMRFinderPlus 4.2.7.
+  Rules for this source, fixed now:
+  1. Join by SRA run; if none, by BioSample. A strain matching more than one row keeps the run match,
+     then the latest `target_creation_date`. The joined rows are frozen in
+     `code/results/data_inventory/pd_amr_joined.tsv.gz` (file name and SHA-256 recorded).
+  2. **Primary set:** AMRFinderPlus 4.2.7 with database 2026-03-24.1 (the most common pair), so one
+     version is used for every strain, as the original rule required. Sensitivity: every 4.2.7 row.
+  3. A token with no suffix is a detected gene (acquired block A). `=POINT` goes to the point block P.
+     `=PARTIAL`, `=PARTIAL_END_OF_CONTIG`, `=MISTRANSLATION` and `=HMM` are not counted; they stand in
+     for the identity ≥ 90% / coverage ≥ 80% rule, which this table does not report. Symbols in fewer
+     than 5 strains are dropped, as before.
+  4. NCBI ran either a nucleotide-only or a combined search; the split is reported.
+  5. The coverage gate applies (coverage is below 90%): every arm uses the same strains, and the
+     excluded strains' country, year, study, ST and phylogroup are reported against the included.
+  6. The table's `AST_phenotypes` column is not used as a feature or a label in W6.
