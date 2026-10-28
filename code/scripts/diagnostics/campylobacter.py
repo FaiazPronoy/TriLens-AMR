@@ -40,8 +40,10 @@ PASS_DELTA, ASM_PASS = 0.05, 0.55
 ASM = {"length": "asm_stats_length_bp", "contigs": "asm_stats_n_contig", "n50": "asm_stats_contig_n50"}
 
 
-def rules(cli_23s):
-    cli = r"^erm\(|^lnu\(|^cfr\(" + (r"|^23S_.*\|POINT$" if cli_23s else "")
+def rules(cli_23s=True):
+    # settled from Zhao et al. 2016 (AEM 82:459) before any score: 23S A2075G/A2074T and erm are
+    # clindamycin determinants; lnu(C) gives lincomycin, not clindamycin, resistance; cfr is not discussed
+    cli = r"^erm\(" + (r"|^23S_.*\|POINT$" if cli_23s else "")
     return {"CIP": r"^gyrA_.*\|POINT$", "NAL": r"^gyrA_.*\|POINT$", "TET": r"^tet\(", "CLI": cli}
 
 
@@ -103,7 +105,8 @@ def oof(X, y, fl, kind):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--candidates", default="results/species_probe/candidates_Campylobacter.tsv.gz")
-    ap.add_argument("--clindamycin-23s", required=True, choices=["yes", "no"])
+    ap.add_argument("--clindamycin-23s", default="yes", choices=["yes", "no"],
+                    help="settled 'yes' from Zhao et al. 2016; 'no' exists only as a sensitivity")
     ap.add_argument("--out", default="results/w13_campylobacter")
     ap.add_argument("--n-boot", type=int, default=2000)
     a = ap.parse_args()

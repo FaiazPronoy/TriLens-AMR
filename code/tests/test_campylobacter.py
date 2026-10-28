@@ -18,7 +18,8 @@ spec.loader.exec_module(cb)
     ("CIP", {"gyrA_T86I"}, set(), True, 0.0),             # a gene named gyrA is not a point mutation
     ("TET", {"tet(O)"}, set(), True, 1.0), ("TET", {"blaOXA-61"}, set(), True, 0.0),
     ("CLI", set(), {"23S_A2075G"}, True, 1.0), ("CLI", set(), {"23S_A2075G"}, False, 0.0),
-    ("CLI", {"erm(B)"}, set(), False, 1.0), ("CLI", {"lnu(C)"}, set(), False, 1.0),
+    ("CLI", {"erm(B)"}, set(), False, 1.0), ("CLI", {"lnu(C)"}, set(), True, 0.0),   # lincomycin only
+    ("CLI", {"cfr(C)"}, set(), True, 0.0),
     ("CLI", set(), {"rplV_A103V"}, True, 0.0),
 ])
 def test_rules(drug, acq, pt, with23s, expect):

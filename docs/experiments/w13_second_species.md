@@ -186,3 +186,26 @@ clindamycin 120/4,139. Only these counts and the list of call symbols were read 
      with no resistant–susceptible pair contribute nothing.
    - Also reported: a metadata arm on the three assembly statistics alone (HistGradientBoosting),
      same folds, as in W8.
+
+## Amendment 2026-10-29, the two pending inputs settled from their sources, before either analysis runs
+
+**EUCAST v16.1, read from the official PDF the user supplied** (the Enterobacterales table, MIC
+columns): ciprofloxacin (indications other than meningitis) S≤0.25 R>0.5; gentamicin S≤2 R>2
+(the systemic line prints (2)/(2) in brackets, the urinary-origin line 2/2; both are 2);
+trimethoprim–sulfamethoxazole, Enterobacterales except *Serratia*, S≤0.5 R>0.5, note 8: "ratio
+1:19. Breakpoints are expressed as the trimethoprim concentration." The four earlier values were
+re-read from the same file and agree (ampicillin iv 8/8; amoxicillin–clavulanic acid iv 8/8 with
+clavulanate fixed at 2; cefotaxime other than meningitis 1/2; ceftazidime 1/4).
+`eucast_v16_1_enterobacterales.csv` is complete. The SXT breakpoint is low (0.5), so the many
+`<=1` and `<=2` reports straddle it and are undetermined under the censoring rule; this is
+reported in M3 and not changed.
+
+**Clindamycin rule for *Campylobacter*, from Zhao et al. 2016** (*Appl Environ Microbiol*
+82:459–466; the user supplied the PDF): clindamycin resistance was explained by 23S rRNA A2075G
+(50 of 52) or A2074T (1 of 52), 98.1% concordance (Table 2); erm methylation is named as an
+MLK mechanism (none were found in their isolates); lnu(C) "is associated with resistance to …
+lincomycin" and was first found in a *S. agalactiae* "resistant to lincomycin but susceptible to
+clindamycin"; cfr is not discussed. So the clindamycin rule is **any `23S` point mutation or any
+`erm(` gene**; `lnu(` and `cfr(` are dropped. The same paper reports gyrA T86I in all 53
+ciprofloxacin/nalidixic-acid-resistant isolates and in none of the 61 susceptible, and 100%
+concordance for tetracycline with tet(O), consistent with the rules above.
