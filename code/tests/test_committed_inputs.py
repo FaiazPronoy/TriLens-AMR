@@ -10,6 +10,7 @@ ROOT = Path(__file__).resolve().parents[1]
 NEEDED = ["results/data_inventory/genome_ids.csv", "results/data_inventory/strain_table.csv",
           "results/data_inventory/labels16.csv", "results/data_inventory/covariates.csv",
           "results/data_inventory/pd_amr_joined.tsv.gz", "results/data_inventory/pd_amr_joined.json",
+          "results/data_inventory/ncbi_ast_ecoli.tsv.gz", "results/data_inventory/eucast_v16_1_enterobacterales.csv",
           "results/splits_kfold/st_grouped_5fold.json", "results/splits_kfold/random_5fold.json",
           "results/splits/country_uk_to_norway.json", "results/splits/country_norway_to_uk.json",
           "results/splits/time_norway_2013.json"]
