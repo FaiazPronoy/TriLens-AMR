@@ -367,6 +367,41 @@ STAGES["lineage_seeds"] = dict(
            ("Stack each seed with the classical arm, read all three", M + "run_lineage_seeds --seeds 123,456",
             "lineage_seeds/verdict.json")])
 
+STAGES["w10_coverage"] = dict(
+    code_ref="extension",
+    title="W10: is the ARG rescue a coverage artefact, and does a fixed rule do the same job?",
+    lensb="fixed", needs=["pa_fix", "w6_rescue"], cpu=True, gpu="None (CPU; XGBoost on the CPU)",
+    hours="about 1-2 CPU hours",
+    about="Pre-registration: docs/experiments/w10_coverage_and_rule.md. Part A fits the catalogue and "
+          "metadata arms inside the strains that have NO Pathogen Detection call, on that stratum's own "
+          "ST-grouped folds, against the same arms on the called strains. Part B scores the W8 determinant "
+          "rule on the called strains next to F0 and F0A, same folds. Part C re-scores the W6 primary "
+          "endpoint inside the UK and inside Norway. Needs the w6_rescue output for its saved "
+          "out-of-fold scores.",
+    writes=["arg_matrix", "w10_coverage_rule"],
+    steps=[_ARG_BUILD,
+           ("Coverage strata, the uncovered-stratum arms, the rule arm and the country strata",
+            D + "coverage_and_rule.py --w6 results/w6_rescue/paper_ri --out results/w10_coverage_rule",
+            "w10_coverage_rule/verdict.json")])
+STAGES["w11_w12_robustness"] = dict(
+    code_ref="extension",
+    title="W11 and W12: external leave-one-BioProject-out, and is the assembly signal batch or biology?",
+    lensb="fixed", needs=["ext_probe", "w8_external"], cpu=True, gpu="None (CPU; no model is fitted)",
+    hours="under an hour; nothing is trained, both scripts re-score saved predictions",
+    about="Pre-registrations: docs/experiments/w11_external_robustness.md and w12_shortcut_mechanism.md. "
+          "W11 drops each BioProject with >= 100 labelled isolates from the frozen external scores and "
+          "recomputes the W8 endpoints, and audits the external accessions against ours. W12 repeats W7's "
+          "within-ST concordance inside (sequence type x submitting study) cells, with the assembly "
+          "statistics split into a content group and a technical group.",
+    writes=["arg_matrix", "w11_external_robustness", "w12_shortcut_mechanism"],
+    steps=[_ARG_BUILD,
+           ("External: leave one BioProject out, and the accession audit",
+            D + "external_robustness.py --w8 results/w8_external/primary_ri "
+                "--out results/w11_external_robustness", "w11_external_robustness/verdict.json"),
+           ("Is the within-lineage assembly signal batch or accessory content?",
+            D + "shortcut_mechanism.py --out results/w12_shortcut_mechanism",
+            "w12_shortcut_mechanism/verdict.json")])
+
 
 def md(text):
     return {"cell_type": "markdown", "metadata": {}, "source": text.splitlines(True)}
