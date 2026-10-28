@@ -143,3 +143,46 @@ any model score or rule call.
 lowest and highest wells censor the value, which is why the interval rule above is used.
 EUCAST is applied to isolates most of which were interpreted under CLSI; M1 is therefore a
 harmonisation, not a correction of anyone's call.
+
+## Result of the probe, and amendment 2026-10-29: the Campylobacter analysis, before any score
+
+**Gate (probe run at commit 70a5188, log of the Kaggle run):** of 107 organism folders, **one**
+passes: *Campylobacter* (4,426 AST isolates on AMRFinderPlus 4.2.7; SNP clusters on 88%, 1,206
+clusters; assembly statistics on 100%; four drugs with ≥ 100 R and ≥ 100 S). The two nearest
+misses, stated so nobody has to guess: *Klebsiella* (2,634 isolates, 21 drugs) fails gate 3 with
+SNP clusters on only 55%; *Salmonella* has 9,977 AST isolates but only 469 called with 4.2.7.
+The gate is not relaxed for either. So W13 has one second species, and the paper says so.
+
+The cohort: *C. jejuni* 2,995, *C. coli* 1,424, *C. lari* 7. Database 2026-08-07.1 for 4,398, 2026-03-24.1 for 28;
+because training and testing are both inside this cohort, all 4,426 are used.
+Drugs passing (R/S): ciprofloxacin 977/3,449, nalidixic acid 950/3,309, tetracycline 2,172/2,253,
+clindamycin 120/4,139. Only these counts and the list of call symbols were read to write this.
+
+**Fixed now:**
+
+1. **Calls.** `AMR_genotypes` parsed with the W6/W8 rules: a symbol without suffix is a gene,
+   `=POINT` a point mutation, `PARTIAL`, `PARTIAL_END_OF_CONTIG`, `MISTRANSLATION`, `HMM` are not
+   counted. Features: every gene and point mutation present in ≥ 5 isolates, binary.
+2. **Lineage folds.** SNP-cluster-grouped 5-fold, built by the same procedure as the *E. coli*
+   ST-grouped folds (largest cluster first to the emptiest fold). Isolates with no cluster are in
+   training in every fold and never scored. BioProject is not used for folds.
+3. **Model.** XGBoost with the W6 settings, no tuning, one model per drug.
+4. **Determinant rule** (from the mechanisms in the literature, not from these data):
+   - ciprofloxacin, nalidixic acid: any `gyrA` point mutation — Thr-86-Ile in the QRDR gives
+     high-level resistance to both (Iovine 2013, *Virulence* 4:230);
+   - tetracycline: any `tet(` gene — TetO ribosomal protection is the main mechanism (same source);
+   - clindamycin: any `23S` point mutation, `erm(`, `lnu(` or `cfr(` gene. **Pending verification**
+     that the 23S A2074/A2075 mutations are reported as clindamycin determinants in *Campylobacter*
+     (Zhao et al. 2016, *Appl Environ Microbiol* 82:459, which could not be opened here). If the
+     source does not support it, the clindamycin rule is `erm(`, `lnu(`, `cfr(` only. The analysis
+     does not run until this is settled, and the choice is made from the paper, not from the data.
+5. **Endpoints.**
+   - **W10-B replication (primary):** model − rule, mean nAP over the four drugs, cluster-clustered
+     CI. Pass: ≥ 0.05 with the CI above zero. Ciprofloxacin and nalidixic acid share one mechanism,
+     so the mean is also reported over the three distinct classes (quinolone = the mean of the two);
+     that figure is secondary.
+   - **W12 replication:** within-SNP-cluster concordance of assembly length, contig count and N50
+     with each drug's phenotype; pass if length's mean over the four drugs is ≥ 0.55. Cluster cells
+     with no resistant–susceptible pair contribute nothing.
+   - Also reported: a metadata arm on the three assembly statistics alone (HistGradientBoosting),
+     same folds, as in W8.
