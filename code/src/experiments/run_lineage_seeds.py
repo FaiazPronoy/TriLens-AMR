@@ -126,6 +126,12 @@ def summary(seeds):
 
 
 def main():
+    # run_trilens_mlst never configures logging, so its per-fold INFO lines are silent and the
+    # notebook (which checkpoints only when a line is printed) uploads nothing for hours.
+    # Printing them changes no computation.
+    import logging
+    logging.basicConfig(level=logging.INFO, format="%(asctime)s  %(levelname)-7s  %(message)s",
+                        datefmt="%H:%M:%S")
     ap = argparse.ArgumentParser()
     ap.add_argument("--seeds", default="123,456")
     ap.add_argument("--n-boot", type=int, default=2000)

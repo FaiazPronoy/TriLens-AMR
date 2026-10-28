@@ -402,6 +402,19 @@ STAGES["w11_w12_robustness"] = dict(
             D + "shortcut_mechanism.py --out results/w12_shortcut_mechanism",
             "w12_shortcut_mechanism/verdict.json")])
 
+STAGES["species_probe"] = dict(
+    code_ref="extension",
+    title="W13: is there a second species to test the findings on? (counts only)",
+    lensb="fixed", needs=[], cpu=True, gpu="None (CPU). Internet must be On",
+    hours="about 10-40 minutes: it downloads each organism's metadata table once",
+    about="Pre-registration and gate: docs/experiments/w13_second_species.md. Walks every organism folder "
+          "of NCBI Pathogen Detection (E. coli skipped), counts AST isolates, AMRFinderPlus 4.2.7 calls, "
+          "R/S per drug, SNP-cluster and assembly-statistics coverage, and applies the pre-registered gate. "
+          "No model is fitted and no phenotype is related to any feature.",
+    writes=["species_probe"],
+    steps=[("Count every organism and apply the gate", "python -m src.mechanism.species_probe "
+            "--out results/species_probe", "species_probe/gate.csv")])
+
 
 def md(text):
     return {"cell_type": "markdown", "metadata": {}, "source": text.splitlines(True)}
