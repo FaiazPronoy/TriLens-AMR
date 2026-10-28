@@ -1,0 +1,53 @@
+{
+ "row": {
+  "dataset": "arcadia",
+  "antibiotic": "CIP",
+  "model": "cnn_1d_naive",
+  "variant": "shuf",
+  "status": "ok",
+  "test_pr_auc": 0.6322464919473735,
+  "test_pr_auc_lo": 0.5722037176835447,
+  "test_pr_auc_hi": 0.6910292047729252,
+  "test_mcc": 0.41259505163999544,
+  "test_mcc_lo": 0.34258779315841426,
+  "test_mcc_hi": 0.47657762356189576,
+  "test_roc_auc": 0.7590086255816593,
+  "test_f1": 0.5404040404040404,
+  "test_f2": 0.5404040404040404,
+  "test_precision": 0.5404040404040404,
+  "test_recall": 0.5404040404040404,
+  "test_acc": 0.8,
+  "test_brier": 0.15395133530297664,
+  "test_sens_at_90_spec": 0.48484848484848486,
+  "n_test": 910,
+  "n_pos_test": 198,
+  "epochs_run": 16,
+  "fit_time_s": 4760.916893482208,
+  "elapsed_s": 6881.027179718018,
+  "best_ckpt": "/tmp/trilens/code/results/pillar1/exp3/ckpts/arcadia_CIP_naive_shuf_best.ckpt"
+ },
+ "nested": {
+  "predictions_npz": "/tmp/trilens/code/results/pillar1/exp3/arcadia_CIP_shuf_predictions.npz",
+  "metrics": {
+   "pr_auc": 0.6322464919473735,
+   "roc_auc": 0.7590086255816593,
+   "f1": 0.5404040404040404,
+   "f2": 0.5404040404040404,
+   "precision": 0.5404040404040404,
+   "recall": 0.5404040404040404,
+   "mcc": 0.41259505163999544,
+   "acc": 0.8,
+   "brier": 0.15395133530297664,
+   "sens_at_90_spec": 0.48484848484848486
+  },
+  "pr_auc_ci": [
+   0.5722037176835447,
+   0.6910292047729252
+  ],
+  "mcc_ci": [
+   0.34258779315841426,
+   0.47657762356189576
+  ],
+  "best_ckpt": "/tmp/trilens/code/results/pillar1/exp3/ckpts/arcadia_CIP_naive_shuf_best.ckpt"
+ }
+}

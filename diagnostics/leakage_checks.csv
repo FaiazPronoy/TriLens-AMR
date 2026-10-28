@@ -1,0 +1,72 @@
+check,status,detail
+split random_split: disjoint and complete,PASS,"train 4872, val 1045, test 1045, unique 6962/6962"
+split phylogeny_split: disjoint and complete,PASS,"train 4872, val 1045, test 1045, unique 6962/6962"
+split mlst_lineage_holdout_split: disjoint and complete,PASS,"train 4836, val 1081, test 1045, unique 6962/6962"
+lineage holdout: no sequence type in both train and test,PASS,"240 train STs, 103 test STs, shared 0"
+lineage holdout: no sequence type in both val and test,PASS,shared 0
+lineage holdout: strains without a sequence type kept out of test,PASS,"475 strains without ST, 0 in test"
+arcadia_v2_gene_filtered.pkl: carries the same random_split,PASS,identical indices and order
+arcadia_v2_gene_filtered.pkl: SNP codes in 0..3,PASS,"min 0, max 3"
+arcadia_v2_gene_filtered.pkl: test genomes identical to a training genome (on the filtered SNPs),PASS,0 of 1045; near-duplicates are measured by run_pillar_dedup_eval
+arcadia_v2_gene_filtered__phylogeny_clean.pkl: carries the same phylogeny_split,PASS,identical indices and order
+arcadia_v2_gene_filtered__phylogeny_clean.pkl: SNP codes in 0..3,PASS,"min 0, max 3"
+arcadia_v2_gene_filtered__phylogeny_clean.pkl: test genomes identical to a training genome (on the filtered SNPs),PASS,0 of 1045; near-duplicates are measured by run_pillar_dedup_eval
+arcadia_v2_gene_filtered__mlst_holdout.pkl: carries the same mlst_lineage_holdout_split,PASS,identical indices and order
+arcadia_v2_gene_filtered__mlst_holdout.pkl: SNP codes in 0..3,PASS,"min 0, max 3"
+arcadia_v2_gene_filtered__mlst_holdout.pkl: test genomes identical to a training genome (on the filtered SNPs),PASS,0 of 1045; near-duplicates are measured by run_pillar_dedup_eval
+stage3_cascadestack_v9: test_indices = random_split,PASS,match
+stage3_cascadestack_v9: train_indices = random_split,PASS,match
+stage3_cascadestack_v9: val_indices = random_split,PASS,match
+trilens_attnfix: test_indices = random_split,PASS,match
+trilens_attnfix: train_indices = random_split,PASS,match
+trilens_attnfix: val_indices = random_split,PASS,match
+pillar_cascadestack_classical_phylogeny_clean: test_indices = phylogeny_split,PASS,match
+pillar_cascadestack_classical_phylogeny_clean: train_indices = phylogeny_split,PASS,match
+pillar_cascadestack_classical_phylogeny_clean: val_indices = phylogeny_split,PASS,match
+pillar_trilens_t7_clean_gene_set: test_indices = phylogeny_split,PASS,match
+pillar_trilens_t7_clean_gene_set: train_indices = phylogeny_split,PASS,match
+pillar_trilens_t7_clean_gene_set: val_indices = phylogeny_split,PASS,match
+pillar_cascadestack_classical_mlst: test_indices = mlst_lineage_holdout_split,PASS,match
+pillar_cascadestack_classical_mlst: train_indices = mlst_lineage_holdout_split,PASS,match
+pillar_cascadestack_classical_mlst: val_indices = mlst_lineage_holdout_split,PASS,match
+pillar_trilens_mlst: test_indices = mlst_lineage_holdout_split,PASS,match
+pillar_trilens_mlst: train_indices = mlst_lineage_holdout_split,PASS,match
+pillar_trilens_mlst: val_indices = mlst_lineage_holdout_split,PASS,match
+pillar_mlst_final_comparison: test_indices = mlst_lineage_holdout_split,PASS,match
+pillar_mlst_final_comparison: train_indices = mlst_lineage_holdout_split,PASS,match
+pillar_mlst_final_comparison: val_indices = mlst_lineage_holdout_split,WARN,not in the file
+"trilens_attnfix + stage3_cascadestack_v9: same strains, same order",PASS,match
+"pillar_trilens_t7_clean_gene_set + pillar_cascadestack_classical_phylogeny_clean: same strains, same order",PASS,match
+"pillar_trilens_mlst + pillar_cascadestack_classical_mlst: same strains, same order",PASS,match
+trilens_attnfix: validation probabilities come from the stack,PASS,yes
+standard/trilens_attnfix: test_indices = random_split,PASS,match
+standard/trilens_attnfix: train_indices = random_split,PASS,match
+standard/trilens_attnfix: val_indices = random_split,PASS,match
+standard/pillar_trilens_t7_clean_gene_set: test_indices = phylogeny_split,PASS,match
+standard/pillar_trilens_t7_clean_gene_set: train_indices = phylogeny_split,PASS,match
+standard/pillar_trilens_t7_clean_gene_set: val_indices = phylogeny_split,PASS,match
+standard/pillar_trilens_mlst: test_indices = mlst_lineage_holdout_split,PASS,match
+standard/pillar_trilens_mlst: train_indices = mlst_lineage_holdout_split,PASS,match
+standard/pillar_trilens_mlst: val_indices = mlst_lineage_holdout_split,PASS,match
+"standard/trilens_attnfix + stage3_cascadestack_v9: same strains, same order",PASS,match
+"standard/pillar_trilens_t7_clean_gene_set + pillar_cascadestack_classical_phylogeny_clean: same strains, same order",PASS,match
+"standard/pillar_trilens_mlst + pillar_cascadestack_classical_mlst: same strains, same order",PASS,match
+standard/trilens_attnfix: validation probabilities come from the stack,PASS,yes
+trilens_attnfix / XGB_gene: out-of-fold vs test PR-AUC,PASS,"OOF 0.8284, test 0.8380, gap -0.0096"
+trilens_attnfix / LGBM: out-of-fold vs test PR-AUC,PASS,"OOF 0.8187, test 0.8326, gap -0.0140"
+trilens_attnfix / RF: out-of-fold vs test PR-AUC,PASS,"OOF 0.7770, test 0.7807, gap -0.0037"
+trilens_attnfix / LogReg: out-of-fold vs test PR-AUC,PASS,"OOF 0.7795, test 0.7920, gap -0.0125"
+trilens_attnfix / XGB_raw: out-of-fold vs test PR-AUC,PASS,"OOF 0.8333, test 0.8420, gap -0.0087"
+trilens_attnfix / TriLens: out-of-fold vs test PR-AUC,PASS,"OOF 0.7592, test 0.7955, gap -0.0363"
+stage3_cascadestack_v9 / XGB-gene: out-of-fold vs test PR-AUC,PASS,"OOF 0.8284, test 0.8380, gap -0.0096"
+stage3_cascadestack_v9 / LGBM-gene: out-of-fold vs test PR-AUC,PASS,"OOF 0.8187, test 0.8326, gap -0.0140"
+stage3_cascadestack_v9 / RF-gene: out-of-fold vs test PR-AUC,PASS,"OOF 0.7770, test 0.7807, gap -0.0037"
+stage3_cascadestack_v9 / LogReg-gene: out-of-fold vs test PR-AUC,PASS,"OOF 0.7795, test 0.7920, gap -0.0125"
+stage3_cascadestack_v9 / XGB-raw-chi2: out-of-fold vs test PR-AUC,PASS,"OOF 0.8333, test 0.8420, gap -0.0087"
+stage3_cascadestack_v9 / GeneAttentionNet: out-of-fold vs test PR-AUC,PASS,"OOF 0.6949, test 0.7425, gap -0.0476"
+standard/trilens_attnfix / XGB_gene: out-of-fold vs test PR-AUC,PASS,"OOF 0.8284, test 0.8380, gap -0.0096"
+standard/trilens_attnfix / LGBM: out-of-fold vs test PR-AUC,PASS,"OOF 0.8187, test 0.8326, gap -0.0140"
+standard/trilens_attnfix / RF: out-of-fold vs test PR-AUC,PASS,"OOF 0.7770, test 0.7807, gap -0.0037"
+standard/trilens_attnfix / LogReg: out-of-fold vs test PR-AUC,PASS,"OOF 0.7795, test 0.7920, gap -0.0125"
+standard/trilens_attnfix / XGB_raw: out-of-fold vs test PR-AUC,PASS,"OOF 0.8333, test 0.8420, gap -0.0087"
+standard/trilens_attnfix / TriLens: out-of-fold vs test PR-AUC,PASS,"OOF 0.7554, test 0.8025, gap -0.0471"

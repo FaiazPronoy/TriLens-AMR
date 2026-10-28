@@ -1,0 +1,37 @@
+{
+  "exp1": {
+    "verdict": "INCONCLUSIVE",
+    "stats": {}
+  },
+  "exp2": {
+    "verdict": "INCONCLUSIVE",
+    "stats": {}
+  },
+  "exp3": {
+    "verdict": "INCONCLUSIVE",
+    "stats": {
+      "arcadia_avg_drop": 0.14285002758500764,
+      "giessen_avg_drop": 0.17974099003366628,
+      "per_dataset_drops": {
+        "arcadia_CIP": 0.14285002758500764,
+        "giessen_CIP": 0.17974099003366628
+      },
+      "criterion": "Giessen >= 0.05 AND Arcadia <= 0.02"
+    }
+  },
+  "xgb": {
+    "verdict": "PHYLOGROUP_SIGNAL",
+    "stats": {
+      "per_antibiotic_delta": {
+        "AMC": 0.016067570648264917,
+        "AMP": -0.0036501082184924316,
+        "CAZ": -0.0012817313788385798,
+        "CIP": 0.0014636363136297792,
+        "CTX": -0.004056644904525175,
+        "GEN": 0.021817336189342784,
+        "SXT": 0.003855135970622703
+      },
+      "avg_delta": 0.004887884945714857
+    }
+  }
+}

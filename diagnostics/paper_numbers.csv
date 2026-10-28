@@ -1,0 +1,53 @@
+table,measure,paper,new,diff,status,source
+tab:main,"Average PR-AUC, random split",0.8486,0.8502,0.0016,CLOSE,trilens_attnfix/ablation_results.csv
+tab:main,"AMP PR-AUC, random split",0.944,0.9431,-0.0009,CLOSE,trilens_attnfix/ablation_results.csv
+tab:main,"CIP PR-AUC, random split",0.9773,0.975,-0.0023,CHANGED,trilens_attnfix/ablation_results.csv
+tab:main,"AMC PR-AUC, random split",0.7482,0.7539,0.0057,CHANGED,trilens_attnfix/ablation_results.csv
+tab:main,"SXT PR-AUC, random split",0.8352,0.8423,0.0071,CHANGED,trilens_attnfix/ablation_results.csv
+tab:main,"GEN PR-AUC, random split",0.7037,0.7093,0.0056,CHANGED,trilens_attnfix/ablation_results.csv
+tab:main,"CTX PR-AUC, random split",0.9019,0.9043,0.0024,CHANGED,trilens_attnfix/ablation_results.csv
+tab:main,"CAZ PR-AUC, random split",0.8299,0.8231,-0.0068,CHANGED,trilens_attnfix/ablation_results.csv
+tab:ablation,"Stage 1, lenses only",0.7453,0.78,0.0347,CHANGED,pillar2_layer_ablation/
+tab:ablation,"Stage 2, + MoE gate",0.7807,0.7955,0.0148,CHANGED,pillar2_layer_ablation/
+tab:ablation,"Stage 3, + stacking",0.8486,0.8502,0.0016,CLOSE,pillar2_layer_ablation/
+tab:baselines,Phylogroup label only,0.2914,0.2914,-0.0,SAME,pillar_phylogroup_only/
+tab:baselines,"TabNet, random split",0.6951,0.6668,-0.0283,CHANGED,tabnet_baseline/
+tab:baselines,"TabNet, lineage holdout",0.3255,0.3405,0.015,CHANGED,pillar_tabnet_mlst/
+tab:baselines,"XGBoost on 1,024 PCA components",0.8033,0.8028,-0.0005,SAME,baselines/
+tab:baselines,"Random Forest, random",0.7809,0.7807,-0.0002,SAME,stage3_cascadestack_v9/v9_results.csv
+tab:baselines,"Logistic Regression, random",0.7923,0.792,-0.0003,SAME,stage3_cascadestack_v9/v9_results.csv
+tab:baselines,"LightGBM, random",0.8338,0.8326,-0.0012,CLOSE,stage3_cascadestack_v9/v9_results.csv
+tab:baselines,"XGBoost gene features, random",0.8375,0.838,0.0005,SAME,stage3_cascadestack_v9/v9_results.csv
+tab:baselines,"XGBoost chi2 SNPs, random (paper 0.8400, v9 file 0.8430)",0.84,0.842,0.002,CHANGED,stage3_cascadestack_v9/v9_results.csv
+tab:baselines,"Random Forest, holdout",0.4931,0.4931,-0.0,SAME,pillar_cascadestack_classical_mlst/
+tab:baselines,"Logistic Regression, holdout",0.4408,0.4402,-0.0006,CLOSE,pillar_cascadestack_classical_mlst/
+tab:baselines,"LightGBM, holdout",0.5516,0.5516,0.0,SAME,pillar_cascadestack_classical_mlst/
+tab:baselines,"XGBoost gene features, holdout",0.5507,0.563,0.0123,CHANGED,pillar_cascadestack_classical_mlst/
+tab:baselines,"XGBoost chi2 SNPs, holdout",0.6299,0.622,-0.0079,CHANGED,pillar_cascadestack_classical_mlst/
+tab:mlst_per_ab,"Phylogroup split, full stack",0.8531,0.8561,0.003,CHANGED,pillar_t7_clean_final_comparison/three_way_comparison_FINAL.csv
+tab:mlst_per_ab,"Lineage holdout, full stack",0.6337,0.6454,0.0117,CHANGED,pillar_mlst_final_comparison/three_way_comparison_FINAL.csv
+tab:mlst_components,"Classical arm alone, holdout",0.628,0.6221,-0.0059,CHANGED,pillar_mlst_final_comparison/SUMMARY.md
+tab:mlst_components,"Neural lenses alone, holdout",0.472,0.52,0.048,CHANGED,pillar_trilens_mlst/
+tab:previnv,"Holdout as measured, average",0.6337,0.6454,0.0117,CHANGED,diagnostics/matched_prevalence.csv
+tab:previnv,"Holdout prevalence-matched, average",0.7226,0.7321,0.0095,CHANGED,diagnostics/matched_prevalence.csv
+tab:previnv,"Holdout ROC-AUC, average",0.8439,0.842,-0.0019,CLOSE,diagnostics/matched_prevalence.csv
+tab:previnv,AMP holdout as measured,0.9043,0.9074,0.0031,CHANGED,diagnostics/matched_prevalence.csv
+tab:clinical,"Mean VME at 0.5, random split",0.249,0.2409,-0.0081,CHANGED,diagnostics/threshold_tuning.csv
+tab:holdoutclin,"Mean VME, random split",0.249,0.2409,-0.0081,CHANGED,diagnostics/holdout_clinical_metrics.csv
+tab:holdoutclin,"Mean VME, lineage holdout",0.559,0.5587,-0.0003,SAME,diagnostics/holdout_clinical_metrics.csv
+tab:giessen_transfer,Giessen retention vs classical stack on Arcadia (like for like),0.9,0.8959,-0.0041,CHANGED,pillar4_giessen_transfer/ + stage3_cascadestack_v9/
+tab:giessen_transfer,Giessen retention vs full TriLens on Arcadia (as printed),0.9,0.8924,-0.0076,CHANGED,pillar4_giessen_transfer/ + trilens_attnfix/
+tab:umark,U_ST of Lens B attended genes,0.3569,0.4299,0.073,CHANGED,diagnostics/lineage_marker_test.csv
+tab:umark,U_res of Lens B attended genes,0.0419,0.0211,-0.0208,CHANGED,diagnostics/lineage_marker_test.csv
+sec:statanalysis,"Near-duplicate test strains, random split",47.0,47.0,0.0,SAME,pillar_dedup_eval/SUMMARY.md
+sec:statanalysis,PR-AUC cost of removing them,0.0041,0.0045,0.0004,SAME,pillar_dedup_eval/dedup_eval_results.csv
+tab:attnfix,"Random split, full stack (standard)",0.8462,0.8526,0.0064,CHANGED,diagnostics/strain_ablation.csv
+tab:attnfix,"Random split, full stack (fixed)",0.8486,0.8502,0.0016,CLOSE,diagnostics/strain_ablation.csv
+tab:attnfix,"Lineage holdout, full stack (standard)",0.63,0.6399,0.0099,CHANGED,diagnostics/strain_ablation.csv
+tab:attnfix,"Lineage holdout, full stack (fixed)",0.6337,0.6454,0.0117,CHANGED,diagnostics/strain_ablation.csv
+tab:attnfix,"Holdout, neural lenses alone (standard)",0.437,0.5108,0.0738,CHANGED,diagnostics/strain_ablation.csv
+tab:attnfix,"Holdout, neural lenses alone (fixed)",0.472,0.52,0.048,CHANGED,diagnostics/strain_ablation.csv
+tab:attnfix,U_res of attended genes (standard),0.0192,0.0466,0.0274,CHANGED,diagnostics/strain_ablation.csv
+tab:attnfix,U_res of attended genes (fixed),0.0419,0.0211,-0.0208,CHANGED,diagnostics/strain_ablation.csv
+tab:attnfix,Enrichment on one assembly (standard),16.4,20.47,4.07,CHANGED,diagnostics/strain_ablation.csv
+tab:attnfix,Enrichment on one assembly (fixed),9.0,4.7,-4.3,CHANGED,diagnostics/strain_ablation.csv
