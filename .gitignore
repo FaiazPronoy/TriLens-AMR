@@ -26,3 +26,7 @@
 .DS_Store
 Thumbs.db
 desktop.ini
+
+# built by src.mechanism.arg_pd from the committed results/data_inventory/pd_amr_joined.tsv.gz
+code/results/arg_matrix/
+code/results/arg_matrix_alldb/
