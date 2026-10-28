@@ -298,3 +298,77 @@ Wheeler & Barquist 2025 (PLOS Biol, 10.1371/journal.pbio.3003539); Fistarol et a
 6. **Shortcut baseline split** into epidemiological fields vs assembly fields, plus a
    UK↔Norway transfer of the metadata model.
 7. Neural stack only on the final feature set, as the instrument.
+
+---
+
+## 8. Two contributions found while W6 ran (2026-10-28)
+
+### 8.1 The assembly-statistics shortcut, explained (W7)
+
+`shortcut_floor` separated the metadata baseline's fields and found that the part which **transfers
+across countries and across time is entirely the assembly statistics**: the epidemiological fields
+(country, year, publication, platform) are at chance on UK→Norway (nAP 0.012), Norway→UK (0.056) and
+the Norway time split (0.000), while assembly statistics alone keep 0.097, 0.232 and 0.180. So the
+floor is not a study batch effect, which is exactly the objection every reviewer raised against
+calling it a confounder.
+
+W7 then asks what assembly size stands in for, and answers it (pre-registration and pass marks:
+`docs/experiments/w7_assembly_shortcut.md`):
+
+- Within sequence type, assembly size tracks the per-strain acquired-gene count: ρ = 0.325,
+  p = 8 × 10⁻¹⁰⁰, 4,033 strains in 62 STs; within phylogroup ρ = 0.337; positive and significant in
+  6 of 7 phylogroups. About 13 kb per acquired gene on a 5.09 Mb genome.
+- Within-ST concordance of assembly size against phenotype is **above chance for all seven drugs**
+  (0.552–0.676, mean 0.611): one number from the assembly ranks resistant above susceptible
+  strains *inside the same lineage*. The acquired-gene count itself reaches 0.758.
+- Honest limit, stated in the pre-registration: the effect is **not** specific to acquired
+  determinants (0.613 vs 0.590 for CIP), and contig N50 correlates negatively (−0.185), which is
+  equally consistent with mobile elements fragmenting assemblies and with larger assemblies simply
+  being lower quality. Both readings go in the paper.
+
+Why this matters for the paper: it turns "a metadata baseline scores 0.71" from a reporting
+curiosity into a mechanism. The shortcut is accessory-genome burden, which is real biology, measured
+without reading a single gene, and it is the reason a sequence-free baseline transfers at all.
+Prior work checked: *E. coli* genome-expansion and plasmid-prediction-from-assembly-features
+literature exists; a targeted search found nothing testing this as a within-lineage ML shortcut.
+Not a novelty claim until that literature is read properly.
+
+### 8.2 An external cohort may be free (W8)
+
+The single most dangerous objection is that the data are 91% UK and Norway. NCBI Pathogen
+Detection's *E. coli* table has 592,113 isolates with AMRFinderPlus calls, **the same source and the
+same software version (4.2.7) as the W6 feature block**, and some carry measured susceptibilities
+(`AST_phenotypes`, drug names matching ours: ampicillin, ciprofloxacin, gentamicin, cefotaxime,
+ceftazidime, ceftriaxone, trimethoprim-sulfamethoxazole, amoxicillin-clavulanic acid). Only 4.3% of
+*our* strains carry that column, because ours are research collections, but the rest of the table is
+largely surveillance.
+
+`src.mechanism.ext_probe` counts how many such isolates exist after removing every SRA run and
+BioSample of ours. The gate, fixed in `docs/experiments/w8_external_cohort.md` before the count:
+≥ 3 drugs with ≥ 100 resistant and ≥ 100 susceptible, and ≥ 2,000 isolates. If it passes, the frozen
+ARG arm is applied unchanged, against the metadata arm and a determinant rule, with CIs bootstrapped
+over BioProject. Only the ARG and metadata blocks transfer — the catalogue features are defined by
+our pan-genome — which is a limitation, not a choice.
+
+Expected ceiling, now read rather than assumed: Lipworth et al., *Lancet Microbe* 2024, 9,001
+*E. coli*, report AMRFinder concordance 93.9% (ampicillin), 95.2% (ceftriaxone), 99.0% (gentamicin),
+83.8% (ciprofloxacin), 94.0% (trimethoprim) and 75.5% (amoxicillin–clavulanic acid, 75.4%
+very-major-error rate), and conclude AMRFinder "did not meet US Food and Drug Administration
+thresholds for any of the seven antibiotics evaluated" under strict settings. So AMC is expected to
+be the weakest drug in any ARG-based arm, and no arm should be expected to approach 1.0.
+
+### 8.3 Literature read today (full text or article record)
+
+- **Yu, Wheeler & Barquist 2025**, PLOS Biology 23(12):e3003539. Read the article. Five species,
+  >24,000 genomes, clade-aware splits against random splits, LightGBM on core-genome SNPs and Roary
+  accessory presence/absence. **Confirmed for our framing:** they use *no* metadata-only or
+  assembly-statistic baseline and *no* acquired-gene feature set (CARD is used only to define drug
+  classes), and phylogenetic placement is named as future work, not evaluated. So W6 (does adding
+  per-strain determinants rescue unseen lineages?) and W7 (what the sequence-free shortcut is) do
+  not overlap with them; their contribution is the sampling-bias demonstration, which we cite as the
+  motivation rather than rediscover.
+- **Lipworth, Crook, Walker, Peto & Stoesser 2024**, *Lancet Microbe* 5(11):100913. Read the article
+  and Table 1. Numbers above; gives us the genotype→phenotype ceiling per drug.
+- Found but not read: Nguyen et al. on random-subspace pan-genome ensembles (PLOS Comput Biol 2020)
+  and the pan-genome-based feature-selection paper (PMC9011928) — both are about *expanding* a
+  feature space and must be read before W6 is written up, since they are the nearest prior art.

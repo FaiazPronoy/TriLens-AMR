@@ -283,6 +283,31 @@ STAGES["w6_rescue"] = dict(
             M + "run_arg_rescue --drugs paper --labels ri --arg-matrix results/arg_matrix_alldb/acquired.csv "
                 "--out results/w6_rescue/paper_ri_alldb",
             "w6_rescue/paper_ri_alldb/verdict.json")])
+STAGES["ext_probe"] = dict(
+    code_ref="extension",
+    title="W8: is there an external cohort in NCBI Pathogen Detection?",
+    lensb="fixed", needs=[], cpu=True, gpu="None (CPU); internet must be on",
+    hours="about 15 minutes (one 550 MB download)",
+    about="Counts the E. coli isolates that are not ours, carry measured susceptibilities "
+          "(AST_phenotypes) and were called with AMRFinderPlus 4.2.7, with their countries, sources and "
+          "years, and the resistant/susceptible counts per drug of ours. Nothing is trained. The "
+          "feasibility gate is in docs/experiments/w8_external_cohort.md.",
+    writes=["ext_probe"],
+    steps=[("Count external candidates", "python -m src.mechanism.ext_probe --out results/ext_probe",
+            "ext_probe/ext_probe.json")])
+STAGES["assembly_shortcut"] = dict(
+    code_ref="extension",
+    title="W7: what the assembly-statistics shortcut is",
+    lensb="fixed", needs=["pa_fix"], cpu=True, gpu="None (CPU)",
+    hours="about 10 minutes",
+    about="Tests whether assembly size is a proxy for acquired-gene count: correlations within "
+          "sequence type and within phylogroup, and the within-ST concordance of assembly size, CDS "
+          "count, contig count and acquired-gene count against each drug. Label-free except the last. "
+          "Pre-registration: docs/experiments/w7_assembly_shortcut.md.",
+    writes=["arg_matrix", "diagnostics"],
+    steps=[_ARG_BUILD,
+           ("Assembly statistics against acquired-gene count and phenotype",
+            D + "assembly_shortcut.py", "diagnostics/assembly_shortcut.json")])
 STAGES["shortcut_floor"] = dict(
     code_ref="extension",
     title="Metadata-only baseline on every split, epidemiological and assembly fields apart",
