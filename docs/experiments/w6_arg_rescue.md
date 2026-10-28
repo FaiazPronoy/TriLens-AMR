@@ -113,3 +113,15 @@ across contigs can be missed.
   5. The coverage gate applies (coverage is below 90%): every arm uses the same strains, and the
      excluded strains' country, year, study, ST and phylogroup are reported against the included.
   6. The table's `AST_phenotypes` column is not used as a feature or a label in W6.
+
+## Result (read 2026-10-28, against the rules above; Kaggle logs of w6_rescue and w6_rescue_16)
+
+- **Primary: pass.** ST-grouped 5-fold, mean nAP over CTX, CAZ, GEN: F0 0.450, F0A 0.726,
+  Δ **+0.276 [0.178, 0.328]** (ST-clustered). CIP control Δ −0.004 (|Δ| ≤ 0.03): pass.
+- Sensitivities: intermediate excluded +0.293 [0.217, 0.345]; all database versions (5,218 strains)
+  +0.286 [0.202, 0.333]; 16-drug run, same primary +0.276. CIP control passes in all.
+- Same three drugs, other splits (F0 → F0A): random 0.750 → 0.834; UK→Norway 0.249 → 0.429;
+  Norway→UK 0.543 → 0.793; Norway 2013 time split 0.449 → 0.670.
+- The ARG block alone (A) is as good as F0A on the ST-grouped split (0.730): on unseen lineages the
+  catalogue adds nothing to the acquired-gene calls for these drugs.
+- Metadata arm M: 0.634 on random 5-fold but 0.182 ST-grouped (see W7).

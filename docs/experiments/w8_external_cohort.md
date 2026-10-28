@@ -105,3 +105,19 @@ Fixed now:
    is AP for the CIP reason in point 4, changed before any model was fitted.) Secondary: arm AP
    against the rule R, per drug, so the paper can say how much a model adds over gene presence, which
    Lipworth et al. (2024) already show is strong for most of these drugs.
+
+## Result (read 2026-10-28; Kaggle log of w8_external, candidates sha256 0e2ccc69…)
+
+- **Primary: pass.** 10,232 external isolates, 62 BioProjects. Mean nAP over AMP, CIP, AMC, SXT,
+  GEN, CAZ: AP 0.807, M 0.045; AP − M **+0.762 [0.676, 0.804]**. Also passes on all database
+  versions (10,876 isolates, +0.773 [0.690, 0.822]) and with intermediates excluded
+  (+0.753 [0.668, 0.808]).
+- The assembly-size arm, which predicts within our data (W7), carries almost nothing externally
+  (mean nAP 0.045).
+- **Secondary, against the determinant rule R:** AP − R +0.065 [0.005, 0.140]; all versions
+  +0.070 [0.011, 0.133]; intermediates excluded +0.021 [−0.049, 0.116]. Per drug the model is
+  clearly ahead only for AMC (+0.214) and SXT (+0.065); the rule is ahead for GEN (−0.077) and CTX
+  (−0.185, selected panel). So the honest claim is transfer beyond the shortcut, not a large gain
+  over gene presence, consistent with Lipworth et al. (2024).
+- Acquired-only arm A − M: +0.703 [0.623, 0.746]; CIP is where A falls behind AP (0.572 vs 0.885),
+  as expected from point mutations.

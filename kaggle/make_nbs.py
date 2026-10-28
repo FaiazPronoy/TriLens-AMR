@@ -351,6 +351,22 @@ STAGES["w6_rescue_16"] = dict(
            ("16 drugs, ST-grouped and random 5-fold", M + "run_arg_rescue --drugs all16 --labels ri",
             "w6_rescue/all16_ri/verdict.json")])
 
+STAGES["lineage_seeds"] = dict(
+    code_ref="extension",
+    title="W9: the lineage-holdout stack with two more network seeds",
+    lensb="fixed", needs=["pa_fix", "classical", "trilens_splits"], gpu="GPU T4 x2",
+    hours="about 3 GPU hours per seed (6 in all); it resumes if a session stops",
+    about="Pre-registration: docs/experiments/w9_seed_stability.md. The neural stack on the lineage "
+          "holdout (run_trilens_mlst) with SEED 123 and 456; each is stacked with the same classical arm and "
+          "read by holdout_validity.py, next to seed 42 from trilens_splits.",
+    writes=["lineage_seeds"],
+    steps=[("Neural stack, lineage holdout, seed 123", M + "run_lineage_seeds --seeds 123 --train-only",
+            "lineage_seeds/seed_123/pillar_trilens_mlst/predictions_saved.npz"),
+           ("Neural stack, lineage holdout, seed 456", M + "run_lineage_seeds --seeds 456 --train-only",
+            "lineage_seeds/seed_456/pillar_trilens_mlst/predictions_saved.npz"),
+           ("Stack each seed with the classical arm, read all three", M + "run_lineage_seeds --seeds 123,456",
+            "lineage_seeds/verdict.json")])
+
 
 def md(text):
     return {"cell_type": "markdown", "metadata": {}, "source": text.splitlines(True)}
