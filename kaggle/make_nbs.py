@@ -251,50 +251,38 @@ STAGES["arg_probe2"] = dict(
     writes=["arg_probe2"],
     steps=[("Probe NCBI Pathogen Detection and the BV-BRC API",
             "python -m src.mechanism.arg_probe2 --out results/arg_probe2", "arg_probe2/probe2.json")])
-# W6: per-strain resistance genes, fetched in shards (CPU, internet). Pre-registration:
-# docs/experiments/w6_arg_rescue.md. A shard that runs out of time stops cleanly; run it again.
-ARG_SHARDS = 8
-INSTALL_AMR = ("bash scripts/install_amrfinder.sh /tmp/amr > /tmp/amr_bin.txt && "
-               "PATH=$(tail -1 /tmp/amr_bin.txt):$PATH ")
-for _i in range(ARG_SHARDS):
-    STAGES[f"arg_fetch_{_i}"] = dict(
-        code_ref="extension",
-        title=f"W6: per-strain resistance genes, shard {_i + 1} of {ARG_SHARDS}",
-        lensb="fixed", needs=[], cpu=True, gpu="None (CPU); internet must be on",
-        hours="up to 11 CPU hours; if it says 'run this notebook again', run it again (it continues)",
-        about=f"Strains with index % {ARG_SHARDS} == {_i} (about {6962 // ARG_SHARDS}): each strain's own "
-              "BV-BRC assembly, AMRFinderPlus on it, the table kept, the assembly deleted. Shards can run "
-              "at the same time on different accounts; never the same shard twice at once.",
-        writes=[f"arg_calls/shard_{_i}"],
-        steps=[(f"Fetch and call, shard {_i}",
-                INSTALL_AMR + f"python -m src.mechanism.arg_fetch fetch --shard {_i} --of {ARG_SHARDS}",
-                f"arg_calls/shard_{_i}/_DONE.json")])
-STAGES["arg_build"] = dict(
-    code_ref="extension",
-    title="W6: strain x resistance-gene matrix from all shards",
-    lensb="fixed", needs=[f"arg_fetch_{i}" for i in range(ARG_SHARDS)], cpu=True, gpu="None (CPU)",
-    hours="a few minutes",
-    about="Checks every shard used one AMRFinderPlus version and builds acquired.csv and point.csv "
-          "with the pre-registered filters, plus the coverage report.",
-    writes=["arg_matrix"],
-    steps=[("Build the matrices", "python -m src.mechanism.arg_fetch build", "arg_matrix/coverage.json")])
+# W6: per-strain resistance genes. BV-BRC is unreachable from Kaggle (arg_probe, arg_probe2), so the
+# ARG block comes from NCBI Pathogen Detection's AMRFinderPlus calls, frozen in
+# code/results/data_inventory/pd_amr_joined.tsv.gz (pre-registration amendment 2026-10-28).
+# src.mechanism.arg_fetch (own AMRFinderPlus on BV-BRC assemblies) stays in the repository, unused.
+_ARG_BUILD = ("Strain x resistance-gene matrix (AMRFinderPlus 4.2.7, database 2026-03-24.1)",
+              "python -m src.mechanism.arg_pd build", "arg_matrix/coverage.json")
 _W6_SPLITS = "st_grouped_5fold,random_5fold,country_uk_to_norway,country_norway_to_uk,time_norway_2013"
 STAGES["w6_rescue"] = dict(
     code_ref="extension",
     title="W6: catalogue genes with and without each strain's own resistance genes (7 drugs)",
-    lensb="fixed", needs=["pa_fix", "arg_build"], cpu=True, gpu="None (CPU; XGBoost on the CPU)",
-    hours="about 5-6 CPU hours; it resumes if a session stops",
+    lensb="fixed", needs=["pa_fix"], cpu=True, gpu="None (CPU; XGBoost on the CPU)",
+    hours="about 5-7 CPU hours; it resumes if a session stops",
     about="The pre-registered test (docs/experiments/w6_arg_rescue.md): arms F0, F0+A, A and metadata on "
           "ST-grouped 5-fold (primary), random 5-fold, and the country and time splits. verdict.json "
-          "states pass or fail by the rule fixed before the data. Then the intermediate-excluded "
-          "sensitivity run.",
-    writes=["w6_rescue/paper_ri", "w6_rescue/paper_no_intermediate"],
-    steps=[("Primary: 7 drugs, intermediate = resistant",
+          "states pass or fail by the rule fixed before the data. Then two sensitivity runs: "
+          "intermediate excluded, and every AMRFinderPlus 4.2.7 call whatever its database version.",
+    writes=["arg_matrix", "arg_matrix_alldb", "w6_rescue/paper_ri", "w6_rescue/paper_no_intermediate",
+            "w6_rescue/paper_ri_alldb"],
+    steps=[_ARG_BUILD,
+           ("Primary: 7 drugs, intermediate = resistant",
             M + f"run_arg_rescue --drugs paper --labels ri --splits {_W6_SPLITS}",
             "w6_rescue/paper_ri/verdict.json"),
            ("Sensitivity: intermediate excluded (ST-grouped and random only)",
             M + "run_arg_rescue --drugs paper --labels no_intermediate",
-            "w6_rescue/paper_no_intermediate/verdict.json")])
+            "w6_rescue/paper_no_intermediate/verdict.json"),
+           ("Sensitivity: matrix from every AMRFinderPlus 4.2.7 call (any database version)",
+            "python -m src.mechanism.arg_pd build --db all --out results/arg_matrix_alldb",
+            "arg_matrix_alldb/coverage.json"),
+           ("Sensitivity: the test on that matrix (ST-grouped and random only)",
+            M + "run_arg_rescue --drugs paper --labels ri --arg-matrix results/arg_matrix_alldb/acquired.csv "
+                "--out results/w6_rescue/paper_ri_alldb",
+            "w6_rescue/paper_ri_alldb/verdict.json")])
 STAGES["shortcut_floor"] = dict(
     code_ref="extension",
     title="Metadata-only baseline on every split, epidemiological and assembly fields apart",
@@ -311,12 +299,13 @@ STAGES["shortcut_floor"] = dict(
 STAGES["w6_rescue_16"] = dict(
     code_ref="extension",
     title="W6: the same test on all 16 eligible drugs",
-    lensb="fixed", needs=["pa_fix", "arg_build"], cpu=True, gpu="None (CPU; XGBoost on the CPU)",
-    hours="about 6-8 CPU hours; it resumes if a session stops",
+    lensb="fixed", needs=["pa_fix"], cpu=True, gpu="None (CPU; XGBoost on the CPU)",
+    hours="about 4-6 CPU hours; it resumes if a session stops",
     about="Secondary analysis 1 of the pre-registration: every drug with >= 500 tested, >= 100 resistant "
           "and >= 100 susceptible strains, on ST-grouped and random 5-fold.",
-    writes=["w6_rescue/all16_ri"],
-    steps=[("16 drugs, ST-grouped and random 5-fold", M + "run_arg_rescue --drugs all16 --labels ri",
+    writes=["arg_matrix", "w6_rescue/all16_ri"],
+    steps=[_ARG_BUILD,
+           ("16 drugs, ST-grouped and random 5-fold", M + "run_arg_rescue --drugs all16 --labels ri",
             "w6_rescue/all16_ri/verdict.json")])
 
 
