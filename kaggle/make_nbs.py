@@ -240,6 +240,17 @@ STAGES = {
 }
 
 
+STAGES["arg_probe2"] = dict(
+    code_ref="extension",
+    title="ARG route probe 2: NCBI Pathogen Detection tables, BV-BRC API host",
+    lensb="fixed", needs=[], cpu=True, gpu="None (CPU); internet must be on",
+    hours="about 15-30 minutes (two large downloads)",
+    about="arg_probe found BV-BRC's ftp host unreachable from Kaggle. This downloads NCBI Pathogen "
+          "Detection's E. coli metadata and AMR tables and counts how many of our strains they cover, "
+          "with the AMRFinderPlus versions used; and tries BV-BRC's API host. No phenotype is read.",
+    writes=["arg_probe2"],
+    steps=[("Probe NCBI Pathogen Detection and the BV-BRC API",
+            "python -m src.mechanism.arg_probe2 --out results/arg_probe2", "arg_probe2/probe2.json")])
 # W6: per-strain resistance genes, fetched in shards (CPU, internet). Pre-registration:
 # docs/experiments/w6_arg_rescue.md. A shard that runs out of time stops cleanly; run it again.
 ARG_SHARDS = 8
