@@ -164,7 +164,16 @@ Pre-registered (nAP, cluster bootstrap):
 3. **Count abstract words** (must be ≤ 200 for NARGAB; currently close — trim if over).
 4. User draws figures in LaTeX → replace each `\figbox` with the real figure.
 5. Port into the OUP NARGAB Overleaf template; write cover letter; suggest reviewers.
-6. Optional, only if a reviewer asks: multi-seed repeat of the whole protocol; masked (not
+6. **Make a clean code release (not done yet).** All code is on the `extension` branch, but it
+   is not pruned: `code/src/experiments/` has 59 scripts, many of them superseded versions
+   (e.g. `run_cascadestack_v7`, `v8`, `run_deepmeta_v11`, `run_gene_attention_v2`, pillar1
+   exp1/exp2). Only ~26 modules are named directly in `kaggle/make_nbs.py`, but some others are
+   called indirectly, so do not delete by that list alone. Plan: for every number in the paper,
+   trace the exact script → result file (results branches + `docs/experiments`); keep only those
+   scripts, their imports, configs, tests and notebooks; move the rest to an `archive/` folder (do
+   not delete — user rule); run the tests; write a README map "paper table/figure → script →
+   result file"; tag it as the release cited in Data availability (Zenodo DOI).
+7. Optional, only if a reviewer asks: multi-seed repeat of the whole protocol; masked (not
    reference-imputed) missing calls; ClermonTyping phylogroups. Any new analysis must be
    pre-registered first (rule 2).
 
