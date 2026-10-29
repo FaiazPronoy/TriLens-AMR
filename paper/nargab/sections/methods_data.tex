@@ -1,0 +1,99 @@
+\section*{Materials and methods}
+
+\subsection*{Training collection and labels}
+The training collection is the Arcadia Science \Ecoli{} genotype--phenotype release
+\cite{arcadia2024dataset,bell2025arcadia}, distributed in two parts: variant calls against a
+pan-genome reference with a phenotype table and strain metadata, and a gene presence/absence
+release in PLINK format \cite{purcell2007plink}. A strain was retained when its sequencing
+accession appeared in the variant file, the mapping file gave a genome name, and that name
+appeared in the phenotype table, leaving 6,962 strains used in every analysis. Strain metadata
+matched for 6,821 of them (98.0\%).
+
+Of the sixteen antibiotics in the phenotype table we kept the seven with workable label counts and
+class balance: ampicillin (AMP), ciprofloxacin (CIP), amoxicillin--clavulanic acid (AMC),
+trimethoprim--sulfamethoxazole (SXT), gentamicin (GEN), cefotaxime (CTX) and ceftazidime (CAZ),
+spanning five drug classes. Phenotypes were coded 1 for resistant and 0 for susceptible, with
+intermediate results counted as resistant, following the authoring group and the clinical reading
+that an intermediate result makes the standard dose insufficient; intermediates were excluded in a
+sensitivity analysis. No label was imputed: a $6{,}962 \times 7$ mask records which entries were
+measured, and every loss and metric is computed over observed entries only. Coverage ranges from
+49.1\% (SXT) to 86.7\% (CIP, GEN) and resistance prevalence from 0.118 (GEN) to 0.501 (AMP)
+(Table~\ref{tab:labels}). Both spreads matter downstream: fewer labels widen intervals, and because
+the no-skill value of average precision is the prevalence, a raw score cannot be compared across
+drugs.
+
+Collapsing intermediate into resistant removes the three-category comparison, so categorical
+agreement reduces to binary accuracy throughout, and our error rates are not the quantities a
+susceptibility-testing standard tabulates.
+
+\subsection*{Feature representations}
+\textbf{SNP blocks by gene.} The compressed variant file (2,451,184 variants, matching the figure
+the authoring group reports) was streamed once; indels were dropped (43,799) and variants with a
+minor allele frequency below 1\% removed (1,871,946), leaving 535,439. Genotypes are kept as small
+integers (0 reference, 1--3 alternate; 83.3\% of calls are reference and 2.5\% of non-reference
+calls are second or third alternate, too few to justify one-hot expansion). Missing calls were set
+to the reference allele, as in the source release. This is not neutral: coverage is lowest on
+plasmids and other mobile elements that assemble poorly from short reads, which is where acquired
+resistance genes sit, and the Discussion returns to it. Two gene-level filters, both fitted on the
+training partition of whichever split is being evaluated, reduce the matrix: a variability filter
+keeping genes with at least five SNPs (18,975 $\rightarrow$ 13,799 on the random split) and an
+importance filter keeping the 5,000 genes with the highest summed gradient-boosting gain over the
+seven per-drug models (each trained on that drug's top 50,000 $\chi^2$-filtered SNPs). The 5,000
+retained genes carry 262,225 SNPs, 49.0\% of the filtered variants. Genes are read as fixed blocks
+of 64 positions (median 32 SNPs per gene, mean 52, maximum 717); 28\% of genes are truncated and
+the rest zero-padded and masked.
+
+The variant-level filters above were computed once over the whole collection before any split
+existed. They use no phenotype label, so they cannot transmit outcome information, but the allele
+frequencies of test strains do influence which columns exist. We state this rather than repeat the
+filters per split, which would give the three splits different feature spaces and make the
+comparison the paper is built on incoherent.
+
+\textbf{Gene presence/absence.} The release encodes 32,441 pan-genome loci as 0 and 2 without
+stating which value means present. The two readings are biologically opposite, so we resolved them
+against an external check: under one reading the median locus prevalence is 0.966 and the average
+strain carries about 28,700 genes; under the other the median is 0.034 and the average strain
+carries 3,709 (range 2,141--8,333). An \Ecoli{} genome holds roughly 4,000--5,000 genes, which
+selects the second reading. Rebuilding the matrix in that orientation flipped 10,511 of 32,441
+loci and left 21,930 unchanged; 2,924 loci are monomorphic. After the rebuild the core genes
+\textit{gyrA}, \textit{parC}, \textit{rpoB} and \textit{recA} sit at prevalence 1.0, and locus
+prevalence correlates with the ECOR reference frequencies at $\rho = 0.689$. The wrong reading
+would have raised no error, only inverted every gene, so a per-strain gene count is now checked
+automatically on each matrix build. Of the 6,962 strains, 6,949 appear in the PLINK sample list;
+the remaining 13 (0.19\%) are carried as all-zero vectors, which conflates a missing record with an
+empty accessory genome. We record the defect rather than report a corrected set of results, as its
+effect is below the resolution of our intervals.
+
+\textbf{Per-gene statistics.} Each of the 5,000 genes is also summarised by four values computed
+from its SNPs: allele mean, allele variance, number of non-reference positions and allele maximum,
+standardised with training-partition means and standard deviations only.
+
+\textbf{Lineage encoding.} Phylogroup, in the Clermont sense \cite{clermont2013phylotyping}, was
+taken from the typing field of the strain metadata where present and otherwise from a look-up table
+of 57 common sequence types. That table's provenance is not recorded in the preparation notebooks,
+so we report it as an undocumented lookup and use the phylogroup only as a coarse covariate and
+grouping variable; calling it from each genome with ClermonTyping \cite{beghain2018clermontyping}
+is the established route and is what a study resting on the phylogroup should do. The composition
+is dominated by B2 (50.9\%), with 24.4\% unassigned and phylogroup E holding four strains, so no
+per-group estimate is attempted.
+
+\textbf{Determinant calls.} For each strain we used the AMRFinderPlus
+\cite{feldgarden2019amrfinder,feldgarden2021amrfinderplus} calls published by NCBI Pathogen
+Detection \cite{ncbi_pathogen_detection} (software 4.2.7, database 2026-03-24.1), matched by
+sequencing run and BioSample. Calls without a suffix were taken as acquired genes and
+\texttt{=POINT} calls as point mutations; partial, end-of-contig, mistranslated and HMM-only calls
+were not counted. Genes and mutations present in at least five strains were kept (89 acquired-gene
+and 82 point-mutation columns). Calls were available for 5,072 of 6,962 strains (72.9\%); strains
+without calls are not treated as determinant-free but are excluded from every analysis using calls.
+
+\textbf{Metadata and assembly statistics.} Country, collection year, submitting study and
+sequencing platform; and five assembly statistics: assembly length, coding-sequence count, GC
+content, contig count and contig N50.
+
+\subsection*{Feature integration checks}
+Two checks run before any training. The first confirms that all 6,962 strain identifiers appear in
+the same order in every view, since otherwise one genome's SNPs would be paired with another's
+genes. The second compares gene identifiers across views, and it caught a real fault: the PLINK
+reader had invented placeholder names instead of reading the annotation file, so the two views
+shared no gene name at all. After the fix, all 5,000 genes selected for the SNP views are present
+in the 32,441-gene catalogue. Neither fault would have produced a visible error.

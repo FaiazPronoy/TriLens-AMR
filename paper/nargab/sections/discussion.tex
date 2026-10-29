@@ -1,0 +1,119 @@
+% ---------------------------------------------------------------------------------------------
+\section*{Discussion}
+
+The results separate three regimes, and which one a drug falls in decides what is worth building.
+
+Where the determinants of a drug are few and nearly sufficient, a fixed rule is as good as any
+model we tried. That is the situation in \textit{Campylobacter} for all four eligible drugs, where
+three well-characterised determinants account for resistance and a learned model gained nothing
+($-0.006$ [$-0.017$, 0.004]), and it is close to the situation for gentamicin and cefotaxime in
+external surveillance isolates, where gradient boosting lost to the rule outright. Where the
+determinants are numerous, interacting or incompletely catalogued, a model on the determinant calls
+adds substantially: $+0.137$ [0.097, 0.203] over the rule on unseen \Ecoli{} lineages and $+0.104$
+[0.060, 0.166] externally, and a sparse linear model is enough to collect it. And where the
+determinants are missing from the features altogether, as for a reference pan-genome catalogue on
+unseen lineages, no amount of modelling recovers them. Prediction then leans on proxies --- lineage
+membership, and assembly size as a within-lineage stand-in for accessory content --- which carry
+real biology inside one collection and essentially none outside it (\nap{} 0.045 externally).
+
+That reading explains the two-group pattern that three separate analyses on our own collection
+produced: ampicillin, ciprofloxacin and trimethoprim--sulfamethoxazole lose almost nothing under a
+lineage holdout once prevalence is corrected, while cefotaxime, ceftazidime,
+amoxicillin--clavulanic acid and gentamicin lose 0.152--0.239 and their very major error rates rise
+to between 0.68 and 0.92. Ciprofloxacin is the cleanest case of learned mechanism: a point mutation
+in a target enzyme, recovered by attribution as \textit{gyrA} and \textit{parC}, learned once and
+applied in an unrelated isolate. Gentamicin is the cleanest case of the opposite, and the reason it
+fails has two live explanations we cannot separate. Aminoglycoside resistance is usually carried on
+plasmids and other mobile elements, which travel within lineages more readily than a pan-genome
+catalogue built from a fixed reference set can represent; but our own pipeline sets missing genotype
+calls to the reference allele, following the source release, and such calls fail most often on
+exactly those poorly assembling elements. The biological account and the imputation artefact
+predict the same failure on the same drugs. Two observations keep the biological account in play:
+amoxicillin--clavulanic acid, whose usual mechanism is a change in expression level rather than
+gene acquisition and which therefore does not depend on assembly at all, fails in the same group;
+and the drug ordering reproduces on the Giessen collection, called against a different reference.
+Neither is decisive, and masking rather than imputing missing calls would settle it at the cost of
+compute alone.
+
+The pan-genome catalogue's failure is also the one place where the paper's two halves meet
+directly. The drugs the catalogue loses on unseen lineages are the drugs whose determinants are
+acquired, and replacing the catalogue with each strain's own determinant calls raised \nap{} on
+exactly those drugs from 0.450 to 0.726 while leaving the point-mutation control unchanged. The
+feature representation, not the model class, was the binding constraint. That is consistent with
+work finding that gene copy-number features generalise better than SNPs under lineage shift
+\cite{fistarol2025copynumber} and with the drug- and species-specificity of genotype--phenotype
+discordance \cite{cheon2026discordance}.
+
+Three consequences follow for how genomic resistance prediction should be reported, and all three
+are cheap.
+
+A determinant rule from a public catalogue should be the baseline every model is compared against,
+per drug rather than on average. Our own panel contains drugs where a model beats the rule by 0.14
+and drugs where the rule wins, and an average over the panel would have hidden both.
+
+A model on metadata and assembly statistics alone should be reported on every split, because it
+measures how much of an accuracy figure is available without reading a gene. On our random split
+that floor was 0.705 against 0.850, and it collapsed on every split that moved populations. Without
+it, the 0.850 reads as genomic skill.
+
+Claims of generalisation need a lineage-disjoint test and, where possible, an external cohort, and
+the lineage holdout must be read with the prevalence shift it causes removed. Holding out whole
+clones lowers test prevalence, which lowers the metric's floor with it, so part of the resulting
+drop is the measure and not the model: here two-fifths of it, which moved the gap from 0.205 to
+0.118. A holdout also needs a floor on resistant strains per drug; 38
+resistant strains produced an interval of [0.407, 0.524] that supports a direction and no value. The
+distinction between stratifying on lineage and holding a lineage out matters here too: our
+phylogroup-stratified split, which balances composition but leaves close relatives on both sides,
+reported 0.856 where the true holdout reported 0.645. We built that split ourselves before
+recognising it could not answer the question.
+
+Two further points concern the model rather than the protocol. Gradient boosting transferred worse
+than a sparse linear model on identical features, on six of seven external drugs, which argues for
+reporting a simple learned baseline next to any complex one; nothing in the internal comparison
+would have predicted it, since the two were equivalent there. And the architecture's own
+interpretability did not deliver. Its gate is readable but routes ciprofloxacin away from the branch
+built for it; its attention recovered no catalogued resistance gene where post-hoc attribution on
+the classical learners recovered eight; and two attributions of the same pipeline share three or
+four genes in twenty. We report the gene-level findings as leads for that reason, and we would not
+advise treating attention weights as an explanation on a presence/absence input without the kind of
+check reported here, which costs minutes and needs no retraining.
+
+Very major errors are the finding with the most direct clinical weight, and the least comfortable.
+No approach met the regulatory benchmark on the external cohort: 25.1\% for gradient boosting,
+18.7\% for the linear model, 14.4\% for the rule, against an upper-limit benchmark of 7.5\%, with
+amoxicillin--clavulanic acid at 35--50\% for every approach, consistent with the uncatalogued
+variation reported in its resistance gene families \cite{lipworth2024uncatalogued}. The learned
+models rank resistant isolates better than the rule and, at a fixed and pre-stated threshold, call
+fewer of them. Moving the cut does not solve it: on our internal splits no drug met both error
+limits at any threshold tested, because the cut trades one error against the other. What limits
+these methods is class separation, which is to say the features, and in the drugs that matter most
+the features are missing determinants rather than badly weighted.
+
+\subsection*{Limitations}
+The training collection is two-country and research-derived, with 91\% of strains from the United
+Kingdom and Norway, so its metadata floor is specific to it even though the lesson is not.
+Determinant calls were available for 73\% of training strains, and the pre-registered check of
+whether the uncalled strains behave the same way failed (catalogue \nap{} 0.641 against 0.449), so
+the rescue is established on the called subset and we do not know what the other quarter would
+show. The external cohort is dominated by United States surveillance isolates and its labels come
+from many laboratories; harmonising to EUCAST breakpoints helps but is not a reference-method
+comparison, and our collapse of intermediate into resistant means our error rates are not the
+quantities the regulatory guidance defines. Only one second species met the screening gate, and it
+is one in which resistance is close to monogenic, so it bounds the advantage of a model without
+telling us where that advantage ends in general. Clinical error rates were computed at a single
+pre-stated threshold on uncalibrated scores.
+
+On the model side, every architecture figure rests on a single fixed seed except the holdout margin
+we repeated deliberately, so differences of a few thousandths in Tables~\ref{tab:baselines}
+and~\ref{tab:attnfix} are not established effects; repeating the whole protocol over several seeds
+is the obvious next step and would settle which of the smaller margins are real. The phylogroup
+labels come in part from an undocumented lookup table, which is weaker than calling them from each
+genome with an established in-silico typing tool \cite{beghain2018clermontyping}, and the
+phylogroup-stratified split rests on them. Sequence types were taken as given, so the holdout does
+not separate single-locus variants within a clonal complex and is a lower bound on lineage novelty.
+Thirteen strains carry an all-zero presence/absence vector where the correct handling would extend
+the label mask to that view. Missing genotype calls were imputed to the reference allele, which
+biases against the mobile loci the four difficult drugs depend on. The Giessen comparison retrains
+rather than transfers, and its retention figure is inflated by that collection's higher prevalence.
+None of the learned models compared here was tuned; better ones exist, and the comparisons are fair
+only in the narrow sense that every model saw the same features and folds.

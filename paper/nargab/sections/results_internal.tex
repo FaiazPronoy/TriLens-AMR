@@ -1,0 +1,306 @@
+\section*{Results}
+
+\subsection*{The model on a random split, and what the random split measures}
+
+On the random split the full stack reached a mean average precision of 0.850 over the seven drugs
+(Table~\ref{tab:main}). The average hides the interesting part. Ciprofloxacin reached 0.975 and
+ampicillin 0.943, while gentamicin reached 0.709 and amoxicillin--clavulanic acid 0.754: a spread
+of 0.27 between the best and worst drug for one architecture trained on one set of genomes. The
+accuracy column moves the other way. Gentamicin, the weakest drug by average precision, has an
+accuracy of 0.936, because only 12\% of its strains are resistant and a model can be accurate while
+missing most of them. That is the trap the metric choice is meant to avoid, and it recurs in
+clinical form below.
+
+\begin{table}[t]\centering\small
+\caption{\textbf{The full stack on the random split}, per drug, at a fixed threshold of 0.5.
+AP, average precision; MCC, Matthews correlation coefficient; CA, categorical agreement, which
+equals accuracy here because intermediate results were collapsed into resistant.}
+\label{tab:main}
+\begin{tabular}{lrrrrrrr}
+\toprule
+Drug & Prevalence & AP & 95\% CI & MCC & $F_1$ & $F_2$ & CA \\
+\midrule
+CIP & 0.228 & 0.975 & [0.957, 0.989] & 0.919 & 0.936 & 0.932 & 0.973 \\
+AMP & 0.501 & 0.943 & [0.919, 0.963] & 0.795 & 0.897 & 0.895 & 0.897 \\
+CTX & 0.152 & 0.904 & [0.853, 0.945] & 0.790 & 0.817 & 0.813 & 0.953 \\
+SXT & 0.310 & 0.842 & [0.779, 0.899] & 0.702 & 0.794 & 0.787 & 0.873 \\
+CAZ & 0.131 & 0.823 & [0.754, 0.877] & 0.689 & 0.726 & 0.716 & 0.934 \\
+AMC & 0.312 & 0.754 & [0.687, 0.813] & 0.528 & 0.658 & 0.626 & 0.805 \\
+GEN & 0.118 & 0.709 & [0.619, 0.790] & 0.626 & 0.655 & 0.611 & 0.936 \\
+\midrule
+Mean & --- & 0.850 & --- & 0.721 & 0.783 & 0.768 & 0.910 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Three checks bound what that 0.850 means. Near-duplicate strains are not driving it: removing the 47
+test strains within 0.5\% SNP divergence of a training strain changed the mean by $-0.005$, with the
+largest single drop 0.023 (CAZ) and one drug improving (AMC, $+0.008$). The intervals in
+Table~\ref{tab:main} are wide enough that no comparison between closely related variants of the
+model clears them; gentamicin alone spans 0.17. And every model here was trained once under a fixed
+seed, so these intervals cover which strains fall in the test partition, not training variability.
+
+The third check is the one that reframes the paper. A model that never read a base of sequence,
+using only the strain's country, year, submitting study, sequencing platform and five assembly
+statistics, reached a mean average precision of 0.705 on the same split --- 83\% of the full
+genomic model's score (Figure~\ref{fig:floor}). Assembly statistics alone reached 0.601 and the
+epidemiological fields alone 0.516. None of this is resistance biology, and none of it survives a
+split that moves populations: across the two country splits and the temporal split within Norway,
+the epidemiological fields scored an \nap{} between 0.000 and 0.056, and the submitting study alone
+scored exactly 0.000 on three of those four splits. Assembly statistics held an \nap{} of
+0.097--0.232 there, and on the lineage holdout metadata fell to 0.297 average precision against
+0.645 for the full stack. The random split measures a mixture, and a large part of what it measures
+is available without looking at a gene.
+
+\begin{figure}[t]\centering
+\figbox{Figure 1. Study design}{6.5cm}{Left: the training collection (6,962 \Ecoli{}) and its
+splits (random, phylogroup-stratified, ST holdout, ST-grouped 5-fold, country, time). Middle:
+feature blocks (SNP blocks, presence/absence, per-gene statistics, determinant calls, metadata,
+assembly statistics) and models (TriLens stack, its five classical learners, XGBoost and L1 on
+determinant calls, determinant rule, assembly arm). Right: the external cohort (10,232 NCBI
+isolates with MIC labels), the Giessen collection and the second species
+(\textit{Campylobacter}, 4,426). Arrows mark which model is trained where and which is applied
+frozen.}{schematic; no data file}
+\caption{\textbf{Study design.} \todo{caption}}\label{fig:design}
+\end{figure}
+
+\begin{figure}[t]\centering
+\figbox{Figure 2. The non-genomic floor}{6cm}{Grouped bars, mean over seven drugs, one group per
+split (random, ST holdout, UK$\rightarrow$Norway, Norway$\rightarrow$UK, Norway time): submitting
+study only, epidemiological fields only, assembly statistics only, all metadata, full genomic
+stack. Panel A in average precision, panel B in \nap{}.}{results/diagnostics/confounder\_floor.csv}
+\caption{\textbf{How much is predictable without reading a gene.} \todo{caption}}\label{fig:floor}
+\end{figure}
+
+\subsection*{Where the score comes from: components and baselines}
+
+Removing one part of the stack at a time (Table~\ref{tab:ablation}) separates two claims that are
+easy to conflate. The three branches averaged with equal weight reach 0.780; adding the gate brings
+0.796; adding the five classical learners through the meta-learner brings 0.850. No part is dead
+weight, and every drug improves at both steps, but the parts do not contribute equally: classical
+stacking adds $+0.055$, more than three times the gate's $+0.016$. The model is a hybrid in which
+the classical arm carries most of the load, and the classical arm on its own, stacked without the
+neural branch, already reaches 0.846.
+
+\begin{table}[t]\centering\small
+\caption{\textbf{Component ablation on the random split}, mean average precision over the seven
+drugs, with the gain each added part contributes over the stage before it.}
+\label{tab:ablation}
+\begin{tabular}{lrr}
+\toprule
+Stage & Mean AP & Gain \\
+\midrule
+Three branches, equally averaged & 0.780 & --- \\
+$+$ mixture-of-experts gate (the neural arm alone) & 0.796 & $+0.016$ \\
+Five classical learners, stacked, without the neural arm & 0.846 & --- \\
+$+$ stacking the neural arm with them (full model) & 0.850 & $+0.055$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Against models from outside this work the lead is clear, and against its own strongest component it
+is not (Table~\ref{tab:baselines}). The phylogroup label alone scores 0.291, against a mean
+resistance frequency of 0.250 across the seven drugs: coarse lineage membership buys about 0.04
+over chance and no more. TabNet \cite{arik2021tabnet}, built for tabular inputs, reaches 0.667 on
+the random split, behind every one of the five classical learners, and falls to 0.341 on the
+lineage holdout, where the weakest classical learner still reaches 0.440. This is the pattern that
+tabular benchmarks outside this field report \cite{grinsztajn2022trees,shwartzziv2022tabular}. The
+PCA model this project began with reaches 0.803. The full stack leads the best of these by 0.047,
+TabNet by 0.183 and the null model by 0.559. Its margin over its own strongest component, XGBoost
+on $\chi^2$-filtered SNPs, is $+0.008$ on the random split and $+0.023$ on the holdout --- inside
+the interval widths above, and of a size a change of seed could produce. The defensible claim is
+the weaker one: nothing simpler beat it, not that it beat everything simpler.
+
+\begin{table}[t]\centering\small
+\caption{\textbf{Baselines and components}, mean average precision over the seven drugs. The first
+block is methods from outside this work; the second is the stack's own base learners, so those rows
+are an ablation and not an external comparison. The phylogroup-only and PCA baselines were not
+run on the lineage holdout.}
+\label{tab:baselines}
+\begin{tabular}{lrr}
+\toprule
+Model & Random split & Lineage holdout \\
+\midrule
+\multicolumn{3}{l}{\textit{External baselines}} \\
+Phylogroup label only & 0.291 & not run \\
+TabNet & 0.667 & 0.341 \\
+XGBoost on 1,024 PCA components & 0.803 & not run \\
+\midrule
+\multicolumn{3}{l}{\textit{Base learners of the stack}} \\
+Random forest, gene features & 0.781 & 0.493 \\
+Logistic regression, gene features & 0.792 & 0.440 \\
+LightGBM, gene features & 0.833 & 0.552 \\
+XGBoost, gene features & 0.838 & 0.563 \\
+XGBoost, $\chi^2$-filtered SNPs & 0.842 & 0.622 \\
+Five classical learners, stacked & 0.846 & 0.622 \\
+\midrule
+Full stack & 0.850 & 0.645 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection*{Holding out whole lineages, with the prevalence effect removed}
+
+The phylogroup-stratified split does not test generalisation, and it is worth seeing what it
+reports: 0.856 against the random split's 0.850, four drugs above the random split and none more
+than 0.022 below. Reshuffling strains inside eight large clusters leaves close relatives on both
+sides, so no drop is possible. Under the sequence-type holdout, where no test strain shares a type
+with any training strain and no test strain has a near-duplicate in training, the mean falls to
+0.645.
+
+Part of that fall is arithmetic. Forcing the four largest clones into training lowers the test
+prevalence of every drug, by 2.5 to 12.1 percentage points; gentamicin's holdout test partition
+contains 38 resistant strains, a prevalence of 4.2\% against 14.6\% in training. By the floor
+described in Methods, a test partition with fewer resistant strains therefore scores lower even
+when the model ranks strains identically. We measured the size of that effect
+directly: for each drug we repeatedly subsampled susceptible strains in the holdout test partition
+to the training prevalence and recomputed average precision on the same saved predictions, over
+2,000 rounds, discarding no resistant strain and retraining nothing (Table~\ref{tab:previnv}).
+
+\begin{table*}[t]\centering\footnotesize
+\setlength{\tabcolsep}{4pt}
+\caption{\textbf{The lineage holdout with the prevalence effect removed.} The prevalence-matched
+column resamples susceptible strains in the holdout test partition to the training prevalence, over
+2,000 rounds, on the same saved predictions. AUROC, whose no-skill value is 0.5 whatever the
+prevalence, is given for comparison. The last column is the gap against the random split once
+prevalence is matched.}
+\label{tab:previnv}
+\begin{tabular}{lrrlrr}
+\toprule
+Drug & Random split & Holdout, as measured & Holdout, prevalence-matched & AUROC & Adjusted gap \\
+\midrule
+AMP & 0.943 & 0.907 & 0.930 [0.920, 0.942] & 0.932 & $-0.014$ \\
+CIP & 0.975 & 0.918 & 0.949 [0.932, 0.965] & 0.972 & $-0.026$ \\
+SXT & 0.842 & 0.801 & 0.818 [0.806, 0.837] & 0.907 & $-0.025$ \\
+\midrule
+CTX & 0.904 & 0.647 & 0.752 [0.717, 0.788] & 0.885 & $-0.152$ \\
+CAZ & 0.823 & 0.486 & 0.642 [0.597, 0.681] & 0.780 & $-0.181$ \\
+AMC & 0.754 & 0.503 & 0.565 [0.545, 0.591] & 0.691 & $-0.189$ \\
+GEN & 0.709 & 0.256 & 0.470 [0.407, 0.524] & 0.726 & $-0.239$ \\
+\midrule
+Mean & 0.850 & 0.645 & 0.732 & 0.842 & $-0.118$ \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+About two-fifths of the headline drop is a prevalence effect: the mean falls from 0.850 to 0.732
+rather than to 0.645, a true gap of 0.118 instead of 0.205. Gentamicin recovers most, from 0.256 to
+0.470, which its AUROC of 0.726 already implied: the model had not stopped ranking resistant strains
+above susceptible ones, it was ranking them in a partition where one strain in twenty-four is
+resistant.
+
+Correcting for prevalence does not remove the finding; it sharpens it. The seven drugs fall into
+two groups with nothing between them. Ampicillin, ciprofloxacin and
+trimethoprim--sulfamethoxazole lose 0.014 to 0.026, which is nothing; cefotaxime, ceftazidime,
+amoxicillin--clavulanic acid and gentamicin lose 0.152 to 0.239 (Figure~\ref{fig:twogroups}). A
+model that had merely met a harder test would lose roughly evenly across the panel.
+Amoxicillin--clavulanic acid is the clearest case: its prevalence shifts by only 5.9 points, so it
+recovers least of the four hard drugs ($+0.062$ against gentamicin's $+0.214$) and has the lowest
+AUROC of all seven at 0.691, leaving the least of its loss attributable to prevalence at all.
+
+Two caveats attach to the table. Gentamicin's matched interval is wide, [0.407, 0.524], resting on
+38 resistant strains, so its direction is clear and its value is not. And the matching target is the
+training prevalence, which is slightly above the random-split test prevalence, which makes the
+comparison a little generous to the holdout; the true gap may be marginally larger than 0.118.
+
+\begin{figure}[t]\centering
+\figbox{Figure 3. Two groups of drugs}{6.5cm}{Per drug, three bars: random split, lineage holdout
+as measured, and holdout with prevalence matched to training. Drugs ordered by the
+prevalence-corrected gap, printed above each group. Dashed line separates the three drugs losing
+0.014--0.026 from the four losing 0.152--0.239.}{results/diagnostics/matched\_prevalence.csv;
+results/pillar\_mlst\_final\_comparison/three\_way\_comparison\_FINAL.csv}
+\caption{\textbf{The generalisation gap splits the panel in two.} \todo{caption}}\label{fig:twogroups}
+\end{figure}
+
+\subsection*{What the holdout costs clinically}
+
+Within-class error rates are unaffected by the prevalence shift, because they are ratios inside one
+class, so they need no correction before they can be read. At the fixed 0.5 threshold the mean very
+major error rate rises from 0.241 on the random split to 0.559 on the holdout
+(Table~\ref{tab:holdoutclin}). For three drugs the model has effectively stopped predicting
+resistance at all: it identifies 6 of 71 cefotaxime-resistant strains, 7 of 43
+ceftazidime-resistant strains and 5 of 38 gentamicin-resistant strains, with a major error rate of
+0.001 or 0.002 in each case. A classifier that almost never calls resistance almost never calls it
+wrongly; that pairing is the signature of collapse onto the majority class.
+
+\begin{table*}[t]\centering\footnotesize
+\setlength{\tabcolsep}{4pt}
+\caption{\textbf{Clinical error rates under the lineage holdout} against the random split, at a
+fixed threshold of 0.5. VME, very major error; ME, major error; CA, categorical agreement.}
+\label{tab:holdoutclin}
+\begin{tabular}{lrrrrrrr}
+\toprule
+Drug & Resistant in test & VME random & VME holdout & Increase & ME holdout & CA random & CA holdout \\
+\midrule
+CIP & 132 & 0.071 & 0.114 & $+0.043$ & 0.008 & 0.973 & 0.977 \\
+AMP & 300 & 0.107 & 0.177 & $+0.070$ & 0.097 & 0.897 & 0.869 \\
+SXT & 142 & 0.218 & 0.317 & $+0.099$ & 0.069 & 0.873 & 0.863 \\
+\midrule
+AMC & 145 & 0.394 & 0.683 & $+0.289$ & 0.073 & 0.805 & 0.763 \\
+CAZ & 43 & 0.291 & 0.837 & $+0.546$ & 0.001 & 0.934 & 0.959 \\
+GEN & 38 & 0.415 & 0.868 & $+0.453$ & 0.001 & 0.936 & 0.963 \\
+CTX & 71 & 0.190 & 0.915 & $+0.725$ & 0.001 & 0.953 & 0.918 \\
+\midrule
+Mean & --- & 0.241 & 0.559 & $+0.318$ & --- & --- & --- \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+The categorical agreement columns are why this paper does not report accuracy. Three drugs agree
+with the laboratory as well or better on the holdout than on the random split while their very major
+error rates double or quadruple: gentamicin rises from 0.936 to 0.963 agreement while missing 33 of
+38 resistant strains, ceftazidime from 0.934 to 0.959 while missing 36 of 43, and cefotaxime loses
+0.035 of agreement while its very major error rate goes from 0.190 to 0.915. By the measure a
+machine-learning paper usually reports, the model looks as good on unseen lineages; by the measure a
+laboratory would use, it has stopped working.
+
+This is the third analysis to produce the same two groups, on the same predictions, and the
+grouping is stable even though the order within the second group is not: the three easy drugs gain
+0.043--0.099 in very major error rate and the four hard ones 0.289--0.725.
+
+The shortfall is not a matter of where the cut sits. Tuning a per-drug threshold on the validation
+partition to maximise $F_2$ lowered the mean very major error rate on the random split from 0.241 to
+0.133 while raising the mean major error rate from 0.055 to 0.141; constraining the major error rate
+to the 3\% benchmark instead pushed the very major error rate to 0.308. No drug met both limits at
+any threshold tested, because moving the cut trades one error against the other. What limits the
+model is class separation, not calibration.
+
+\subsection*{Transfer of the recipe to the Giessen collection}
+
+The two collections share no feature vector, so this is a comparison of the method and not of a
+model: the classical stacking half of the pipeline was retrained on Giessen with the same protocol
+and hyperparameters, and the neural branches, which need the pan-genome feature shapes, are absent
+from both sides of the comparison. On the four shared drugs it reaches a mean of 0.769 against
+0.849 for the same half on the training collection, 89.6\% of the per-drug ratio
+(Table~\ref{tab:giessen}).
+
+\begin{table}[t]\centering\small
+\caption{\textbf{The classical stacking half of the pipeline, retrained on an independent
+collection.} Neither column is the full stack. Retention is inflated by Giessen's higher
+prevalence, as the text explains.}
+\label{tab:giessen}
+\begin{tabular}{lrrrr}
+\toprule
+Drug & Training collection & Giessen & Prevalence (train / Giessen) & Retention \\
+\midrule
+CIP & 0.976 & 0.988 & 0.228 / 0.452 & 101.2\% \\
+CAZ & 0.820 & 0.763 & 0.131 / 0.341 & 93.1\% \\
+CTX & 0.895 & 0.786 & 0.152 / 0.443 & 87.8\% \\
+GEN & 0.707 & 0.539 & 0.118 / 0.232 & 76.3\% \\
+\midrule
+Mean & 0.849 & 0.769 & --- & 89.6\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+That retention figure cannot be read as preserved accuracy, for the reason the prevalence correction
+above established. Every Giessen drug has two to three times the resistance prevalence of its
+training counterpart, so every no-skill baseline is two to three times higher before the model is
+credited with anything. Ciprofloxacin's apparent 101\% is the clearest case: the task got slightly
+easier, not the model slightly better. Prevalence-matching cannot fix it here, because matching
+would require resampling both collections to a common reference and the 81-strain Giessen test
+partition will not survive that. The claim this table supports is the weaker one, that the recipe
+reconstructs on a genomically different collection rather than falling apart, and that its design
+choices are not fitted to one dataset. The interesting part is the ordering: ciprofloxacin retains
+most and gentamicin least, the same ordering as under the lineage holdout, reached by a different
+route.

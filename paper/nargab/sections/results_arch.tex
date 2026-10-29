@@ -1,0 +1,151 @@
+\subsection*{What the architecture contributes, and what its attention does not explain}
+
+Two questions remain about the model that produced the findings above: whether its neural half
+contributes anything beyond the classical arm, and whether its attention and gating weights explain
+its predictions. The first has a small positive answer, the second a negative one.
+
+\textbf{The neural branch adds a small, seed-stable increment.} On the lineage holdout the full
+stack exceeded the stacked classical arm by $+0.028$ [0.006, 0.052] mean \nap{}, clustered by
+sequence type. Because that interval is narrow and comes from one network initialisation, we
+retrained the neural branch under two further seeds, holding the fold partition, gene set,
+hyperparameters and classical arm fixed so that only weight initialisation, dropout and batch order
+changed. The margin was $+0.020$ [0.003, 0.042] and $+0.018$ [$-0.001$, 0.037] (mean $+0.022$, SD
+0.005), which passes the pre-registered rule (positive mean, interval above zero in two of three
+seeds). The neural branch alone stayed well below the classical arm in every seed (0.405--0.435
+against 0.556). The architecture is one small reproducible contribution to a stack, not the source
+of this paper's findings.
+
+\textbf{The gate is readable but does not route by mechanism.} The gate's design rests on a
+prediction: a drug whose resistance comes from an acquired gene should route to the
+presence/absence branch, and a drug whose resistance comes from a point mutation in a target enzyme
+to the motif branch. The presence/absence branch does dominate, taking 0.553 to 0.807 of the weight
+for every drug, which is consistent with how much \Ecoli{} resistance is carried on acquired genes
+(Table~\ref{tab:gate}). But ciprofloxacin is the panel's clearest point-mutation drug, the one
+whose known targets our own attribution analysis recovers, and it gives the motif branch 0.081 ---
+the lowest weight in the table. The prediction fails on the drug where it was most testable. The
+cross-antibiotic branch takes its highest weight there (0.367), which cannot be read as mechanism
+either: ciprofloxacin is the only fluoroquinolone in the panel and has no same-class partner to
+share with, and its co-resistance link to ceftazidime ($\phi = 0.52$ in this collection) is
+co-occurrence. The gate tells us which branch the model leans on, which is worth knowing, and not
+why.
+
+\begin{table}[t]\centering\small
+\caption{\textbf{Mean gate weights on the random-split test set.} Each row sums to one. Branch A is
+the motif encoder, B the gene attention module, C the cross-antibiotic module.}
+\label{tab:gate}
+\begin{tabular}{lrrr}
+\toprule
+Drug & Branch A (motif) & Branch B (presence/absence) & Branch C (cross-antibiotic) \\
+\midrule
+AMP & 0.153 & 0.649 & 0.198 \\
+CIP & 0.081 & 0.553 & 0.367 \\
+AMC & 0.098 & 0.641 & 0.261 \\
+SXT & 0.100 & 0.807 & 0.093 \\
+GEN & 0.129 & 0.676 & 0.195 \\
+CTX & 0.076 & 0.735 & 0.189 \\
+CAZ & 0.068 & 0.748 & 0.183 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Attention recovers no known resistance gene; post-hoc attribution on the classical arm
+recovers eight.} We collected the most influential genes from two sources, the attention weights of
+the three branches and SHAP values \cite{lundberg2017shap} on the five classical learners, giving
+1,143 marker entries, and matched their Prokka \cite{seemann2014prokka} locus tags against the
+eggNOG \cite{huertacepas2019eggnog} functional annotation shipped with the collection. We annotated
+836 (73.1\%), reporting the rest as unannotated rather than guessing. Eight annotated markers are
+known resistance genes: \textit{gyrA} and \textit{parC}, the fluoroquinolone targets;
+\textit{emrB}, \textit{mdtC}, \textit{mdtD} and \textit{mdtO}, components of multidrug efflux
+pumps; \textit{cusA}, which belongs to the copper and silver efflux system and is therefore a
+heavy-metal rather than a drug transporter, so we count it as efflux and not as evidence of an
+antibiotic mechanism; and one locus annotated as a $\beta$-lactamase.
+
+Recovering \textit{gyrA} and \textit{parC} unprompted is the one gene-level result that the lineage
+holdout strengthens rather than weakens. These are the textbook targets of ciprofloxacin
+resistance, and ciprofloxacin is the drug that survived the holdout best, losing 0.026 once
+prevalence is matched against up to 0.239 for the others. A signal that is a small, well-defined
+mutation is exactly what a model can learn once and apply in an unrelated isolate.
+
+All eight came from SHAP on the classical learners. None came from the attention weights of the
+three branches, although 420 of the 1,143 marker entries were selected by them; the closest the
+attention came was \textit{cusC}, the outer-membrane partner of the same heavy-metal efflux system,
+surfacing for three drugs in the cross-antibiotic branch. Two explanations besides a genuine failure
+could produce that zero, and both were tested. Annotation coverage does not account for it:
+coverage was 90.7\% for the motif branch and 70.0\% for the cross-antibiotic branch, and neither
+produced a resistance gene, while the presence/absence branch sits lower at 60.0\% --- which is its
+own problem, since the branch the gate relies on most is the one we can interpret least. Nor is it
+an artefact of list depth: repeating the annotation on the top 100 genes per branch per drug rather
+than the top 20, a fivefold widening, raised coverage but recovered no resistance gene.
+
+The attention weights are also diffuse. No single locus in the presence/absence branch exceeds
+0.015 of the attention mass for any drug, and in the other two branches none exceeds 0.005, so the
+pooling layer behaves close to a mean over the genes a strain carries. What focus there is points at
+provenance rather than function. Each pan-genome cluster carries the locus tag of the assembly it
+was called from, which gives a cheap test of whether a branch's attended genes are drawn evenly
+across the catalogue. For the presence/absence branch they are not: its top genes concentrate on
+one source assembly at 3.7 to 6.7 times that assembly's share of the catalogue for six of the seven
+drugs (significant at 5\% for four of them), and at 0.93 times for the seventh. These counts rest
+on fewer than a dozen tagged genes per drug, so we read them as the direction of the lens rather
+than a formal test.
+
+\textbf{Strain conditioning helps where it is needed and costs interpretability.} The degenerate
+scoring function described in Methods is a concrete defect with a concrete fix, so we ablated the
+fix, training in both directions with identical seeds, folds, splits and hyperparameters and
+changing only that term (Table~\ref{tab:attnfix}). It buys nothing where it is easiest to measure:
+$-0.002$ on the random split and $+0.006$ on the full stack under the lineage holdout, both well
+inside the seed variability established above. It buys $+0.009$ on the neural branch alone under
+that holdout, where the defect does its damage and where the classical arm does not move at all.
+And three of the four interpretability measures move against it: the resistance information of the
+attended genes falls from 0.047 to 0.021, their lineage determination rises from 0.277 to 0.430,
+and the single resistance gene the standard formulation had recovered is lost. The one measure that
+improves is the provenance signature, which weakens from 20.5-fold to 4.7-fold enrichment on one
+assembly.
+
+\begin{table}[t]\centering\small
+\caption{\textbf{Ablation of strain conditioning in the gene attention module.} Everything but that
+one term is identical; ``conditioned'' is the delivered model reported everywhere else. $U_{ST}$ is
+the fraction of a gene's presence/absence entropy explained by sequence type and $U_{res}$ the
+fraction explained by resistance, over the top twenty genes per drug; lower $U_{ST}$ and higher
+$U_{res}$ are better.}
+\label{tab:attnfix}
+\begin{tabular}{lrrrl}
+\toprule
+Measure & Standard & Conditioned & Change & Reference \\
+\midrule
+\multicolumn{5}{l}{\textit{Predictive performance (mean AP)}} \\
+Random split, full stack & 0.853 & 0.850 & $-0.002$ & --- \\
+Phylogroup-stratified split & 0.857 & 0.856 & $-0.001$ & --- \\
+Lineage holdout, full stack & 0.640 & 0.645 & $+0.006$ & --- \\
+Lineage holdout, classical arm alone & 0.622 & 0.622 & $\pm 0$ & --- \\
+Lineage holdout, neural branch alone & 0.511 & 0.520 & $+0.009$ & --- \\
+\midrule
+\multicolumn{5}{l}{\textit{Clinical safety and interpretability}} \\
+Mean very major error rate & 0.239 & 0.241 & $+0.002$ & --- \\
+Resistance genes recovered by attention & 1 & 0 & $-1$ & SHAP: 8 \\
+$U_{res}$ of attended genes & 0.047 & 0.021 & $-0.025$ & SHAP: 0.048 \\
+$U_{ST}$ of attended genes & 0.277 & 0.430 & $+0.153$ & random gene: 0.539 \\
+Enrichment on one source assembly & $20.5\times$ & $4.7\times$ & $-15.8\times$ & --- \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+We report this as a trade rather than an improvement, and as a correction to an earlier run of the
+same ablation in which the term appeared to be worth $+0.035$ on the neural branch and to improve
+three interpretability measures. Repeating the protocol reversed most of those signs. The lesson
+is the one the seed experiment above makes for the stack's own margin: an effect of this size is not
+separable from training variability without repetition, and we do not claim it as one.
+
+\textbf{Attribution does not agree with itself.} Two statistics bound how far any of the gene-level
+results can be pushed. The attended gene sets are not lineage markers --- their $U_{ST}$ of 0.430
+is below a random gene's 0.539, and no draw among 500 random sets of equal size fell below them ---
+but they carry little resistance information either, at $U_{res} = 0.021$ against 0.048 for the
+SHAP-selected genes, a factor of 2.25. The presence/absence lens did not read the wrong thing so
+much as read almost nothing, and the classical learners that generalise better also pick the more
+informative genes. Separately, the five classical learners disagree among themselves: across all 70
+(drug, learner-pair) combinations the mean Spearman correlation of SHAP rankings is 0.061 and the
+mean top-twenty Jaccard overlap 0.180, so two attributions of the same trained pipeline on the same
+features share three or four genes in twenty. Among the full set of 32,441 loci, a random gene's
+presence is explained to 54\% by sequence type, which is the single clearest reason a
+lineage-sensitive split was necessary in the first place. We therefore report the gene-level
+findings as leads, informative where they agree with independently established biology, and not as
+evidence that any attribution method has identified what the model uses.

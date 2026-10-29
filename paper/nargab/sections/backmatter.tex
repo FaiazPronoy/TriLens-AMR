@@ -1,0 +1,57 @@
+% ---------------------------------------------------------------------------------------------
+\section*{Conclusion}
+
+A genomic resistance model can look excellent and still be measuring the wrong thing. Our own model
+reached 0.850 average precision on a random split, led every external baseline, and was matched to
+within 0.008 by one of its own components; a model that read no sequence at all reached 0.705 on the
+same split. Holding out whole lineages dropped it to 0.645, of which two-fifths was the metric
+responding to a lower resistance prevalence rather than the model losing skill, and the remaining
+loss fell on four of seven drugs while three were untouched. On those four, very major error rates
+rose above two thirds while categorical agreement stayed flat or improved --- the measure most
+papers report moving in the opposite direction from the measure a laboratory would use.
+
+The cause was the features, not the model class. Replacing a reference pan-genome catalogue with
+each strain's own determinant calls recovered most of the loss on exactly the drugs whose
+determinants are acquired, and left the point-mutation control unchanged. Once the determinants are
+present, a sparse linear model on them is enough: it matched gradient boosting on unseen lineages,
+beat a fixed determinant rule by 0.104 on 10,232 external isolates where gradient boosting managed
+0.065, and was at or above the rule for every drug. In a second species whose determinants are
+nearly sufficient on their own, no model beat the rule at all.
+
+What we would ask of the next genomic resistance paper follows from that: a determinant rule as the
+per-drug baseline, a metadata-and-assembly model reported on every split, a lineage-disjoint test
+read with its prevalence shift removed, a simple learned baseline beside any complex one, and
+clinical error rates alongside the ranking metrics. Our own architecture contributed a small,
+seed-stable increment to a stack and no interpretable account of its predictions; the evaluation
+protocol is what made the two-group finding measurable, and that finding --- that genomic
+resistance prediction in \Ecoli{} is not one problem but two, with a sharp and drug-specific
+boundary between them --- is what we would keep.
+
+% ---------------------------------------------------------------------------------------------
+\section*{Data availability}
+Code, pre-registration documents, Kaggle notebooks and result tables are available at
+\url{https://github.com/FaiazPronoy/TriLens-AMR} \todo{archive a tagged release on Zenodo and give
+its DOI}. The training data are the Arcadia Science release
+\cite{arcadia2024dataset,bell2025arcadia}; the external cohort, its determinant calls and its MICs
+are public in NCBI Pathogen Detection \cite{ncbi_pathogen_detection}; the Giessen collection is that
+of Ren et al.\ \cite{ren2022giessen}. Exact table versions and file checksums are recorded in the
+repository. Every split, filter and model is driven by a single fixed seed (42), so every figure
+reported here is reproducible, with the training-variability caveat stated in the Limitations.
+
+\section*{Supplementary data}
+Supplementary Data are available at NARGAB Online: Supplementary Methods (the full TriLens
+specification with every equation; the presence/absence matrix repair; the per-gene statistics and
+lineage encoding), all pre-registration documents with their amendments, and per-drug tables for
+every experiment.
+
+\section*{Acknowledgements}
+\todo{}
+
+\section*{Author contributions}
+\todo{CRediT roles.}
+
+\section*{Funding}
+\todo{}
+
+\section*{Conflict of interest}
+\todo{None declared, if true.}

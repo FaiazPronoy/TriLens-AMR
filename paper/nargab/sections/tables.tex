@@ -1,0 +1,164 @@
+\clearpage
+\begin{table}[t]\centering\small
+\caption{\textbf{The seven retained antibiotic labels after cleaning.} Coverage is the share of the
+6,962 strains tested against that drug; prevalence is the share of those that were resistant, with
+intermediate counted as resistant. The ``intermediate'' column gives how many of the resistant
+calls were intermediate.}
+\label{tab:labels}
+\begin{tabular}{lrrrrrr}
+\toprule
+Drug & Resistant & Susceptible & Intermediate & Tested & Coverage & Prevalence \\
+\midrule
+AMP & 2,439 & 2,429 & 4 & 4,868 & 69.9\% & 0.501 \\
+CIP & 1,377 & 4,656 & 91 & 6,033 & 86.7\% & 0.228 \\
+AMC & 1,180 & 2,598 & 59 & 3,778 & 54.3\% & 0.312 \\
+SXT & 1,060 & 2,358 & 38 & 3,418 & 49.1\% & 0.310 \\
+GEN & 710 & 5,327 & 119 & 6,037 & 86.7\% & 0.118 \\
+CTX & 823 & 4,586 & 38 & 5,409 & 77.7\% & 0.152 \\
+CAZ & 780 & 5,193 & 223 & 5,973 & 85.8\% & 0.131 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[t]\centering\small
+\caption{\textbf{Cohorts.}}\label{tab:cohorts}
+\begin{tabularx}{\linewidth}{lXXXX}
+\toprule
+ & Training (\Ecoli{}) & External (\Ecoli{}) & Giessen (\Ecoli{}) & \textit{Campylobacter} \\
+\midrule
+Source & Arcadia Science release & NCBI Pathogen Detection & Ren et al.\ \cite{ren2022giessen} & NCBI Pathogen Detection \\
+Isolates & 6,962 (5,072 with calls) & 10,232 (10,876 all versions) & 809 of 987 & 4,426 \\
+Geography & 91\% UK $+$ Norway & 68\% USA, 12\% Canada & Germany & \todo{from per\_species.json} \\
+Source type & research collections & 57\% food/animal, 43\% clinical & human and animal clinical & \todo{} \\
+Years & 2001--2017 & median 2019 & \todo{} & \todo{} \\
+Drugs used & 7 & 6 primary ($+$ CTX separately) & 4 shared & 4 \\
+Lineage unit & sequence type & BioProject (for intervals) & not used & SNP cluster (1,206) \\
+Labels & R/I/S & submitter R/I/S; EUCAST from MIC & EUCAST & submitter R/S \\
+Role here & model development, three splits & frozen external test & method retrained & second species \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\begin{table}[t]\centering\small
+\caption{\textbf{Determinant rules}, fixed before any rule score was computed. Symbols are
+AMRFinderPlus gene symbols; ``point'' means an \texttt{=POINT} call.}\label{tab:rule}
+\begin{tabularx}{\linewidth}{lX}
+\toprule
+Drug & Called resistant if the isolate carries \\
+\midrule
+\multicolumn{2}{l}{\textit{E. coli}} \\
+AMP & any acquired $\beta$-lactamase (\texttt{bla*}) other than chromosomal \texttt{blaEC} \\
+AMC & \texttt{blaOXA-1}; plasmid AmpC (\texttt{blaCMY}, \texttt{blaDHA}, \texttt{blaFOX}, \texttt{blaACC}); a carbapenemase (\texttt{blaKPC}, \texttt{blaNDM}, \texttt{blaVIM}, \texttt{blaIMP}, \texttt{blaOXA-48}-like) \\
+CTX, CAZ & \texttt{blaCTX-M}; \texttt{blaSHV} other than SHV-1/-11; \texttt{blaTEM} other than TEM-1; plasmid AmpC; a carbapenemase \\
+GEN & \texttt{aac(3)}, \texttt{ant(2'')}, \texttt{armA}, \texttt{rmt} \\
+SXT & \texttt{dfrA}, \texttt{dfrB} \\
+CIP & any \texttt{gyrA} point mutation; \texttt{qnr}; \texttt{aac(6')-Ib-cr} \\
+\midrule
+\multicolumn{2}{l}{\textit{Campylobacter} \cite{zhao2016campylobacter,iovine2013campylobacter}} \\
+CIP, NAL & any \texttt{gyrA} point mutation \\
+TET & any \texttt{tet(} gene \\
+CLI & any 23S rRNA point mutation; any \texttt{erm(} gene \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\begin{table}[t]\centering\small
+\caption{\textbf{Every pre-registered endpoint and its outcome.} Differences are in mean \nap{}
+with 95\% cluster-bootstrap intervals. The three-split evaluation, the component ablations and the
+Giessen comparison predate this scheme and are not listed.}\label{tab:prereg}
+\begin{tabularx}{\linewidth}{llXl}
+\toprule
+ID & Question & Primary result & Outcome \\
+\midrule
+W6 & Do determinant calls rescue unseen lineages? & $+0.276$ [0.178, 0.328]; CIP control $-0.004$ & pass \\
+W7 & Does assembly size predict within ST? & within-ST $\rho = 0.325$; concordance 0.552--0.676, $\ge 0.55$ for 6/7 drugs & pass \\
+W8 & Do frozen models transfer to an external cohort? & all calls $-$ assembly arm $+0.762$ [0.676, 0.804] & pass \\
+W9 & Is the stack's holdout gain seed-stable? & $+0.028$, $+0.020$, $+0.018$; interval above zero in 2/3 seeds & pass \\
+W10-A & Is the rescue a coverage artefact? & catalogue \nap{} 0.641 uncalled against 0.449 called (tolerance $\pm0.10$) & \textbf{fail} \\
+W10-B & Does a model beat the rule on unseen lineages? & $+0.122$ [0.075, 0.197] & pass \\
+W11 & Does the external result survive dropping a BioProject? & range 0.723--0.777; no interval below 0.643; zero overlap & pass \\
+W12 & Is the assembly signal batch or biology? & length concordance 0.613 $\rightarrow$ 0.592 conditioning on study & pass \\
+W13-a & Does a model beat the rule in a second species? & \textit{Campylobacter} $-0.006$ [$-0.017$, 0.004] & \textbf{fail} \\
+W13-b & Does the assembly signal replicate there? & within-cluster length concordance 0.595 & pass \\
+W13-c & Are errors concentrated at the breakpoint? & ratio 1.64 (model), 1.87 (rule); threshold was 2 & \textbf{fail} \\
+W14-A & Clinical error rates & no arm meets the very-major-error benchmark & reported \\
+W14-B & Is a linear model enough? & XGBoost $-$ L1 $= -0.011$ [$-0.026$, 0.007] internally & pass \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\begin{table}[t]\centering\small
+\caption{\textbf{Clinical errors on the external cohort} with EUCAST labels at a fixed threshold of
+0.5, pooled over six drugs (11,601 resistant and 31,982 susceptible isolate--drug pairs). CA,
+categorical agreement; ME, major error; VME, very major error with its upper 95\% confidence limit.}
+\label{tab:clinical}
+\begin{tabular}{lrrrr}
+\toprule
+Arm & CA & ME & VME & VME upper 95\% \\
+\midrule
+Gradient boosting (all calls) & 0.914 & 2.7\% & 25.1\% & 25.9\% \\
+L1 logistic regression        & 0.938 & 1.7\% & 18.7\% & 19.4\% \\
+Determinant rule              & 0.942 & 2.7\% & 14.4\% & 15.1\% \\
+\midrule
+Benchmark \cite{fda2009ast} & $> 89.9\%$ & $< 3\%$ & --- & $< 7.5\%$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[t]\centering\small
+\caption{\textbf{Hyperparameters} of the stack's components. No model in this paper was tuned on
+the test partition of any split.}\label{tab:hyper}
+\begin{tabularx}{\linewidth}{lX}
+\toprule
+Component & Settings \\
+\midrule
+XGBoost (gene features) & 1,500 trees, max depth 5, min child weight 5, learning rate 0.05, subsample 0.8, colsample by tree 0.7, $\alpha$ 0.1, $\lambda$ 1.0, $\gamma$ 0.1, histogram method, early stopping after 150 rounds \\
+XGBoost (raw SNPs) & $\chi^2$ prefilter to the top 50,000 SNPs per drug, then as above with colsample by node 0.5 \\
+LightGBM & 1,500 trees, 63 leaves, max depth 6, min child samples 20, learning rate 0.05 \\
+Random forest & 200 trees, max depth 12, min samples per leaf 10 \\
+Logistic regression (base learner) & $L_2$, balanced class weights \\
+Neural branches and gate & AdamW, learning rate $10^{-3}$ with cosine annealing, weight decay $10^{-4}$, batch size 16, up to 50 epochs, early stopping patience 8, gradient clipping at norm 1.0, gate entropy weight 0.01 \\
+Meta-learner & Logistic regression ($L_2$, $C = 1$), one per drug, on five-fold out-of-fold inputs \\
+XGBoost on determinant calls & 400 trees, max depth 6, learning rate 0.05, subsample 0.8, colsample 0.5, one model per drug \\
+Sparse linear model & $L_1$ logistic regression, liblinear, $C = 1$, unscaled binary features \\
+Assembly arm & Histogram gradient boosting on assembly length, contig count and N50 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\begin{table*}[t]\centering\footnotesize
+\caption{\textbf{Related work on genomic resistance prediction.} The evaluation-split column
+records the partitioning scheme as each study reports it, and is the property most relevant to the
+argument of this paper. RF, random forest; LR, logistic regression; SVM, support vector machine;
+CNN, convolutional neural network; NN, neural network; WGS, whole-genome sequencing; FCGR,
+frequency chaos game representation; ARG, antibiotic resistance gene; P/A, presence and absence;
+MDR, multi-drug resistant; MLST, multi-locus sequence typing.}
+\label{tab:summary}
+\begin{tabularx}{\linewidth}{p{2.4cm}p{4.2cm}p{3.0cm}X}
+\toprule
+Study & Data and method & Evaluation split & Result and limitation \\
+\midrule
+Moradigaravand et al.\ (2018) \cite{moradigaravand2018prediction} & Pan-genome; gradient boosting, RF, LR; 1,936 \Ecoli{}, 11 compounds & Random, with an ST131 lineage holdout as a supplementary analysis & Gradient boosting best; importance recovers \textit{gyrA} and \textit{parC}; the ST131 holdout scores about 0.28 below a size-matched random control \\
+Her and Wu (2018) \cite{her2018pangenome} & Pan-genome; gene-cluster scoring by genetic algorithm plus classifier; 59 \Ecoli{}, 12 drugs & Leave-one-out cross-validation & Accessory genome carried most signal; very small collection; no lineage-aware holdout \\
+Ren et al.\ (2022) \cite{ren2022giessen} & WGS, one-hot and FCGR; LR, SVM, RF, CNN; Giessen (987) and public (1,509) \Ecoli{} & Stratified cross-validation with an independent external set & RF best, AUC around 0.96; class imbalance; mutations reported per drug \\
+Jain et al.\ (2025) \cite{jain2025paeruginosa} & $k$-mers; two-tier pipeline with explainable AI; \textit{P. aeruginosa} & Stratified 75/25, with an independent 56-genome set & 79\% accuracy, AUROC 0.77; phylogeny used to weight features but not to split \\
+Gao et al.\ (2024) \cite{gao2024abaumannii} & $k$-mers; RF, SVM, XGBoost; 339 \textit{A. baumannii}, 13 antibiotics & Ten-fold stratified shuffle-split, with an independent 120-isolate set & Categorical agreement above 95\% without curated genes \\
+Do et al.\ (2024) \cite{do2024unitig} & Unitigs; DBGWAS, XGBoost; \textit{P. aeruginosa} pan-genome & Ten-fold stratified cross-validation, with an independent 414-isolate collection & Novel candidate genes found; AUC falls from above 0.93 in training to about 0.77 on the independent collection \\
+Serajian et al.\ (2024) \cite{serajian2024mtb} & 31-mers; LR and RF; \textit{M. tuberculosis}, 13 drugs & Five-fold cross-validation & Database-free prediction; $k$-mer ranking computationally heavy \\
+L\'opez-Cort\'es et al.\ (2024) \cite{lopezcortes2024msdeepamr} & MALDI-TOF spectra; deep network with transfer learning; three species & Stratified 80/20 with ten-fold cross-validation, and cross-site transfer & Around 10\% better than conventional learners; strong transfer gains \\
+Hu et al.\ (2024) \cite{hu2024assessing} & Benchmark of ResFinder, Kover, PhenotypeSeeker; 78 pathogen--antibiotic pairs & \textbf{Random, phylogeny-aware and homology-aware folds} & No tool best everywhere; scores fall markedly under phylogeny-aware folds \\
+Wang et al.\ (2025) \cite{wang2025hpylori} & SNPs and gene P/A; XGBoost with SHAP; 296 \textit{H. pylori}, 4 antibiotics plus MDR & Random & Strong AUC; SHAP flags a 23S rRNA mutation; no external validation \\
+Orcales et al.\ (2024) \cite{orcales2024tutorial} & Genomic features; LR, RF, XGBoost, NN; 1,936 \Ecoli{} & Cross-validation, with an MLST-blocked option & XGBoost most reliable; warns about overfitting and feature misreading \\
+Paredes-Gutierrez et al.\ (2025) \cite{paredes2025mtb} & Mutations; XGBoost, LightGBM, NN; 847 \textit{M. tuberculosis} & Random 677/170 with ten-fold cross-validation inside training & Accuracy around 97\% for XGBoost; intergenic mutations important \\
+Lipworth et al.\ (2024) \cite{lipworth2024uncatalogued} & Uncatalogued variation in AMR gene families; \Ecoli{} & Observational, not a prediction split & Part of the resistance, above all to AMC, is not explained by catalogued variants \\
+Fistarol et al.\ (2025) \cite{fistarol2025copynumber} & Gene copy number against SNPs; \textit{S. aureus} & Lineage-aware comparison & Copy-number features generalise better than SNPs under lineage shift \\
+Siddiqui and Tarannum (2026)\textsuperscript{$\dagger$} \cite{siddiqui2025ensemble} & Motifs plus pan-genome; 1D CNN and XGBoost ensemble; Giessen (809) \Ecoli{}, 4 antibiotics & Stratified 80/20 holdout & MCC 0.926 for CIP; attributions concentrate on \textit{fusA} and \textit{parC}; assumes positional order is informative \\
+Yu et al.\ (2025) \cite{yu2025biased} & Genomic features; LightGBM; over 24,000 genomes, 5 pathogens & \textbf{Phylogeny-aware} & Accuracy drops when structure is ignored; more data does not fix it; reported as an average over pathogens \\
+\midrule
+\textbf{This work} & \textbf{Three genomic views, neural branches with a gate, stacked with five classical learners; determinant calls; 6,962 \Ecoli{}, 7 antibiotics} & \textbf{Random, phylogroup-stratified and ST lineage holdout, prevalence-corrected; ST-grouped folds; country and time splits; frozen external cohort; second species} & \textbf{0.850 random, 0.645 holdout, 0.732 prevalence-matched; two-group split by drug; metadata floor 0.705; a sparse linear model on determinant calls beats the rule externally by 0.104} \\
+\bottomrule
+\end{tabularx}
+
+\vspace{0.3em}
+\noindent\footnotesize\textsuperscript{$\dagger$}Prior work of one of the present authors.
+\end{table*}

@@ -1,0 +1,138 @@
+\section*{Introduction}
+
+Bacterial antimicrobial resistance was associated with an estimated 4.95 million deaths in 2019
+\cite{murray2022gram}, and the burden is forecast to grow to 2050 \cite{naghavi2024forecast}.
+Whole-genome sequencing offers susceptibility information without waiting for culture, in one of
+two forms. Rule-based tools look up catalogued determinants and call a strain resistant when one is
+found \cite{bortolaia2020resfinder,feldgarden2019amrfinder,feldgarden2021amrfinderplus}; learned
+models instead fit the genotype--phenotype map from labelled genomes
+\cite{moradigaravand2018prediction,her2018pangenome,ren2022giessen,orcales2024tutorial}. Learned
+models routinely report high accuracy. External validation of both approaches, however, finds error
+rates that differ by drug and by collection \cite{verschuuren2022external}, and part of the
+resistance in \Ecoli{} --- to amoxicillin--clavulanic acid above all --- is explained by no
+catalogued variant \cite{lipworth2024uncatalogued}.
+
+What makes those accuracy figures hard to read is population structure. Bacteria reproduce
+clonally, so distant variants stay linked and whole lineages inherit their genomes and, often,
+their resistance phenotypes together. Split such a collection at random and a model can score well
+by recognising lineages rather than mechanisms. Yu, Wheeler and Barquist showed across five
+pathogens that biased sampling driven by population structure confounds machine-learning
+prediction of resistance, and that more data does not fix it \cite{yu2025biased}. Benchmarks that
+compare learned models with rule-based ResFinder report that the ranking of the two depends on how
+closely the test genomes are related to the training genomes \cite{hu2024assessing}, and
+genotype--phenotype discordance is itself drug- and species-specific \cite{cheon2026discordance}.
+
+Three questions follow that no single random-split benchmark can answer. First, how much of a
+model's apparent accuracy comes from information that is not resistance biology at all: strain
+metadata, study of origin, or properties of the assembly? Second, when lineages are held out, does
+prediction fail because the model cannot generalise, or because the features it was given do not
+contain the relevant determinants? Third, once the determinants are present, does a learned model
+add anything over the obvious alternative, a fixed rule that calls a strain resistant when a known
+determinant is detected?
+
+Answering these requires a model good enough that its failures are informative rather than its own
+fault, so we first built one. TriLens reads three complementary views of each genome --- mutation
+patterns inside genes, gene presence and absence, and coarse per-gene statistics --- through three
+neural branches joined by a learned gate, and stacks that with five classical learners under a
+logistic-regression meta-learner. On a random split it leads every external baseline we tried. We
+then used it, alongside simpler models and a determinant rule, to take the random split apart.
+
+We work on the public collection of 6,962 \Ecoli{} genomes with phenotypes released by Arcadia
+Science \cite{arcadia2024dataset,bell2025arcadia}, with an independent cohort of 10,232 isolates
+from NCBI Pathogen Detection \cite{ncbi_pathogen_detection}, their minimum inhibitory
+concentrations, a second independent \Ecoli{} collection \cite{ren2022giessen}, and a second
+species. Every analysis bearing on a claim about features, rules or external transfer was
+pre-registered: its endpoint and pass rule were committed to a public repository, with a timestamp,
+before the relevant data were read, and every outcome is reported, including the four that failed.
+Our contributions are:
+
+\begin{enumerate}
+  \item a three-view stacked model with a learned per-drug gate, and an ablation of each of its
+        parts, reported against external baselines and against its own strongest component;
+  \item a decomposition of random-split accuracy into metadata, assembly and genomic signal, with a
+        test of whether the assembly signal is a batch artefact or biology;
+  \item a prevalence correction for lineage-aware testing, reported per drug, which separates the
+        part of a holdout's drop that is the metric from the part that is the model;
+  \item a pre-registered demonstration that isolate-specific determinant calls rescue prediction on
+        unseen lineages, with its coverage limits stated;
+  \item a frozen external validation on a cohort from different countries, sources and years, with
+        a leave-one-BioProject-out audit and MIC-based labels harmonised to EUCAST breakpoints;
+  \item a comparison of learned models against a determinant rule in two species, showing that a
+        sparse linear model on determinant calls suffices where a model helps at all, and
+        identifying where it does not help;
+  \item a diagnosis of a degenerate gated-attention score on presence/absence input, and negative
+        results reported as such: the gate does not route by mechanism, attention recovers no
+        catalogued resistance gene, and no approach meets clinical error benchmarks.
+\end{enumerate}
+
+% ---------------------------------------------------------------------------------------------
+\section*{Related work}
+
+\subsection*{What models are fed, and how they are combined}
+Studies of genomic resistance prediction differ mainly in the representation they feed a model
+(Table~\ref{tab:summary}): pan-genome gene presence and absence
+\cite{moradigaravand2018prediction,her2018pangenome}, $k$-mers \cite{jain2025paeruginosa,
+gao2024abaumannii,serajian2024mtb}, unitigs \cite{do2024unitig}, SNPs and variant calls
+\cite{wang2025hpylori,paredes2025mtb}, or mass spectra \cite{lopezcortes2024msdeepamr}. Across them,
+gradient boosting and random forests remain hard to beat, which matches what tabular benchmarks
+outside this field report \cite{grinsztajn2022trees,shwartzziv2022tabular}; TabNet was designed to
+close that gap with attention over tabular inputs \cite{arik2021tabnet}, and we use it as a
+baseline for exactly that reason.
+
+Our design differs in how it combines representations rather than in which one it uses, so the
+methods it draws on are worth naming. The mixture-of-experts idea --- several specialised
+sub-models and a gate that learns how much to trust each --- goes back to Jacobs et al.\
+\cite{jacobs1991moe} and was scaled to modern networks by Shazeer et al.\ \cite{shazeer2017moe}.
+Its appeal here is direct: different drugs are resisted through different mechanisms, so a fixed
+combination of views dilutes whichever view is right for a given drug. Wolpert's stacked
+generalisation uses base-learner predictions as features for a second-level model
+\cite{wolpert1992stacked}; fitting that level on out-of-fold predictions keeps it from trusting a
+learner that has memorised its training data. Gated attention pooling \cite{ilse2018attention}, a
+variant of attention \cite{vaswani2017attention} built for bags in which few items are informative,
+describes a pan-genome well, where a strain carries thousands of genes and a handful matter. For
+interpretation, SHAP provides attribution with consistency guarantees \cite{lundberg2017shap}, and
+we use it alongside the model's own attention weights rather than in place of them.
+
+Every one of those methods was developed where training and test samples are drawn independently
+from one distribution. That is the assumption under which a gate learns which sub-model to trust
+and a meta-learner learns how to weight its inputs. Whether a learned gate still routes sensibly
+when the test set comes from an unseen lineage, and whether the neural and classical halves of a
+stack degrade at the same rate, are not questions this literature has asked. We answer both for our
+own model, and the answers are not the ones its architecture assumed.
+
+\subsection*{Evaluation design and population structure}
+The problem our evaluation addresses is old and well understood in bacterial genome-wide
+association studies, a literature largely separate from predictive machine learning. Saber and
+Shapiro benchmarked association methods on simulated bacterial genomes and phenotypes precisely
+because population structure and genome-wide linkage make a causal variant hard to separate from
+one merely linked to it \cite{saber2020bacgwas}. The response there has been to build the
+correction into the model: Lees et al.\ fit an interpretable pangenome-spanning regression in which
+variants compete inside one model instead of being tested one at a time, absorbing much of the
+signal that would otherwise be attributed to a linked variant \cite{lees2020pyseer}.
+
+Predictive work has largely not adopted that correction, and the reason is structural rather than
+careless. An association study asks which variant causes the phenotype, so confounding by ancestry
+is its central threat. A prediction study asks how well the phenotype can be guessed, and there
+ancestry is a legitimate source of predictive signal, so nothing in the task itself forces the
+question. The confound becomes visible only when a model meets a lineage it has not seen, and a
+random split never produces that case.
+
+The evaluation-split column of Table~\ref{tab:summary} shows how that plays out. Fourteen of the
+sixteen entries predict a strain's phenotype; the other two are a review and a tool that classifies
+genes into resistance categories. Of the fourteen, two partition by population structure as their
+primary design \cite{yu2025biased,hu2024assessing}, and both report a drop once they do. Five pair
+cross-validation or a holdout with an independent external collection, three use cross-validation
+alone, and four use a random or stratified holdout with no external set. Two report a
+structure-aware analysis beside a main result that does not use one: Moradigaravand et al.\ hold out
+ST131 in a supplementary analysis, where the holdout scores about 0.28 below a size-matched random
+control \cite{moradigaravand2018prediction}, and Orcales et al.\ offer MLST-blocked
+cross-validation as an option not used for the headline figure \cite{orcales2024tutorial}. This is
+not a criticism of any individual study, and our own first attempt at a structure-aware split had
+the same defect. But none of the fourteen corrects the measure for the prevalence shift a lineage
+holdout causes, and none separates the resulting drop by antibiotic.
+
+Two gaps remain even after Yu et al. Their result is an average over five pathogens, so it
+establishes that a drop exists without saying which drugs carry it. And accounting for structure
+while splitting is not the same as holding a lineage out: a split can balance lineage composition
+across partitions and still leave close relatives on both sides, which measures something else
+entirely. Both gaps are what this paper's prevalence-corrected, per-drug holdout is for.
