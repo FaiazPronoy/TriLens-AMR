@@ -1,0 +1,76 @@
+name: trilens_v10
+description: 'TriLens-MoE-Stack v10 — hybrid neural ensemble with within-gene motif
+  CNN (Expert A), pan-genome P/A sparse-attention (Expert B), and structured cross-AB
+  RMRNet (Expert C), fused by per-sample per-AB MoE gating, then stacked with 5 classical
+  v9.1 bases.
+
+  '
+antibiotics:
+- AMP
+- CIP
+- AMC
+- SXT
+- GEN
+- CTX
+- CAZ
+gene_filtered_pkl: /tmp/trilens/code/data/processed/arcadia_v2_gene_filtered__mlst_holdout.pkl
+gene_pa_pkl: data/processed/arcadia_v2_gene_presence_absence.pkl
+v9_predictions: /tmp/trilens/code/results/lineage_seeds/seed_123/pillar_trilens_mlst/_intentionally_absent_v9_predictions.npz
+expert_a:
+  L_max: 64
+  conv_channels:
+  - 16
+  - 32
+  kernel_size: 3
+  dropout: 0.2
+expert_b:
+  n_pa_genes: 32441
+  d_token: 32
+  attn_dim: 32
+expert_c:
+  n_genes: 5000
+  n_stats: 4
+  n_context_layers: 1
+  use_coresistance: true
+  drug_class_groups:
+    penicillin:
+    - AMP
+    - AMC
+    cephalosporin:
+    - CTX
+    - CAZ
+    fluoroquinolone:
+    - CIP
+    aminoglycoside:
+    - GEN
+    folate:
+    - SXT
+d_model: 64
+attn_dim_pool: 32
+moe:
+  hidden_dim: 64
+  dropout: 0.3
+  entropy_beta: 0.01
+  expert_collapse_threshold: 0.05
+  expert_collapse_beta_increase: 0.05
+aux_loss_weight: 0.1
+training:
+  lr: 0.001
+  weight_decay: 0.0001
+  batch_size: 16
+  grad_accum: 1
+  max_epochs: 50
+  patience: 8
+  grad_clip_norm: 1.0
+  use_amp: true
+  seed: 42
+n_folds: 5
+kfold_seed: 42
+meta_C: 1.0
+split_key: random_split
+ablations:
+- T6
+evaluation:
+  bootstrap_n: 1000
+  bootstrap_seed: 42
+output_dir: /tmp/trilens/code/results/lineage_seeds/seed_123/pillar_trilens_mlst
