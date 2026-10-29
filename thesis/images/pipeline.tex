@@ -1,0 +1,534 @@
+
+ 
+\begin{tikzpicture}[x=1cm,y=1cm,scale=.82,transform shape]
+\renewcommand{\Huge}{\fontsize{28.5}{34}\selectfont}
+\tikzset{
+  arrow/.append style={shorten >=1.2pt, rounded corners=2pt},
+  orangeArrow/.append style={shorten >=1.2pt, rounded corners=2pt},
+  redArrow/.append style={shorten >=1.2pt, rounded corners=2pt},
+  greenArrow/.append style={shorten >=1.2pt, shorten <=0.5pt, rounded corners=2pt},
+  stageBadge/.style args={#1}{circle,fill=#1,text=white,draw=black!25,
+    line width=.5pt,font=\bfseries\Large,minimum size=1.05cm,inner sep=0pt},
+  zoneTag/.style args={#1}{font=\bfseries\Huge,text=#1!65!black,anchor=west},
+}
+ 
+\path[use as bounding box] (-1.00,-45.20) rectangle (45.70,30.30);
+ 
+\begin{scope}[yshift=1.5cm]
+ 
+\begin{scope}[xshift=2.30cm,yshift=.5cm]
+\node[
+  dashedPanel,
+  draw=navy,
+  minimum width=11.6cm,
+  minimum height=11.10cm
+] (datasetBox) at (3.20,22.25) {};
+ 
+\node[panelTitle,text=navy,anchor=north,font=\bfseries\Huge]
+  at (3.20,27.25) {Dataset};
+ 
+\node[font=\bfseries\Huge,align=center]
+  at (3.20,25.05) {Arcadia E. coli\\AMR dataset};
+ 
+\DNA{(0.30,19.35)}{1.8}
+ 
+\foreach \x/\y/\c in {
+  2.05/23.48/blueedge,
+  2.72/23.68/orangeedge,
+  3.35/23.10/navy,
+  4.05/23.48/orangeedge,
+  4.70/23.20/blueedge,
+  5.18/23.58/orangeedge,
+  1.82/22.55/orangeedge,
+  2.62/22.28/blueedge,
+  3.40/22.52/blueedge,
+  4.12/22.60/orangeedge,
+  4.78/22.35/navy,
+  5.28/22.82/blueedge,
+  2.12/21.72/navy,
+  3.18/21.82/orangeedge,
+  4.18/21.76/blueedge%
+}{
+  \fill[fill=\c] (\x,{\y-1.5}) circle (.10);
+}
+ 
+\Bacteria{(5.00,20.15)}{2}
+ 
+\node[font=\Huge,align=center] at (3.20,17.75) {6,962 genomes};
+\end{scope}
+ 
+\begin{scope}[xshift=7.55cm,yshift=.5cm]
+\node[
+  rounded corners=2mm,
+  draw=orangeedge!60,
+  fill=orangefill!28,
+  line width=.7pt,
+  minimum width=14.5cm,
+  minimum height=11.10cm
+] (preBox) at (13,22.25) {};
+ 
+\node[panelTitle,text=navy,anchor=north,font=\bfseries\Huge,align=center]
+  at (13,27.25) {Preprocessing\\Framework};
+ 
+\node[
+  card=orangeedge,
+  minimum width=13.5cm,
+  minimum height=2.0cm
+] (matchCard) at (13,23.35) {
+  \bfseries\Huge{Record matching}\\[4pt]
+  \Huge three files intersected
+};
+ 
+\node[
+  card=orangeedge,
+  minimum width=13.5cm,
+  minimum height=2.0cm
+] (labelCard) at (13,20.65) {
+  \bfseries\Huge{Phenotype encoding}\\[4pt]
+  \Huge R, I $\rightarrow$ 1 \quad S $\rightarrow$ 0
+};
+ 
+\node[
+  card=orangeedge,
+  minimum width=13.5cm,
+  minimum height=2.0cm
+] (maskCard) at (13,18.15) {
+  \bfseries\Huge{Label mask}\\[4pt]
+  \Huge $6{,}962\times7$
+};
+ 
+\Broom{(6.55,22.55)}{.85}
+\Bars{(6.55,20.15)}{.85}
+\Funnel{(6.55,17.95)}{.75}
+\end{scope}
+ 
+\draw[arrow] (datasetBox.east) -- (preBox.west);
+ 
+\begin{scope}[xshift=12.25cm,yshift=.5cm]
+\node[
+  rounded corners=2mm,
+  draw=blueedge!60,
+  fill=bluefill!48,
+  line width=.7pt,
+  minimum width=14.5cm,
+  minimum height=11.10cm
+] (splitPanelBox) at (24.8,22.25) {};
+
+\node[panelTitle,text=navy,anchor=north,font=\bfseries\Huge,align=center]
+  at (24.8,27.25) {Data Split\\Framework};
+
+\node[
+  card=blueedge,
+  minimum width=12.6cm,
+  minimum height=2.0cm
+] (training) at (24.8,23.25) {
+  \bfseries\Huge{Training (70\%)}\\[2pt]
+  \Huge 4,872 genomes
+};
+
+\node[
+  card=blueedge,
+  minimum width=12.6cm,
+  minimum height=2.0cm
+] (validation) at (24.8,20.7) {
+  \bfseries\Huge{Validation (15\%)}\\[2pt]
+  \Huge 1,045 genomes
+};
+
+\node[
+  card=blueedge,
+  minimum width=12.6cm,
+  minimum height=2.0cm
+] (testing) at (24.8,18.2) {
+  \bfseries\Huge{Testing (15\%)}\\[2pt]
+  \Huge 1,045 genomes
+};
+
+\GradCap{(19,22.85)}{.85}
+\Clipboard{(19,20.3)}{.85}
+\Clipboard{(19,17.8)}{.75}
+
+\end{scope}
+
+\node[
+  minimum width=12.9cm,
+  minimum height=8.9cm,
+  inner sep=0pt
+] (splitBox) at (31.1,22.1) {};
+
+\node[
+  card=blueedge,
+  minimum width=6.6cm,
+  minimum height=2.15cm,
+  font=\bfseries\Huge
+] (randomSplit) at ([xshift=-8.2cm,yshift=-3cm]splitBox.south) {
+  Random Split
+};
+
+\node[
+  card=blueedge,
+  minimum width=7.6cm,
+  minimum height=2.15cm,
+  font=\bfseries\Huge
+] (phylogroupSplit) at ([yshift=-3cm]splitBox.south) {
+  Phylogroup-\\Stratified
+};
+
+\node[
+  card=blueedge,
+  minimum width=7.2cm,
+  minimum height=2.15cm,
+  font=\bfseries\Huge
+] (lineageHoldout) at ([xshift=8.2cm,yshift=-3cm]splitBox.south) {
+  Lineage\\Holdout
+};
+
+\coordinate (splitStrategyStart) at
+  (splitPanelBox.south);
+\coordinate (splitStrategyFork) at
+  ([yshift=-0.5cm]splitStrategyStart);
+\draw[line] (splitStrategyStart) -- (splitStrategyFork);
+\draw[line]
+  (randomSplit.north |- splitStrategyFork) --
+  (lineageHoldout.north |- splitStrategyFork);
+\draw[arrow]
+  (randomSplit.north |- splitStrategyFork) -- (randomSplit.north);
+\draw[arrow]
+  (phylogroupSplit.north |- splitStrategyFork) -- (phylogroupSplit.north);
+\draw[arrow]
+  (lineageHoldout.north |- splitStrategyFork) -- (lineageHoldout.north);
+
+\draw[arrow] (preBox.east) -- (splitPanelBox.west |- preBox.east);
+ 
+\PNBlock{stage15}{(25.8,10.5)}{30cm}{2.70cm}{orangefill}{orangeedge}{
+  \Huge\textbf{Gene Selection}\\[5pt]
+  \Huge $\ge$ 5 SNPs $\rightarrow$ 13,799 genes
+  \quad$\bullet$\quad
+  XGBoost gain $\rightarrow$ \textbf{top 5,000 genes}
+}
+ 
+ 
+\draw[arrow]
+  (randomSplit.south) -- (randomSplit.south |- stage15.north);
+\draw[greenArrow]
+  (phylogroupSplit.south) -- (phylogroupSplit.south |- stage15.north);
+\draw[redArrow]
+  (lineageHoldout.south) -- (lineageHoldout.south |- stage15.north);
+ 
+\def\genomicViewWidth{5cm}
+\def\genomicViewHeight{4.15cm}
+\coordinate (genomicViewRow) at ([yshift=-12.90cm]splitBox.south);
+ 
+\PNBlock{snp}{([xshift=-8.2cm]genomicViewRow)}{\genomicViewWidth}{\genomicViewHeight}{bluefill}{blueedge}{
+  \Huge\textbf{SNP}\\[3pt]
+  \Huge\textbf{blocks}
+}
+\PNCaption{snp}{\Huge 6,962$\times$5,000$\times$64}
+\DNA{([xshift=-2cm,yshift=-.62cm]snp.center)}{.60}
+ 
+\PNBlock{gene}{(genomicViewRow)}{\genomicViewWidth}{\genomicViewHeight}{bluefill}{blueedge}{
+  \Huge\textbf{Gene}\\[3pt]
+  \Huge\textbf{Presence/}\\[3pt]
+  \Huge\textbf{Absence}\\[3pt]
+  \Huge\textbf{Matrix}
+}
+\PNCaption{gene}{\Huge 6,962$\times$32,441}
+ 
+\PNBlock{summary}{([xshift=8.2cm]genomicViewRow)}{\genomicViewWidth}{\genomicViewHeight}{bluefill}{blueedge}{
+  \Huge\textbf{Genomic}\\[4pt]
+  \Huge\textbf{Summary}\\[4pt]
+  \Huge\textbf{Stats}
+}
+\PNCaption{summary}{{\Huge 6,962$\times$5,000$\times$4}}
+ 
+\PNBlock{ensemble}{([xshift=-8.5cm,yshift=-2.4cm]snp.west)}{11.3cm}{4.80cm}{orangefill}{orangeedge}{
+  {\Huge\itshape Classical Arm}\\[3pt]
+  \Huge\textbf{Classical ML Ensemble}\\[3pt]
+  \Huge\textbf{5 base learners (OOF)}\\[4pt]
+  \Huge XGB\_gene, LGBM, RF,\\[3pt]
+  \Huge LogReg, XGB\_raw\\[3pt]
+  \Huge XGB\_raw: $\chi^2$\\[3pt]
+  \Huge top-50,000 raw SNPs
+}
+ 
+\node[font=\Huge,anchor=north]
+  at ([yshift=-.28cm]ensemble.south) {(5-fold OOF)};
+ 
+\draw[orangeArrow] (snp.north     |- stage15.south) -- (snp.north);
+\draw[orangeArrow] (summary.north |- stage15.south) -- (summary.north);
+\draw[orangeArrow] (11.9,0 |- stage15.south) -- ++(0,-0.7) -| (ensemble.north);
+\node[font=\Huge,anchor=south,text=black!82]
+  at (13.9,6.4) {gene-level features ($5{,}000\times4$)};
+ 
+\draw[draw=orangeedge,line width=3.4pt,dashed,rounded corners=2pt]
+  (44.30,19.20) -- (44.90,19.20) -- (44.90,7.60) -- (39.78,7.60);
+\draw[draw=orangeedge,line width=3.4pt]
+  (39.78,7.60) arc (0:180:0.48);
+\draw[orangeArrow,dashed]
+  (38.82,7.60) -- (31.10,7.60) -- (gene.north);
+\node[font=\Huge,anchor=south,text=black!82]
+  at (34.60,7.78) {no gene selection};
+ 
+\PNBlock{cnnOne}{([xshift=-.47cm,yshift=-3.2cm]snp.south)}{.52cm}{1.75cm}{greenfill}{greenedge}{}
+\PNBlock{cnnTwo}{([yshift=-3.2cm]snp.south)}{.52cm}{1.75cm}{greenfill}{greenedge}{}
+\PNBlock{cnnThree}{([xshift=.47cm,yshift=-3.2cm]snp.south)}{.52cm}{1.75cm}{greenfill}{greenedge}{}
+ 
+\node[font=\Huge,anchor=north]
+  at ([yshift=-.28cm]cnnTwo.south) {16 $\rightarrow$ 32 $\rightarrow$ pool};
+ 
+\draw[orangeArrow] (snp.south) -- (cnnTwo.north);
+ 
+\def\neuralModuleWidth{6.75cm}
+\def\neuralModuleHeight{5.20cm}
+\coordinate (neuralModuleRow) at ([yshift=-8.35cm]gene.south);
+
+\PNBlock{motif}{(snp.center |- neuralModuleRow)}{\neuralModuleWidth}{\neuralModuleHeight}{greenfill}{greenedge}{
+  {\huge\itshape Lens A}\\[4pt]
+  \Huge\textbf{Motif Pattern}\\[3pt]
+  \Huge\textbf{Encoder}\\[3pt]
+  \Huge(SNP-motif CNN)
+}
+
+\PNBlock{attention}{([xshift=-.2cm]gene.center |- neuralModuleRow)}{8cm}{\neuralModuleHeight}{greenfill}{greenedge}{
+  {\huge\itshape Lens B}\\[4pt]
+  \Huge\textbf{Gene Feature}\\[3pt]
+  \Huge\textbf{Attention}\\[3pt]
+  \Huge\textbf{Module}\\[3pt]
+  \Huge(Gated Attention)
+}
+
+\PNBlock{context}{(summary.center |- neuralModuleRow)}{\neuralModuleWidth}{\neuralModuleHeight}{greenfill}{greenedge}{
+  {\huge\itshape Lens C}\\[4pt]
+  \Huge\textbf{Cross-Antibiotic}\\[3pt]
+  \Huge\textbf{Context}\\[3pt]
+  \Huge\textbf{Module}\\[3pt]
+  \Huge(Multi-task Head)
+}
+
+ 
+\draw[orangeArrow] (cnnTwo.south) -- (motif.north);
+\draw[orangeArrow] (gene.south) -- ([xshift=.2cm]attention.north);
+\draw[orangeArrow] (summary.south) -- (context.north);
+ 
+\PNBlock{gate}{([xshift=.7cm,yshift=-4.60cm]attention.south)}{9.6cm}{5.20cm}{orangefill}{orangeedge}{
+  {\huge\itshape Neural Lens Fusion}\\[3pt]
+  \Huge\textbf{Mixture-of-Experts}\\[3pt]
+  \Huge\textbf{Gating Unit}\\[3pt]
+  \Huge concat $z$ (192)\\[3pt]
+  \Huge$\rightarrow$ softmax
+}
+ 
+\node[font=\Huge,anchor=north]
+  at ([yshift=-.08cm]gate.south)
+  {weights (A,B,C)};
+ 
+\coordinate (gateArrowNorth) at ([xshift=-.5cm]gate.north);
+\coordinate (gateArrowWest) at ([xshift=-.5cm]gate.west);
+ 
+\draw[orangeArrow,dashed]
+  (motif.south) -- ++(0,-.55) -| ([xshift=-.85cm]gateArrowNorth);
+\draw[orangeArrow,dashed]
+  ([xshift=.2cm]attention.south) -- (gateArrowNorth);
+\draw[orangeArrow,dashed]
+  (context.south) -- ++(0,-.55) -| ([xshift=.85cm]gateArrowNorth);
+ 
+\coordinate (pipelineCenterLine) at (21,0);
+\PNBlock{fusion}{(pipelineCenterLine |- gate.center)}{7.4cm}{3.45cm}{bluefill}{blueedge}{
+  \Huge\textbf{Representation}\\[3pt]
+  \Huge\textbf{Fusion}\\[3pt]
+  \Huge neural prob (7)
+}
+ 
+\draw[orangeArrow] (gate.west) -- (fusion.east);
+ 
+\PNBlock{meta}{([yshift=-4.90cm]fusion.center)}{9.0cm}{4.35cm}{redfill}{rededge}{
+  \Huge\textbf{Meta Learner}\\[3pt]
+  \Huge(Logistic Regression)\\[3pt]
+  \Huge stacking, \emph{per antibiotic}\\[3pt]
+  \Huge(neural + classical)
+}
+ 
+\draw[orangeArrow] (fusion.south) -- (meta.north);
+ 
+\PNBlock{threshold}{([yshift=-2.50cm]meta.south)}{6.6cm}{3.00cm}{grayfill}{black!48}{
+  \Huge\textbf{Sigmoid}\\[3pt]
+  \Huge 7 probabilities\\[3pt]
+  \Huge threshold 0.5
+}
+ 
+\draw[orangeArrow] (meta.south) -- (threshold.north);
+ 
+\coordinate (outputsBoxCenter) at ($(threshold.south)+(0,-5cm)$);
+\node[
+  rounded corners=2mm,
+  draw=rededge!70,
+  fill=redfill!18,
+  line width=.8pt,
+  minimum width=17cm,
+  minimum height=8cm
+] (outputsBox) at (outputsBoxCenter) {};
+ 
+\node[
+  font=\bfseries\Huge,
+  text=rededge,
+  anchor=north
+] at ([yshift=-.36cm]outputsBox.north) {
+  Output: 7 antibiotics (multi-label)
+};
+ 
+\foreach \nm/\xx/\yy in {
+  AMP/-5.70/1.30,
+  CIP/-1.90/1.30,
+  AMC/1.90/1.30,
+  SXT/5.70/1.30,
+  GEN/-3.80/-1.80,
+  CTX/0/-1.80,
+  CAZ/3.80/-1.80
+}{
+  \PNBlock{out\nm}{([xshift=\xx cm,yshift=\yy cm]outputsBox.center)}{3.0cm}{1.25cm}{redfill}{rededge}{
+    \Huge\textbf{\nm}
+  }
+ 
+  \node[font=\Huge,anchor=north]
+    at ([yshift=-.18cm]out\nm.south) {R / S};
+}
+ 
+\draw[redArrow] (threshold.south) -- (outputsBox.north);
+ 
+\draw[orangeArrow]
+  (ensemble.south) |- (fusion.west);
+ 
+\node[
+  dashedPanel,
+  draw=greenedge,
+  minimum width=9.5cm,
+  minimum height=15.90cm
+] (localityBox) at (3.95,-12.60) {};
+ 
+\node[panelTitle,text=greenedge,anchor=north,font=\bfseries\Huge,align=center]
+  at ([yshift=-.35cm]localityBox.north) {Pillar 1\\Locality Test};
+ 
+\PNBlock{loccnn}{([yshift=3.60cm]localityBox.center)}{5.80cm}{2.30cm}{greenfill}{greenedge}{
+  \bfseries\Huge{Locality probe}\\[3pt]
+  \bfseries\Huge{(plain 1-D CNN)}
+}
+ 
+\node[
+  anchor=north,
+  align=center,
+  font=\Huge,
+  text width=7.4cm
+] at ([yshift=-.55cm]loccnn.south) {
+  Compares real SNP windows against shuffled positions to check whether the
+  CNN uses position-local structure.
+};
+ 
+\draw[arrow]
+  (datasetBox.south -| localityBox.north) -- (localityBox.north);
+ 
+\node[
+  dashedPanel,
+  draw=greenedge,
+  minimum width=8.50cm,
+  minimum height=8.20cm
+] (interpBox) at ([xshift=12.4cm,yshift=-5.6cm]meta.east) {};
+ 
+\node[panelTitle,text=greenedge,anchor=north,font=\bfseries\Huge,align=center]
+  at ([yshift=-.35cm]interpBox.north) {Pillar 3\\Interpretability};
+ 
+\node[
+  anchor=north,
+  align=center,
+  font=\Huge,
+  text width=7.4cm
+] at ([yshift=-3.4cm]interpBox.north) {
+  gate weights\\[6pt]
+  gene attention\\[6pt]
+  SHAP\\[6pt]
+};
+ 
+\coordinate (interpLinkBend) at ($(meta.east)!0.5!(interpBox.west)$);
+\draw[greenArrow,dashed]
+  (meta.east) -- (interpLinkBend |- meta.east)
+  -- (interpLinkBend |- interpBox.west) -- (interpBox.west);
+ 
+\node[
+  dashedPanel,
+  draw=tealedge,
+  minimum width=25.00cm,
+  minimum height=9.40cm
+] (externalBox) at ([yshift=-6.0cm]outputsBox.south) {};
+ 
+\draw[redArrow] (outputsBox.south) -- (externalBox.north);
+ 
+\node[
+  font=\bfseries\Huge,
+  text=tealedge,
+  anchor=north,
+  align=center,
+  text width=16.25cm
+] at ([yshift=-.45cm]externalBox.north) {
+  Pillar 4\\
+  Cross-collection Robustness
+};
+ 
+\PNBlock{giessen}{([xshift=-3.3cm,yshift=-.15cm]externalBox.center)}{5.60cm}{3.60cm}{bluefill}{blueedge}{
+  \Huge\textbf{Giessen}\\[3pt]
+  \Huge\textbf{E. coli}\\[4pt]
+  \Huge 809 strains,\\[2pt]
+  \Huge 4 drugs
+}
+ 
+\PNBlock{retention}{([xshift=3.3cm,yshift=-.15cm]externalBox.center)}{5.60cm}{3.60cm}{greenfill}{greenedge}{
+  \Huge\textbf{90.0\%}\\[3pt]
+  \Huge\textbf{PR-AUC}\\[3pt]
+  \Huge\textbf{retention}
+}
+ 
+\draw[arrow] (giessen.east) -- (retention.west);
+ 
+\node[
+  font=\Huge,
+  align=center
+] at ([yshift=1.30cm]externalBox.south) {
+  the \textbf{classical stacking arm only}, retrained from scratch\\[3pt]
+   a method-level check, not model transfer
+};
+ 
+\begin{scope}[on background layer]
+  \coordinate (neuralLensBottom) at ([yshift=-.7cm]gate.south);
+  \node[rounded corners=4mm,draw=greenedge!55,fill=greenfill!22,
+    line width=1pt,inner sep=16pt,
+    fit=(cnnOne)(cnnTwo)(cnnThree)(motif)(attention)(context)(gate)(neuralLensBottom)]
+    (neuralLensZone) {};
+  \coordinate (classicalLensBottom) at ([yshift=-1cm]ensemble.south);
+  \node[rounded corners=4mm,draw=orangeedge!55,fill=orangefill!22,
+    line width=1pt,inner sep=14pt,
+    fit=(ensemble)(classicalLensBottom)] (classicalLensZone) {};
+  \node[rounded corners=4mm,draw=blueedge!55,fill=bluefill!20,
+    line width=1pt,inner sep=16pt,
+    fit=(fusion)(meta)(threshold)] (decisionZone) {};
+\end{scope}
+ 
+\node[stageBadge=navy] at ([xshift=5mm,yshift=6mm]datasetBox.north west) {1};
+\node[stageBadge=orangeedge] at ([xshift=5mm,yshift=6mm]preBox.north west) {2};
+\node[stageBadge=blueedge] at ([xshift=5mm,yshift=6mm]splitPanelBox.north west) {3};
+ 
+\node[stageBadge=orangeedge] at ([xshift=-8mm]stage15.west) {4};
+\node[stageBadge=orangeedge] (badge5) at ($(ensemble.east)!0.5!(snp.west)$) {5};
+\node[stageBadge=blueedge] at ([xshift=-1.7cm,yshift=9mm]gene.north) {6};
+ 
+\node[stageBadge=blueedge] (badge7) at ([xshift=5mm,yshift=8mm]decisionZone.north west) {7};
+\node[zoneTag=blueedge] at ([xshift=3mm]badge7.east) {Fusion + Stacking};
+ 
+\node[font=\Huge,text=greenedge!70!black,anchor=north east,align=right]
+  at ([xshift=-2mm]neuralLensZone.south east) {
+  Pillar 2 the architecture itself\\[2pt]
+};
+ 
+\node[stageBadge=rededge] at ([xshift=-6mm,yshift=6mm]outputsBox.north west) {8};
+\node[stageBadge=tealedge] at ([xshift=-1cm,yshift=-1cm]externalBox.north west) {9};
+ 
+\end{scope}
+ 
+\end{tikzpicture}

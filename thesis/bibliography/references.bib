@@ -1,0 +1,1097 @@
+% ============================================================================
+%  references.bib  --  TriLens-MoE-Stack thesis
+%  79 entries.  Every entry carries a DOI, a URL, or both, so each one can be
+%  opened and checked directly.
+%
+%  VERIFICATION STATUS
+%    Entries added during the Chapter 1 and 2 revision were each checked
+%    against the publisher record or the arXiv abstract before being written
+%    here.  Two errors were caught and corrected during that check:
+%      - the paper at DOI 10.1099/mgen.0.000337 is Saber and Shapiro (2020),
+%        not Hicks et al., which an earlier draft had wrong;
+%      - the marker genes reported by Siddiqui and Tarannum (2025) are fusA
+%        and parC, not the four genes an earlier draft listed.
+%    The pre-existing entries were supplied with the original bibliography and
+%    have not been re-verified line by line.  Spot-check any whose numbers you
+%    quote in the text.
+%
+%  CITATION-KEY ALIASES
+%    Four works appeared twice under different keys, which printed the same
+%    reference twice.  The duplicates are removed and the old keys are kept as
+%    biber `ids` aliases, so both keys still resolve and no .tex file needs to
+%    change:
+%      morin2024ecoli      also accepts  arcadia2024
+%      york2025amr         also accepts  york2025predicting
+%      saito2015pr         also accepts  saito2015
+%      guo2017calibration  also accepts  guo2017
+%
+%  CITATION AUDIT  (2026-07-29)  -- all items below verified and FIXED
+%    Orcales2025 -> Orcales2024  Verified via publisher record: PLOS Comput
+%                 Biol 20(12):e1012579 was published December 2024, not 2025.
+%                 Key renamed, year corrected, old key kept as an alias so
+%                 chapter_2.tex needs no change.
+%    Sohail2023 -> jain2025paeruginosa
+%                 Computational Intelligence and Neuroscience (Hindawi) was
+%                 shut down by the publisher in May 2023 after an editor was
+%                 found running special issues through a paper mill using a
+%                 former student's identity; delisted from Scopus (2022),
+%                 Web of Science (Mar 2023) and DOAJ (Feb 2023), with 35
+%                 retractions tracked by Retraction Watch. Replaced with a
+%                 2025 Bioinformatics Advances (Oxford Academic) paper on the
+%                 same topic, P. aeruginosa AMR prediction from WGS k-mers.
+%                 Table~tab:summary row and in-text mentions updated;
+%                 the "twenty-two studies" count is unchanged (row replaced,
+%                 not removed).
+%    KumarRavindra2024 -> stokes2020halicin + chiu2024colistin
+%                 Former entry was a ResearchGate preprint, not peer
+%                 reviewed. Split into two verified sources: the primary
+%                 halicin discovery paper (Stokes et al., Cell 2020) and a
+%                 2024 peer-reviewed colistin-nephrotoxicity ML study.
+%    Alvarez2023 -> sheppard2025mlstats
+%                 Former entry was a Zenodo deposit, not peer reviewed.
+%                 Replaced with a 2025 Genome Biology review on combining
+%                 machine learning and statistical inference in microbial
+%                 genomics.
+%    Sutedja2024 -> wang2025aibibliometric
+%                 Former entry was in a very low-visibility, non-indexed
+%                 venue. Replaced with a 2025 Frontiers in Medicine
+%                 bibliometric analysis of AI-AMR research trends.
+%    KumarMadhushree2025 -> kasse2025onehealth
+%                 Former entry was in a very low-visibility, non-indexed
+%                 venue. Replaced with a 2025 One Health Outlook scoping
+%                 review on AI for AMR under the One Health framework.
+%    All six replacement sources were confirmed via publisher record, DOI
+%    resolution, or PMC/PubMed listing before being written here. The
+%    corresponding sentences in chapter_2.tex were rewritten to accurately
+%    reflect what each new source actually reports, not just re-keyed.
+% ============================================================================
+
+% ============================================================================
+%  1. GLOBAL BURDEN AND SURVEILLANCE  (Chapter 1)
+% ============================================================================
+
+@article{murray2022gram,
+  author  = {{Antimicrobial Resistance Collaborators}},
+  title   = {Global burden of bacterial antimicrobial resistance in 2019:
+             a systematic analysis},
+  journal = {The Lancet},
+  volume  = {399},
+  number  = {10325},
+  pages   = {629--655},
+  year    = {2022},
+  doi     = {10.1016/S0140-6736(21)02724-0},
+  url     = {https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(21)02724-0/fulltext}
+}
+
+@article{naghavi2024forecast,
+  author  = {Naghavi, Mohsen and Vollset, Stein Emil and Ikuta, Kevin S. and others},
+  title   = {Global burden of bacterial antimicrobial resistance 1990--2021:
+             a systematic analysis with forecasts to 2050},
+  journal = {The Lancet},
+  volume  = {404},
+  number  = {10459},
+  pages   = {1199--1226},
+  year    = {2024},
+  doi     = {10.1016/S0140-6736(24)01867-1},
+  url     = {https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(24)01867-1/fulltext}
+}
+
+@techreport{who2025glass,
+  author      = {{World Health Organization}},
+  title       = {Global antibiotic resistance surveillance report 2025:
+                 {WHO} Global Antimicrobial Resistance and Use Surveillance
+                 System ({GLASS})},
+  institution = {World Health Organization},
+  address     = {Geneva},
+  year        = {2025},
+  note        = {ISBN 978-92-4-011633-7},
+  url         = {https://www.who.int/publications/i/item/9789240116337}
+}
+
+@misc{who_amr_2019,
+  author       = {{World Health Organization}},
+  title        = {No Time to Wait: Securing the Future from Drug-Resistant Infections},
+  year         = {2019},
+  url          = {https://www.who.int/publications/i/item/no-time-to-wait-securing-the-future-from-drug-resistant-infections},
+  note         = {Accessed: 2024-06-01}
+}
+
+
+% ============================================================================
+%  2. POPULATION STRUCTURE AND BACTERIAL GWAS  (Chapters 1 and 2)
+% ============================================================================
+
+@article{saber2020bacgwas,
+  author  = {Saber, Morteza M. and Shapiro, B. Jesse},
+  title   = {Benchmarking bacterial genome-wide association study methods
+             using simulated genomes and phenotypes},
+  journal = {Microbial Genomics},
+  volume  = {6},
+  number  = {3},
+  pages   = {e000337},
+  year    = {2020},
+  doi     = {10.1099/mgen.0.000337},
+  url     = {https://www.microbiologyresearch.org/content/journal/mgen/10.1099/mgen.0.000337}
+}
+
+@article{lees2020pyseer,
+  author  = {Lees, John A. and Mai, T. Tien and Galardini, Marco and
+             Wheeler, Nicole E. and Horsfield, Samuel T. and Parkhill, Julian
+             and Corander, Jukka},
+  title   = {Improved Prediction of Bacterial Genotype-Phenotype Associations
+             Using Interpretable Pangenome-Spanning Regressions},
+  journal = {mBio},
+  volume  = {11},
+  number  = {4},
+  pages   = {e01344-20},
+  year    = {2020},
+  doi     = {10.1128/mBio.01344-20},
+  url     = {https://journals.asm.org/doi/10.1128/mbio.01344-20}
+}
+
+
+% ============================================================================
+%  3. PRIMARY DATASETS
+% ============================================================================
+
+@article{morin2024ecoli,
+  ids       = {arcadia2024},
+  author    = {Morin, Manon},
+  title     = {Creating a 7,000-strain {E. coli} genotype dataset with
+               antimicrobial resistance phenotypes},
+  journal   = {The Stacks},
+  year      = {2024},
+  publisher = {Arcadia Science},
+  doi       = {10.57844/arcadia-d2cf-ebe5},
+  url       = {https://research.arcadiascience.com/pub/dataset-ecoli-amr-genotype-phenotype/release/3}
+}
+
+@article{york2025amr,
+  ids       = {york2025predicting},
+  author    = {York, Ryan and Sandler, George},
+  title     = {Predicting antimicrobial resistance phenotypes across
+               7,000 {E. coli} genomes},
+  journal   = {The Stacks},
+  year      = {2025},
+  publisher = {Arcadia Science},
+  doi       = {10.57844/arcadia-8391-465f},
+  url       = {https://research.arcadiascience.com/pub/result-ecoli-amr-popgen-genomic-prediction/release/3}
+}
+
+@article{weis2022driams,
+  author  = {Weis, Caroline and Cu{\'e}nod, Aline and Rieck, Bastian and others},
+  title   = {Direct antimicrobial resistance prediction from clinical
+             {MALDI-TOF} mass spectra using machine learning},
+  journal = {Nature Medicine},
+  volume  = {28},
+  pages   = {164--174},
+  year    = {2022},
+  doi     = {10.1038/s41591-021-01619-9},
+  url     = {https://www.nature.com/articles/s41591-021-01619-9}
+}
+
+
+% ============================================================================
+%  4. AMR PREDICTION IN E. COLI  (the closest prior work)
+% ============================================================================
+
+@article{moradigaravand2018,
+  author  = {Moradigaravand, Danesh and Palm, Martin and Farewell, Anne and
+             Mustonen, Ville and Warringer, Jonas and Parts, Leopold},
+  title   = {Prediction of antibiotic resistance in {Escherichia coli}
+             from large-scale pan-genome data},
+  journal = {PLOS Computational Biology},
+  volume  = {14},
+  number  = {12},
+  pages   = {e1006258},
+  year    = {2018},
+  doi     = {10.1371/journal.pcbi.1006258},
+  url     = {https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1006258}
+}
+
+@article{her2018pangenome,
+  author  = {Her, Hsuan-Lin and Wu, Yu-Wei},
+  title   = {A pan-genome-based machine learning approach for predicting
+             antimicrobial resistance activities of the {Escherichia coli} strains},
+  journal = {Bioinformatics},
+  volume  = {34},
+  number  = {13},
+  pages   = {i89--i95},
+  year    = {2018},
+  doi     = {10.1093/bioinformatics/bty276},
+  url     = {https://academic.oup.com/bioinformatics/article/34/13/i89/5045729}
+}
+
+@article{Ren2022,
+  author  = {Ren, Y. and Chakraborty, T. and Doijad, S. and Falgenhauer, L.
+             and Falgenhauer, J. and Goesmann, A. and Hauschild, A. C. and
+             Schwengers, O. and Heider, D.},
+  title   = {Prediction of antimicrobial resistance based on whole-genome
+             sequencing and machine learning},
+  journal = {Bioinformatics},
+  volume  = {38},
+  number  = {2},
+  pages   = {325--334},
+  year    = {2022},
+  doi     = {10.1093/bioinformatics/btab681},
+  url     = {https://academic.oup.com/bioinformatics/article/38/2/325/6382301}
+}
+
+@inproceedings{siddiqui2025amrensemble,
+  author    = {Siddiqui, Md. Saiful Bari and Tarannum, Nowshin},
+  title     = {Fusing Sequence Motifs and Pan-Genomic Features: Antimicrobial
+               Resistance Prediction using an Explainable Lightweight
+               {1D CNN--XGBoost} Ensemble},
+  booktitle = {Proceedings of Supercomputing Asia and the International
+               Conference on High Performance Computing in Asia Pacific Region},
+  year      = {2026},
+  doi       = {10.1145/3773656.3773682},
+  url       = {https://dl.acm.org/doi/10.1145/3773656.3773682}
+}
+
+@article{Orcales2024,
+  ids     = {Orcales2025},
+  author  = {Orcales, Faye and Moctezuma Tan, Lucy and Johnson-Hagler, Meris
+             and Suntay, John Matthew and Ali, Jameel and Recto, Kristiene
+             and Glenn, Phelan and Pennings, Pleuni},
+  title   = {Using genomic data and machine learning to predict antibiotic
+             resistance: A tutorial paper},
+  journal = {PLOS Computational Biology},
+  volume  = {20},
+  number  = {12},
+  pages   = {e1012579},
+  year    = {2024},
+  doi     = {10.1371/journal.pcbi.1012579},
+  url     = {https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1012579}
+}
+
+
+% ============================================================================
+%  5. GENOMIC FEATURE ENGINEERING AND SPECIES-SPECIFIC MODELS
+% ============================================================================
+
+@article{serajian2024mtbpp,
+  author  = {Serajian, Mohammadali and Marini, Simone and Alanko, Jarno N.
+             and Noyes, Noelle R. and Prosperi, Mattia and Boucher, Christina},
+  title   = {Scalable de novo classification of antibiotic resistance of
+             {Mycobacterium tuberculosis}},
+  journal = {Bioinformatics},
+  volume  = {40},
+  number  = {Supplement\_1},
+  pages   = {i39--i47},
+  year    = {2024},
+  doi     = {10.1093/bioinformatics/btae243},
+  url     = {https://academic.oup.com/bioinformatics/article/40/Supplement_1/i39/7700878}
+}
+
+@article{Serajian2025,
+  author  = {Serajian, M. and Testagrose, C. and Prosperi, M. and Boucher, C.},
+  title   = {A comparative study of antibiotic resistance patterns in
+             {Mycobacterium tuberculosis}},
+  journal = {Scientific Reports},
+  volume  = {15},
+  pages   = {5104},
+  year    = {2025},
+  doi     = {10.1038/s41598-025-89087-w},
+  url     = {https://doi.org/10.1038/s41598-025-89087-w}
+}
+
+@article{ArangoArgoty2018,
+  author  = {Arango-Argoty, G. and Garner, E. and Pruden, A. and Heath, L. S.
+             and Vikesland, P. and Zhang, L.},
+  title   = {{DeepARG}: A deep learning approach for predicting antibiotic
+             resistance genes from metagenomic data},
+  journal = {Microbiome},
+  volume  = {6},
+  pages   = {23},
+  year    = {2018},
+  doi     = {10.1186/s40168-018-0401-z}
+}
+
+@article{Gao2024,
+  author  = {Gao, Y. and Li, H. and Zhao, C. and Li, S. and Yin, G. and Wang, H.},
+  title   = {Machine learning and feature extraction for rapid antimicrobial
+             resistance prediction of \textit{Acinetobacter baumannii} from
+             whole-genome sequencing data},
+  journal = {Frontiers in Microbiology},
+  volume  = {14},
+  pages   = {1320312},
+  year    = {2024},
+  doi     = {10.3389/fmicb.2023.1320312}
+}
+
+@article{jain2025paeruginosa,
+  author  = {Jain, Aakriti and Dabburu, Govinda Rao and Samanta, Bishal and
+             Singhal, Neelja and Kumar, Manish},
+  title   = {An explainable machine learning pipeline for prediction of
+             antimicrobial resistance in {Pseudomonas aeruginosa}},
+  journal = {Bioinformatics Advances},
+  volume  = {5},
+  number  = {1},
+  pages   = {vbaf190},
+  year    = {2025},
+  doi     = {10.1093/bioadv/vbaf190},
+  url     = {https://academic.oup.com/bioinformaticsadvances/article/5/1/vbaf190/8239948}
+}
+% Replaces the former Sohail2023 entry (DOI 10.1155/2023/5236168), whose
+% venue, Computational Intelligence and Neuroscience, was shut down by
+% Hindawi in May 2023 after an editor was found running special issues
+% through a paper mill; delisted from Scopus (2022), Web of Science
+% (Mar 2023) and DOAJ (Feb 2023). Replaced 2026-07-29 with a 2025
+% Bioinformatics Advances (Oxford Academic) paper covering the same topic,
+% P. aeruginosa AMR prediction from WGS k-mers, verified via publisher
+% record and PMC (PMC12380447).
+
+@article{Do2024,
+  author  = {Do, D. T. and Yang, M. R. and Vo, T. N. S. and Le, N. Q. K.
+             and Wu, Y. W.},
+  title   = {Unitig-centered pan-genome machine learning approach for
+             predicting antibiotic resistance and discovering novel
+             resistance genes in bacterial strains},
+  journal = {Computational and Structural Biotechnology Journal},
+  volume  = {23},
+  pages   = {1864--1876},
+  year    = {2024},
+  doi     = {10.1016/j.csbj.2024.04.035}
+}
+
+@article{Wang2025,
+  author  = {Wang, Y. and Zheng, S. and Guo, R. and Li, Y. and Yin, H. and
+             Qiu, X. and Chen, J. and Ni, C. and Yuan, Y. and Gong, Y.},
+  title   = {Assessment for antibiotic resistance in {Helicobacter pylori}:
+             A practical and interpretable machine learning model based on
+             genome-wide genetic variation},
+  journal = {Virulence},
+  volume  = {16},
+  number  = {1},
+  pages   = {2481503},
+  year    = {2025},
+  doi     = {10.1080/21505594.2025.2481503}
+}
+
+@article{ParedesGutierrez2025,
+  author  = {Paredes-Gutierrez, G. and Perea-Jacobo, R. and Acosta-Mesa, H. G.
+             and Mezura-Montes, E. and Morales Reyes, J. L. and
+             Zenteno-Cuevas, R. and Guerrero-Chevannier, M. {\'A}. and
+             Mu{\~n}iz-Salazar, R. and Flores, D. L.},
+  title   = {Predicting drug resistance in {Mycobacterium tuberculosis}:
+             A machine learning approach to genomic mutation analysis},
+  journal = {Diagnostics},
+  volume  = {15},
+  number  = {3},
+  pages   = {279},
+  year    = {2025},
+  doi     = {10.3390/diagnostics15030279}
+}
+
+@article{Renz2025,
+  author  = {Renz, J. and Dauda, K. A. and Aga, O. N. L. and Diaz-Uriarte, R.
+             and L{\"o}hr, I. H. and Blomberg, B. and Johnston, I. G.},
+  title   = {Evolutionary accumulation modeling in {AMR}: Machine learning to
+             infer and predict evolutionary dynamics of multi-drug resistance},
+  journal = {mBio},
+  volume  = {16},
+  number  = {6},
+  pages   = {e00488-25},
+  year    = {2025},
+  doi     = {10.1128/mbio.00488-25}
+}
+
+@article{Parthasarathi2024,
+  author  = {Parthasarathi, K. and Gaikwad, K. and Rajesh, S. and Rana, S.
+             and Pandey, A. and Singh, H. and Sharma, J.},
+  title   = {A machine learning-based strategy to elucidate the identification
+             of antibiotic resistance in bacteria},
+  journal = {Frontiers in Antibiotics},
+  volume  = {3},
+  pages   = {1405296},
+  year    = {2024},
+  doi     = {10.3389/frabi.2024.1405296}
+}
+
+
+% ============================================================================
+%  6. REAL-WORLD APPLICATION, BENCHMARKING AND SURVEILLANCE
+% ============================================================================
+
+@article{Yu2025,
+  author  = {Yu, Y. and Wheeler, N. E. and Barquist, L.},
+  title   = {Biased sampling driven by bacterial population structure confounds
+             machine learning prediction of antimicrobial resistance},
+  journal = {PLOS Biology},
+  volume  = {23},
+  number  = {12},
+  pages   = {e3003539},
+  year    = {2025},
+  doi     = {10.1371/journal.pbio.3003539}
+}
+
+@article{Hu2024,
+  author  = {Hu, K. and Meyer, F. and Deng, Z. L. and Asgari, E. and
+             Kuo, T. H. and M{\"u}nch, P. C. and McHardy, A. C.},
+  title   = {Assessing computational predictions of antimicrobial resistance
+             phenotypes from microbial genomes},
+  journal = {Briefings in Bioinformatics},
+  volume  = {25},
+  number  = {3},
+  pages   = {bbae206},
+  year    = {2024},
+  doi     = {10.1093/bib/bbae206}
+}
+
+@article{Yun2024,
+  author  = {Yun, B. and Liao, X. and Feng, J. and Ding, T.},
+  title   = {Machine learning-enabled prediction of antimicrobial resistance
+             in foodborne pathogens},
+  journal = {CyTA - Journal of Food},
+  volume  = {22},
+  number  = {1},
+  pages   = {1--12},
+  year    = {2024},
+  doi     = {10.1080/19476337.2024.2324024}
+}
+
+@article{Duggirala2025,
+  author  = {Duggirala, H. J. and Johnson, J. L. and Tadesse, D. A. and
+             Hsu, C. and Norris, A. L. and Faust, J. and Walter-Grimm, L.
+             and Colonius, T.},
+  title   = {Artificial intelligence and machine learning in veterinary
+             medicine: A regulatory perspective on current initiatives and
+             future prospects},
+  journal = {American Journal of Veterinary Research},
+  volume  = {86},
+  number  = {S1},
+  pages   = {S16--S21},
+  year    = {2025},
+  doi     = {10.2460/ajvr.24.09.0285}
+}
+
+@article{LopezCortes2024,
+  author  = {L{\'o}pez-Cort{\'e}s, X. A. and Manr{\'i}quez-Troncoso, J. M.
+             and Hern{\'a}ndez-Garc{\'i}a, R. and Peralta, D.},
+  title   = {{MSDeepAMR}: Antimicrobial resistance prediction based on deep
+             neural networks and transfer learning},
+  journal = {Frontiers in Microbiology},
+  volume  = {15},
+  pages   = {1361795},
+  year    = {2024},
+  doi     = {10.3389/fmicb.2024.1361795}
+}
+
+@inproceedings{Preethi2024,
+  author    = {Preethi, R. and Bharati, R. and Priya, S.},
+  title     = {Predicting antibiotic resistance from genomic sequences using
+               a hybrid {CNN-RNN} model: A comprehensive approach},
+  booktitle = {2024 Third International Conference on Artificial Intelligence,
+               Computational Electronics and Communication System (AICECS)},
+  pages     = {1--6},
+  publisher = {IEEE},
+  year      = {2024},
+  doi       = {10.1109/AICECS63354.2024.10957126}
+}
+
+@article{kasse2025onehealth,
+  author  = {Kasse, Gashaw Enbiyale and Cosh, Suzanne M. and Humphries, Judy
+             and others},
+  title   = {Leveraging artificial intelligence for {One Health}:
+             opportunities and challenges in tackling antimicrobial
+             resistance -- a scoping review},
+  journal = {One Health Outlook},
+  volume  = {7},
+  pages   = {51},
+  year    = {2025},
+  doi     = {10.1186/s42522-025-00170-8},
+  url     = {https://onehealthoutlook.biomedcentral.com/articles/10.1186/s42522-025-00170-8}
+}
+% Replaces the former KumarMadhushree2025 entry (South Asian Journal of
+% Engineering and Technology, a very low-visibility, non-indexed venue).
+% Replaced 2026-07-29 with a 2025 One Health Outlook scoping review (43
+% studies) on AI for AMR surveillance across human, animal and
+% environmental data, verified via publisher record (PMC12532937).
+
+
+% ============================================================================
+%  7. REVIEWS AND PERSPECTIVES ON AI IN AMR
+% ============================================================================
+
+@article{Kim2022,
+  author  = {Kim, J. I. and Maguire, F. and Tsang, K. K. and Gouliouris, T.
+             and Peacock, S. J. and McAllister, T. A. and Beiko, R. G.},
+  title   = {Machine learning for antimicrobial resistance prediction:
+             Current practice, limitations, and clinical perspective},
+  journal = {Clinical Microbiology Reviews},
+  volume  = {35},
+  number  = {3},
+  pages   = {e00179-21},
+  year    = {2022},
+  doi     = {10.1128/cmr.00179-21}
+}
+
+@article{Sakagianni2023,
+  author  = {Sakagianni, A. and Koufopoulou, C. and Feretzakis, G. and
+             Kalles, D. and Verykios, V. S. and Myrianthefs, P. and Fildisis, G.},
+  title   = {Using machine learning to predict antimicrobial resistance:
+             A literature review},
+  journal = {Antibiotics},
+  volume  = {12},
+  number  = {3},
+  pages   = {452},
+  year    = {2023},
+  doi     = {10.3390/antibiotics12030452}
+}
+
+@article{Bilal2025,
+  author  = {Bilal, H. and Khan, M. N. and Khan, S. and Shafiq, M. and
+             Fang, W. and Khan, R. U. and Xu, B.},
+  title   = {The role of artificial intelligence and machine learning in
+             predicting and combating antimicrobial resistance},
+  journal = {Computational and Structural Biotechnology Journal},
+  volume  = {27},
+  pages   = {423--439},
+  year    = {2025},
+  doi     = {10.1016/j.csbj.2025.01.006}
+}
+
+@article{Branda2024,
+  author  = {Branda, F. and Scarpa, F.},
+  title   = {Implications of artificial intelligence in addressing
+             antimicrobial resistance: Innovations, global challenges,
+             and healthcare's future},
+  journal = {Antibiotics},
+  volume  = {13},
+  number  = {6},
+  pages   = {502},
+  year    = {2024},
+  doi     = {10.3390/antibiotics13060502}
+}
+
+@article{Li2024,
+  author  = {Li, Y. and Cui, X. and Yang, X. and Liu, G. and Zhang, J.},
+  title   = {Artificial intelligence in predicting pathogenic microorganisms'
+             antimicrobial resistance: Challenges, progress, and prospects},
+  journal = {Frontiers in Cellular and Infection Microbiology},
+  volume  = {14},
+  pages   = {1482186},
+  year    = {2024},
+  doi     = {10.3389/fcimb.2024.1482186}
+}
+
+@article{Liu2024,
+  author  = {Liu, C. S. C. and Pandey, R.},
+  title   = {Integrative genomics would strengthen {AMR} understanding
+             through {One Health} approach},
+  journal = {Heliyon},
+  volume  = {10},
+  number  = {14},
+  pages   = {e34719},
+  year    = {2024},
+  doi     = {10.1016/j.heliyon.2024.e34719}
+}
+
+@article{Lastra2024,
+  author  = {de la Lastra, J. M. P. and Wardell, S. J. T. and Pal, T. and
+             de la Fuente-Nunez, C. and Pletzer, D.},
+  title   = {From data to decisions: Leveraging artificial intelligence and
+             machine learning in combating antimicrobial resistance,
+             a comprehensive review},
+  journal = {Journal of Medical Systems},
+  volume  = {48},
+  number  = {1},
+  pages   = {71},
+  year    = {2024},
+  doi     = {10.1007/s10916-024-02089-5}
+}
+
+@article{Dhaarani2025,
+  author  = {Dhaarani, R. and Reddy, M. K.},
+  title   = {Progressing microbial genomics: Artificial intelligence and
+             deep learning driven advances in genome analysis and therapeutics},
+  journal = {Intelligence-Based Medicine},
+  volume  = {11},
+  pages   = {100251},
+  year    = {2025},
+  doi     = {10.1016/j.ibmed.2025.100251}
+}
+
+@article{wang2025aibibliometric,
+  author  = {Wang, Zhongli and Zhu, Gaopei and Li, Shixue},
+  title   = {Mapping knowledge landscapes and emerging trends in artificial
+             intelligence for antimicrobial resistance: bibliometric and
+             visualization analysis},
+  journal = {Frontiers in Medicine},
+  volume  = {12},
+  pages   = {1492709},
+  year    = {2025},
+  doi     = {10.3389/fmed.2025.1492709},
+  url     = {https://pmc.ncbi.nlm.nih.gov/articles/PMC11810743/}
+}
+% Replaces the former Sutedja2024 entry (New Explorations in Electrical
+% Engineering, a very low-visibility, non-indexed venue). Replaced
+% 2026-07-29 with a 2025 Frontiers in Medicine bibliometric analysis of
+% 2,408 AI-AMR publications (2014-2024), verified via publisher record.
+
+@article{stokes2020halicin,
+  author  = {Stokes, Jonathan M. and Yang, Kevin and Swanson, Kyle and
+             Jin, Wengong and Cubillos-Ruiz, Andres and Donghia, Nina M.
+             and MacNair, Craig R. and French, Shawn and Carfrae, Lindsey A.
+             and Bloom-Ackermann, Zohar and others},
+  title   = {A Deep Learning Approach to Antibiotic Discovery},
+  journal = {Cell},
+  volume  = {180},
+  number  = {4},
+  pages   = {688--702},
+  year    = {2020},
+  doi     = {10.1016/j.cell.2020.01.021},
+  url     = {https://www.cell.com/cell/fulltext/S0092-8674(20)30102-1}
+}
+
+@article{chiu2024colistin,
+  author  = {Chiu, Ling-Wan and Ku, Yi-En and Chan, Fan-Ying and
+             Lie, Wen-Nung and Chao, Horng-Jiun and Wang, San-Yuan and
+             Shen, Wan-Chen and Chen, Hsiang-Yin},
+  title   = {Machine learning algorithms to predict colistin-induced
+             nephrotoxicity from electronic health records in patients with
+             multidrug-resistant Gram-negative infection},
+  journal = {International Journal of Antimicrobial Agents},
+  volume  = {64},
+  number  = {1},
+  pages   = {107175},
+  year    = {2024},
+  doi     = {10.1016/j.ijantimicag.2024.107175},
+  url     = {https://www.sciencedirect.com/science/article/pii/S0924857924000931}
+}
+% Replace the former KumarRavindra2024 entry (a ResearchGate preprint, not a
+% peer-reviewed publication). It supported a sentence about AI-discovered
+% antibiotics (halicin) and AI-guided dosing of last-resort antibiotics.
+% Replaced 2026-07-29 with the primary halicin discovery paper (Stokes et
+% al., Cell 2020) and a 2024 peer-reviewed colistin-dosing study, both
+% verified via publisher record.
+
+@article{sheppard2025mlstats,
+  author  = {Sheppard, Samuel K. and Arning, Nicolas and Eyre, David W.
+             and Wilson, Daniel J.},
+  title   = {Machine learning and statistical inference in microbial
+             population genomics},
+  journal = {Genome Biology},
+  volume  = {26},
+  pages   = {313},
+  year    = {2025},
+  doi     = {10.1186/s13059-025-03775-4},
+  url     = {https://genomebiology.biomedcentral.com/articles/10.1186/s13059-025-03775-4}
+}
+% Replaces the former Alvarez2023 entry (a Zenodo deposit, not
+% peer-reviewed). Replaced 2026-07-29 with a 2025 Genome Biology review on
+% combining machine learning and statistical inference in microbial
+% genomics, verified via publisher record (PMC12476627).
+
+
+% ============================================================================
+%  8. ARCHITECTURE AND LEARNING METHODS  (new Section 2.2.5, Chapter 4)
+% ============================================================================
+
+@article{jacobs1991moe,
+  author  = {Jacobs, Robert A. and Jordan, Michael I. and Nowlan, Steven J.
+             and Hinton, Geoffrey E.},
+  title   = {Adaptive Mixtures of Local Experts},
+  journal = {Neural Computation},
+  volume  = {3},
+  number  = {1},
+  pages   = {79--87},
+  year    = {1991},
+  doi     = {10.1162/neco.1991.3.1.79},
+  url     = {https://direct.mit.edu/neco/article/3/1/79/5560/Adaptive-Mixtures-of-Local-Experts}
+}
+
+@inproceedings{shazeer2017moe,
+  author    = {Shazeer, Noam and Mirhoseini, Azalia and Maziarz, Krzysztof and
+               Davis, Andy and Le, Quoc and Hinton, Geoffrey and Dean, Jeff},
+  title     = {Outrageously Large Neural Networks: The Sparsely-Gated
+               Mixture-of-Experts Layer},
+  booktitle = {International Conference on Learning Representations (ICLR)},
+  year      = {2017},
+  url     = {https://arxiv.org/abs/1701.06538}
+}
+
+@article{wolpert1992stacked,
+  author  = {Wolpert, David H.},
+  title   = {Stacked Generalization},
+  journal = {Neural Networks},
+  volume  = {5},
+  number  = {2},
+  pages   = {241--259},
+  year    = {1992},
+  doi     = {10.1016/S0893-6080(05)80023-1},
+  url     = {https://doi.org/10.1016/S0893-6080(05)80023-1}
+}
+
+@inproceedings{vaswani2017attention,
+  author    = {Vaswani, Ashish and Shazeer, Noam and Parmar, Niki and
+               Uszkoreit, Jakob and Jones, Llion and Gomez, Aidan N. and
+               Kaiser, Lukasz and Polosukhin, Illia},
+  title     = {Attention Is All You Need},
+  booktitle = {Advances in Neural Information Processing Systems 30 (NeurIPS)},
+  pages     = {5998--6008},
+  year      = {2017},
+  url     = {https://arxiv.org/abs/1706.03762}
+}
+
+@inproceedings{ilse2018attention,
+  author    = {Ilse, Maximilian and Tomczak, Jakub M. and Welling, Max},
+  title     = {Attention-based Deep Multiple Instance Learning},
+  booktitle = {Proceedings of the 35th International Conference on
+               Machine Learning (ICML)},
+  pages     = {2127--2136},
+  year      = {2018},
+  url     = {https://proceedings.mlr.press/v80/ilse18a.html}
+}
+
+@inproceedings{lundberg2017shap,
+  author    = {Lundberg, Scott M. and Lee, Su-In},
+  title     = {A Unified Approach to Interpreting Model Predictions},
+  booktitle = {Advances in Neural Information Processing Systems 30 (NeurIPS)},
+  pages     = {4765--4774},
+  year      = {2017},
+  url     = {https://arxiv.org/abs/1705.07874}
+}
+
+@inproceedings{arik2021tabnet,
+  author    = {Arik, Sercan {\"O}. and Pfister, Tomas},
+  title     = {{TabNet}: Attentive Interpretable Tabular Learning},
+  booktitle = {Proceedings of the AAAI Conference on Artificial Intelligence},
+  volume    = {35},
+  number    = {8},
+  pages     = {6679--6687},
+  year      = {2021},
+  url     = {https://ojs.aaai.org/index.php/AAAI/article/view/16826}
+}
+
+@inproceedings{grinsztajn2022trees,
+  author    = {Grinsztajn, L{\'e}o and Oyallon, Edouard and Varoquaux, Ga{\"e}l},
+  title     = {Why do tree-based models still outperform deep learning on
+               typical tabular data?},
+  booktitle = {Advances in Neural Information Processing Systems 35 (NeurIPS),
+               Datasets and Benchmarks Track},
+  pages     = {507--520},
+  year      = {2022},
+  url     = {https://arxiv.org/abs/2207.08815}
+}
+
+@article{shwartzziv2022tabular,
+  author  = {Shwartz-Ziv, Ravid and Armon, Amitai},
+  title   = {Tabular Data: Deep Learning is Not All You Need},
+  journal = {Information Fusion},
+  volume  = {81},
+  pages   = {84--90},
+  year    = {2022},
+  doi     = {10.1016/j.inffus.2021.11.011},
+  url     = {https://doi.org/10.1016/j.inffus.2021.11.011}
+}
+
+
+% ============================================================================
+%  9. CLASSICAL MACHINE LEARNING FOUNDATIONS
+% ============================================================================
+
+@article{friedman2001gbm,
+  author  = {Friedman, Jerome H.},
+  title   = {Greedy Function Approximation: A Gradient Boosting Machine},
+  journal = {Annals of Statistics},
+  volume  = {29},
+  number  = {5},
+  pages   = {1189--1232},
+  year    = {2001},
+  doi     = {10.1214/aos/1013203451},
+  url     = {https://projecteuclid.org/journals/annals-of-statistics/volume-29/issue-5/Greedy-function-approximation-A-gradient-boosting-machine/10.1214/aos/1013203451.full}
+}
+
+@inproceedings{chen2016xgboost,
+  author    = {Chen, Tianqi and Guestrin, Carlos},
+  title     = {{XGBoost}: A Scalable Tree Boosting System},
+  booktitle = {Proceedings of the 22nd ACM SIGKDD International Conference on
+               Knowledge Discovery and Data Mining},
+  pages     = {785--794},
+  year      = {2016},
+  doi     = {10.1145/2939672.2939785},
+  url     = {https://dl.acm.org/doi/10.1145/2939672.2939785}
+}
+
+@inproceedings{ke2017lightgbm,
+  author    = {Ke, Guolin and Meng, Qi and Finley, Tom and Wang, Taifeng and
+               Chen, Wei and Ma, Weidong and Ye, Qiwei and Liu, Tie-Yan},
+  title     = {{LightGBM}: A Highly Efficient Gradient Boosting Decision Tree},
+  booktitle = {Advances in Neural Information Processing Systems 30 (NeurIPS)},
+  pages     = {3146--3154},
+  year      = {2017},
+  url     = {https://proceedings.neurips.cc/paper/2017/hash/6449f44a102fde848669bdd9eb6b76fa-Abstract.html}
+}
+
+@article{breiman2001rf,
+  author  = {Breiman, Leo},
+  title   = {Random Forests},
+  journal = {Machine Learning},
+  volume  = {45},
+  number  = {1},
+  pages   = {5--32},
+  year    = {2001},
+  doi     = {10.1023/A:1010933404324},
+  url     = {https://link.springer.com/article/10.1023/A:1010933404324}
+}
+
+@article{breiman1996bagging,
+  author  = {Breiman, Leo},
+  title   = {Bagging Predictors},
+  journal = {Machine Learning},
+  volume  = {24},
+  number  = {2},
+  pages   = {123--140},
+  year    = {1996},
+  doi     = {10.1007/BF00058655},
+  url     = {https://link.springer.com/article/10.1007/BF00058655}
+}
+
+@article{tibshirani1996lasso,
+  author  = {Tibshirani, Robert},
+  title   = {Regression Shrinkage and Selection via the Lasso},
+  journal = {Journal of the Royal Statistical Society: Series B (Methodological)},
+  volume  = {58},
+  number  = {1},
+  pages   = {267--288},
+  year    = {1996},
+  doi     = {10.1111/j.2517-6161.1996.tb02080.x},
+  url     = {https://academic.oup.com/jrsssb/article/58/1/267/7027929}
+}
+
+@book{hosmer2013alr,
+  author    = {Hosmer, David W. and Lemeshow, Stanley and Sturdivant, Rodney X.},
+  title     = {Applied Logistic Regression},
+  edition   = {3rd},
+  publisher = {Wiley},
+  year      = {2013},
+  doi     = {10.1002/9781118548387},
+  url     = {https://onlinelibrary.wiley.com/doi/book/10.1002/9781118548387}
+}
+
+@book{hastie2009esl,
+  author    = {Hastie, Trevor and Tibshirani, Robert and Friedman, Jerome},
+  title     = {The Elements of Statistical Learning},
+  edition   = {2nd},
+  publisher = {Springer},
+  year      = {2009},
+  doi     = {10.1007/978-0-387-84858-7},
+  url     = {https://hastie.su.domains/ElemStatLearn/}
+}
+
+@book{bishop2006prml,
+  author    = {Bishop, Christopher M.},
+  title     = {Pattern Recognition and Machine Learning},
+  publisher = {Springer},
+  year      = {2006},
+  url     = {https://www.microsoft.com/en-us/research/publication/pattern-recognition-machine-learning/}
+}
+
+@book{mitchell1997ml,
+  author    = {Mitchell, Tom M.},
+  title     = {Machine Learning},
+  publisher = {McGraw-Hill},
+  year      = {1997},
+  url     = {https://www.cs.cmu.edu/~tom/mlbook.html}
+}
+
+@inproceedings{mccallum1998nb,
+  author    = {McCallum, Andrew and Nigam, Kamal},
+  title     = {A Comparison of Event Models for Naive Bayes Text Classification},
+  booktitle = {AAAI-98 Workshop on Learning for Text Categorization},
+  pages     = {41--48},
+  year      = {1998},
+  url     = {https://www.cs.cmu.edu/~knigam/papers/multinomial-aaaiws98.pdf}
+}
+
+@book{manning2008ir,
+  author    = {Manning, Christopher D. and Raghavan, Prabhakar and
+               Sch{\"u}tze, Hinrich},
+  title     = {Introduction to Information Retrieval},
+  publisher = {Cambridge University Press},
+  year      = {2008},
+  doi     = {10.1017/CBO9780511809071},
+  url     = {https://nlp.stanford.edu/IR-book/}
+}
+
+
+% ============================================================================
+%  10. DEEP LEARNING FOUNDATIONS AND TRAINING TECHNIQUES
+% ============================================================================
+
+@book{goodfellow2016dl,
+  author    = {Goodfellow, Ian and Bengio, Yoshua and Courville, Aaron},
+  title     = {Deep Learning},
+  publisher = {MIT Press},
+  year      = {2016},
+  url     = {https://www.deeplearningbook.org}
+}
+
+@article{lecun2015deep,
+  author  = {LeCun, Yann and Bengio, Yoshua and Hinton, Geoffrey},
+  title   = {Deep Learning},
+  journal = {Nature},
+  volume  = {521},
+  pages   = {436--444},
+  year    = {2015},
+  doi     = {10.1038/nature14539},
+  url     = {https://www.nature.com/articles/nature14539}
+}
+
+@inproceedings{kim2014cnn,
+  author    = {Kim, Yoon},
+  title     = {Convolutional Neural Networks for Sentence Classification},
+  booktitle = {Proceedings of EMNLP},
+  pages     = {1746--1751},
+  year      = {2014},
+  doi     = {10.3115/v1/D14-1181},
+  url     = {https://aclanthology.org/D14-1181/}
+}
+
+@article{lin2013nin,
+  author  = {Lin, Min and Chen, Qiang and Yan, Shuicheng},
+  title   = {Network In Network},
+  journal = {arXiv preprint arXiv:1312.4400},
+  year    = {2013},
+  url     = {https://arxiv.org/abs/1312.4400}
+}
+
+@article{srivastava2014dropout,
+  author  = {Srivastava, Nitish and Hinton, Geoffrey and Krizhevsky, Alex and
+             Sutskever, Ilya and Salakhutdinov, Ruslan},
+  title   = {Dropout: A Simple Way to Prevent Neural Networks from Overfitting},
+  journal = {Journal of Machine Learning Research},
+  volume  = {15},
+  pages   = {1929--1958},
+  year    = {2014},
+  url     = {https://jmlr.org/papers/v15/srivastava14a.html}
+}
+
+@inproceedings{ioffe2015batchnorm,
+  author    = {Ioffe, Sergey and Szegedy, Christian},
+  title     = {Batch Normalization: Accelerating Deep Network Training by
+               Reducing Internal Covariate Shift},
+  booktitle = {Proceedings of the 32nd International Conference on
+               Machine Learning (ICML)},
+  pages     = {448--456},
+  year      = {2015},
+  url     = {https://proceedings.mlr.press/v37/ioffe15.html}
+}
+
+@incollection{prechelt1998earlystopping,
+  author    = {Prechelt, Lutz},
+  title     = {Early Stopping, But When?},
+  booktitle = {Neural Networks: Tricks of the Trade},
+  publisher = {Springer},
+  pages     = {55--69},
+  year      = {1998},
+  doi     = {10.1007/3-540-49430-8_3},
+  url     = {https://link.springer.com/chapter/10.1007/3-540-49430-8_3}
+}
+
+@inproceedings{kingma2015adam,
+  author    = {Kingma, Diederik P. and Ba, Jimmy},
+  title     = {Adam: A Method for Stochastic Optimization},
+  booktitle = {International Conference on Learning Representations (ICLR)},
+  year      = {2015},
+  url     = {https://arxiv.org/abs/1412.6980}
+}
+
+
+% ============================================================================
+%  11. EVALUATION METRICS AND CALIBRATION
+% ============================================================================
+
+@article{saito2015pr,
+  ids       = {saito2015},
+  author  = {Saito, Takaya and Rehmsmeier, Marc},
+  title   = {The Precision-Recall Plot Is More Informative than the {ROC} Plot
+             when Evaluating Binary Classifiers on Imbalanced Datasets},
+  journal = {PLOS ONE},
+  volume  = {10},
+  number  = {3},
+  pages   = {e0118432},
+  year    = {2015},
+  doi     = {10.1371/journal.pone.0118432},
+  url     = {https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0118432}
+}
+
+@inproceedings{davis2006,
+  author    = {Davis, Jesse and Goadrich, Mark},
+  title     = {The Relationship Between Precision-Recall and {ROC} Curves},
+  booktitle = {Proceedings of the 23rd International Conference on
+               Machine Learning (ICML)},
+  pages     = {233--240},
+  year      = {2006},
+  doi     = {10.1145/1143844.1143874},
+  url     = {https://dl.acm.org/doi/10.1145/1143844.1143874}
+}
+
+@article{bradley1997,
+  author  = {Bradley, A. P.},
+  title   = {The Use of the Area Under the {ROC} Curve in the Evaluation of
+             Machine Learning Algorithms},
+  journal = {Pattern Recognition},
+  volume  = {30},
+  number  = {7},
+  pages   = {1145--1159},
+  year    = {1997},
+  doi     = {10.1016/S0031-3203(96)00142-2},
+  url     = {https://www.sciencedirect.com/science/article/pii/S0031320396001422}
+}
+
+@book{vanrijsbergen1979,
+  author    = {Van Rijsbergen, C. J.},
+  title     = {Information Retrieval},
+  edition   = {2nd},
+  publisher = {Butterworths},
+  year      = {1979},
+  url     = {https://openlib.org/home/krichel/courses/lis618/readings/rijsbergen79_infor_retriev.pdf}
+}
+
+@article{powers2011,
+  author  = {Powers, David M. W.},
+  title   = {Evaluation: From Precision, Recall and F-Measure to {ROC},
+             Informedness, Markedness and Correlation},
+  journal = {Journal of Machine Learning Technologies},
+  volume  = {2},
+  number  = {1},
+  pages   = {37--63},
+  year    = {2011},
+  url     = {https://arxiv.org/abs/2010.16061}
+}
+
+@inproceedings{guo2017calibration,
+  ids       = {guo2017},
+  author    = {Guo, Chuan and Pleiss, Geoff and Sun, Yu and
+               Weinberger, Kilian Q.},
+  title     = {On Calibration of Modern Neural Networks},
+  booktitle = {Proceedings of the 34th International Conference on
+               Machine Learning (ICML)},
+  pages     = {1321--1330},
+  year      = {2017},
+  url     = {https://proceedings.mlr.press/v70/guo17a.html}
+}
+
+
+% ============================================================================
+%  12. SOFTWARE AND DOCUMENTATION
+% ============================================================================
+
+@misc{xgboostdocs,
+  author       = {{XGBoost Developers}},
+  title        = {{XGBoost} Python {API} and Training Guide},
+  howpublished = {\url{https://xgboost.readthedocs.io/}},
+  year         = {2025},
+  note         = {Accessed 7 Oct. 2025}
+}
+
+@misc{lightgbmdocs,
+  author       = {{LightGBM Developers}},
+  title        = {{LightGBM} Documentation: Parameters and Features},
+  howpublished = {\url{https://lightgbm.readthedocs.io/}},
+  year         = {2025},
+  note         = {Accessed 7 Oct. 2025}
+}

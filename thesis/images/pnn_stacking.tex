@@ -1,0 +1,30 @@
+\begin{tikzpicture}[font=\sffamily,>=Stealth,
+ ar/.style={-{Stealth[length=2.8mm]},line width=0.6mm,draw=orange!85!red}]
+\renewcommand{\footnotesize}{\fontsize{10.9}{13.1}\selectfont}
+\renewcommand{\small}{\fontsize{11.9}{14.8}\selectfont}
+\renewcommand{\scriptsize}{\fontsize{8.7}{10.4}\selectfont}
+\node[font=\footnotesize\bfseries,text=black!70] at (1.1,-3.15){Layer 1: base predictions};
+\node[font=\footnotesize\bfseries,text=black!70] at (6.8,-3.0){Layer 2: stacking};
+\node[font=\footnotesize\bfseries,text=black!70] at (13.2,-3.0){Layer 3: decision};
+\blk{-0.99}{1.35}{2.3}{1.35}{0.4}{cin}
+\node[font=\small\bfseries,align=center,text width=2.1cm] at (0.16,1.35){neural prob. (7)};
+\blk{-1.29}{-1.35}{2.9}{2.7}{0.4}{cgate}
+\node[font=\footnotesize\bfseries,align=center,text width=2.7cm] at (0.16,-0.75){5 classical probs. (OOF)};
+\node[font=\scriptsize\bfseries,text=black!85,align=center,text width=2.7cm] at (0.16,-2.05){XGB, LGBM, RF,\\ LR, XGB\_raw};
+\draw[ar] (1.46,1.35)--(3.55,0.4);
+\draw[ar] (1.76,-1.35)--(3.55,-0.4);
+\blk{3.55}{0}{2.35}{1.9}{0.5}{cattn}
+\node[font=\footnotesize\bfseries,align=center,text width=2.15cm] at (4.73,0.3){stack per antibiotic};
+\node[font=\scriptsize\bfseries,text=black!80,align=center,text width=2.15cm] at (4.73,-0.42){$[p^{\mathrm{neu}},p_1,\ldots,p_5]$};
+\draw[ar] (6.1,0)--(6.7,0);
+\blk{6.7}{0}{2.15}{1.9}{0.5}{cmeta}
+\node[font=\footnotesize\bfseries,align=center,text width=1.95cm] at (7.78,0.3){LogReg meta};
+\node[font=\scriptsize\bfseries,text=black!80,align=center,text width=1.95cm] at (7.78,-0.42){per antibiotic};
+\draw[ar] (9.05,0)--(9.65,0);
+\blk{9.65}{0}{2.25}{1.8}{0.45}{cin}
+\node[font=\footnotesize\bfseries,align=center,text width=2.05cm] at (10.78,0){sigmoid, threshold 0.5};
+\draw[ar] (12.1,0)--(12.7,0);
+\blk{12.7}{0}{1.9}{1.8}{0.45}{cout}
+\node[font=\footnotesize\bfseries,align=center,text width=1.7cm] at (13.65,0.18){7 antibiotics};
+\node[font=\scriptsize\bfseries,text=black!80] at (13.65,-0.5){R / S};
+\end{tikzpicture}

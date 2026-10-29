@@ -1,0 +1,15 @@
+name: gene_importance_shap
+description: SHAP and gain importance per gene for the XGBoost base learners, with their agreement.
+antibiotics: [AMP, CIP, AMC, SXT, GEN, CTX, CAZ]
+gene_stats: [mean, var, n_nonref, max]
+run_gene_level: true
+run_snp_level: true
+prefilter_top_k: 50000
+prefilter_min_variance: 1.0e-06
+shap_subsample: 1500
+xgb_params: {n_estimators: 1500, max_depth: 5, min_child_weight: 5, learning_rate: 0.05, subsample: 0.8, colsample_bytree: 0.7,
+  reg_alpha: 0.1, reg_lambda: 1.0, gamma: 0.1, tree_method: hist, device: cuda}
+xgb_raw_params: {n_estimators: 1500, max_depth: 5, learning_rate: 0.05, subsample: 0.8, colsample_bytree: 1.0, colsample_bynode: 0.5,
+  reg_alpha: 0.1, reg_lambda: 1.0, tree_method: hist, device: cuda}
+top_k: 20
+output_dir: ${paths.results_dir}/gene_importance_shap

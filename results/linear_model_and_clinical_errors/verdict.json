@@ -1,0 +1,106 @@
+{
+ "internal_xgboost_minus_linear": {
+  "delta": -0.011043702947682052,
+  "ci": [
+   -0.025672726615658503,
+   0.006623964845315315
+  ],
+  "reading": "a linear model suffices"
+ },
+ "external_xgboost_minus_linear": {
+  "delta": -0.038217759434627206,
+  "ci": [
+   -0.06335429093074654,
+   -0.019488298864381356
+  ],
+  "reading": "inconclusive"
+ },
+ "linear_minus_rule": {
+  "internal": {
+   "delta": 0.137,
+   "ci_low": 0.0974,
+   "ci_high": 0.2035
+  },
+  "external": {
+   "delta": 0.1035,
+   "ci_low": 0.0603,
+   "ci_high": 0.1658
+  }
+ },
+ "reading_rule": "suffices if the CI lies in (-0.05, 0.05); non-linearity matters if delta >= 0.05 and CI > 0",
+ "pooled_errors": {
+  "xgboost_AP": {
+   "CA": 0.9136,
+   "ME": 0.0265,
+   "VME": 0.2513,
+   "VME_ci_high": 0.2593
+  },
+  "linear_AP": {
+   "CA": 0.9378,
+   "ME": 0.0171,
+   "VME": 0.1868,
+   "VME_ci_high": 0.194
+  },
+  "rule": {
+   "CA": 0.9421,
+   "ME": 0.0266,
+   "VME": 0.1441,
+   "VME_ci_high": 0.1506
+  }
+ },
+ "error_differences": [
+  {
+   "error": "VME",
+   "comparison": "xgboost_AP - rule",
+   "delta": 0.1071,
+   "ci_low": 0.0319,
+   "ci_high": 0.1814,
+   "isolates": 11601
+  },
+  {
+   "error": "VME",
+   "comparison": "linear_AP - rule",
+   "delta": 0.0427,
+   "ci_low": 0.0061,
+   "ci_high": 0.0838,
+   "isolates": 11601
+  },
+  {
+   "error": "VME",
+   "comparison": "xgboost_AP - linear_AP",
+   "delta": 0.0645,
+   "ci_low": 0.0211,
+   "ci_high": 0.1094,
+   "isolates": 11601
+  },
+  {
+   "error": "ME",
+   "comparison": "xgboost_AP - rule",
+   "delta": -0.0001,
+   "ci_low": -0.035,
+   "ci_high": 0.0118,
+   "isolates": 31982
+  },
+  {
+   "error": "ME",
+   "comparison": "linear_AP - rule",
+   "delta": -0.0095,
+   "ci_low": -0.0405,
+   "ci_high": 0.0019,
+   "isolates": 31982
+  },
+  {
+   "error": "ME",
+   "comparison": "xgboost_AP - linear_AP",
+   "delta": 0.0095,
+   "ci_low": 0.0026,
+   "ci_high": 0.0146,
+   "isolates": 31982
+  }
+ ],
+ "fda_benchmarks": {
+  "CA_gt": 0.899,
+  "ME_lt": 0.03,
+  "VME_upper95_lt": 0.075
+ }
+}

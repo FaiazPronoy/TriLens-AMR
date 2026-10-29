@@ -1,0 +1,147 @@
+
+\newcommand{\rfdrawtree}[3]{
+  \begin{scope}[shift={(#2,#3)}]
+    \node[treenode] (root-#1) at (0,0) {};
+    \node[treenode] (l1-#1)   at (-1.4,-1.0) {};
+    \node[treenode] (r1-#1)   at (1.4,-1.0) {};
+    \node[treenode] (ll1-#1)  at (-2.1,-2.0) {};
+    \node[treenode] (ll2-#1)  at (-0.7,-2.0) {};
+    \node[treenode] (rr1-#1)  at (0.7,-2.0) {};
+    \node[treenode] (rr2-#1)  at (2.1,-2.0) {};
+
+    \node[treenodew] (lll1-#1) at (-2.6,-3.2) {};
+    \node[treenodew] (lll2-#1) at (-1.7,-3.2) {};
+    \node[treenodew] (ll21-#1) at (-1.0,-3.2) {};
+    \node[treenodew] (ll22-#1) at (-0.3,-3.2) {};
+    \node[treenodew] (rr11-#1) at (0.3,-3.2) {};
+    \node[treenodew] (rr12-#1) at (1.0,-3.2) {};
+    \node[treenodew] (rr21-#1) at (1.7,-3.2) {};
+    \node[treenodew] (rr22-#1) at (2.6,-3.2) {};
+
+    \draw[line] (root-#1) -- (l1-#1);   \draw[line] (root-#1) -- (r1-#1);
+    \draw[line] (l1-#1) -- (ll1-#1);    \draw[line] (l1-#1) -- (ll2-#1);
+    \draw[line] (r1-#1) -- (rr1-#1);    \draw[line] (r1-#1) -- (rr2-#1);
+    \draw[line] (ll1-#1) -- (lll1-#1);  \draw[line] (ll1-#1) -- (lll2-#1);
+    \draw[line] (ll2-#1) -- (ll21-#1);  \draw[line] (ll2-#1) -- (ll22-#1);
+    \draw[line] (rr1-#1) -- (rr11-#1);  \draw[line] (rr1-#1) -- (rr12-#1);
+    \draw[line] (rr2-#1) -- (rr21-#1);  \draw[line] (rr2-#1) -- (rr22-#1);
+  \end{scope}
+
+  \draw[ar] (ds#1.south) -- (root-#1.north);
+
+  \node[box, minimum width=5.2cm, mainfont]
+    (t#1lbl) at (#2,#3-5.3) {Decision\\Tree #1};
+  \draw[line] (#2,#3-3.4) -- (t#1lbl.north);
+}
+
+\begin{tikzpicture}[
+    >=Stealth,
+    font=\bfseries\fontsize{24}{26.5}\selectfont\sffamily,
+    mainfont/.style={font=\bfseries\fontsize{24}{26.5}\selectfont\sffamily},
+    titlefont/.style={font=\bfseries\fontsize{27}{29.5}\selectfont\sffamily},
+    notefont/.style={font=\itshape\fontsize{19}{21}\selectfont\sffamily},
+    ar/.style={-{Stealth[length=5.5mm,width=4.0mm]}, line width=1.2mm, draw=black},
+    treeflow/.style={-{Stealth[length=5.5mm,width=4.0mm]}, line width=1.2mm,
+        draw=black, shorten <=3pt, shorten >=3pt},
+    line/.style={line width=1.2mm, draw=black},
+    prism/.style args={#1}{
+        rectangle, draw=#1!65!black, line width=0.5mm,
+        fill=#1!42!white, align=center, minimum height=2.4cm, inner sep=18pt,
+        append after command={
+            \pgfextra{
+                \begin{pgfonlayer}{background}
+                \filldraw[fill=#1!27!white, draw=#1!65!black, line width=0.5mm]
+                    (\tikzlastnode.north west) --
+                    ([xshift=12pt,yshift=12pt]\tikzlastnode.north west) --
+                    ([xshift=12pt,yshift=12pt]\tikzlastnode.north east) --
+                    (\tikzlastnode.north east) -- cycle;
+                \filldraw[fill=#1!55!white, draw=#1!65!black, line width=0.5mm]
+                    (\tikzlastnode.north east) --
+                    ([xshift=12pt,yshift=12pt]\tikzlastnode.north east) --
+                    ([xshift=12pt,yshift=12pt]\tikzlastnode.south east) --
+                    (\tikzlastnode.south east) -- cycle;
+                \end{pgfonlayer}
+            }
+        }
+    },
+    box/.style={prism=cexp},
+    graybox/.style={prism=cin},
+    outbox/.style={prism=cgate},
+    finalbox/.style={prism=cout},
+    predbox/.style={rectangle, rounded corners=3mm, draw=black,
+        line width=1.0mm, fill=white, minimum width=5.8cm,
+        minimum height=1.8cm, align=center, mainfont},
+    treenode/.style={circle, draw=black, line width=0.9mm,
+        fill=cexp, fill opacity=0.85, minimum size=22pt, inner sep=0pt},
+    treenodew/.style={circle, draw=black, line width=0.9mm,
+        fill=cin, fill opacity=0.65, minimum size=22pt, inner sep=0pt},
+    lbl/.style={notefont}
+]
+
+\node[graybox, minimum width=7.0cm, mainfont]
+    (input) at (0,2.5) {Training Data};
+
+\def\dsY{-2.8}
+\node[graybox, minimum width=6.2cm, inner xsep=10pt, mainfont,
+      font=\bfseries\fontsize{20}{22.5}\selectfont\sffamily] (ds1) at (-16.0,\dsY)
+    {BOOTSTRAP\\SAMPLE 1};
+\node[graybox, minimum width=6.2cm, inner xsep=10pt, mainfont,
+      font=\bfseries\fontsize{20}{22.5}\selectfont\sffamily] (ds2) at (-5.3,\dsY)
+    {BOOTSTRAP\\SAMPLE 2};
+\node[graybox, minimum width=6.2cm, inner xsep=10pt, mainfont,
+      font=\bfseries\fontsize{20}{22.5}\selectfont\sffamily] (dsd) at (5.3,\dsY)
+    {$\boldsymbol{\cdots}$};
+\node[graybox, minimum width=6.2cm, inner xsep=10pt, mainfont,
+      font=\bfseries\fontsize{20}{22.5}\selectfont\sffamily] (dsN) at (16.0,\dsY)
+    {BOOTSTRAP\\SAMPLE $N$};
+
+\coordinate (sampleRail) at (0,0.0);
+\draw[line] (input.south) -- (sampleRail);
+\draw[line] (ds1.north |- sampleRail) -- (dsN.north |- sampleRail);
+\foreach \sample in {ds1,ds2,dsd,dsN}{
+    \draw[ar] (\sample.north |- sampleRail) -- (\sample.north);
+}
+
+\node[lbl, align=center, fill=white, inner sep=10pt, draw=black,
+      line width=0.5mm, rounded corners=2mm] at (0,-5.5)
+    {Independent trees use a random subset of features at each split};
+
+\def\treeY{-7.0}
+\rfdrawtree{1}{-16.0}{\treeY}
+\rfdrawtree{2}{-5.3}{\treeY}
+\node[titlefont, scale=1.6] at (5.3,\treeY-1.6) {$\cdots$};
+\rfdrawtree{N}{16.0}{\treeY}
+\node[titlefont, scale=1.6, text=black!55] at (5.3,\treeY-5.3) {$\cdots$};
+
+\node[predbox] (pred1) at (-16.0,-14.8) {Prediction 1};
+\node[predbox] (pred2) at (-5.3,-14.8) {Prediction 2};
+\node[predbox] (predN) at (16.0,-14.8) {Prediction $N$};
+\node[titlefont, scale=1.6, text=black!55] at (5.3,-14.8) {$\cdots$};
+
+\draw[treeflow] (t1lbl.south) -- (pred1.north);
+\draw[treeflow] (t2lbl.south) -- (pred2.north);
+\draw[treeflow] (tNlbl.south) -- (predN.north);
+
+\node[prism=cgate, minimum width=11.0cm, minimum height=2.6cm,
+      mainfont]
+    (vote) at (0,-18.8) {Combine Predictions};
+
+\coordinate (predictionRail) at (0,-16.5);
+\draw[line] (pred1.south) -- (pred1.south |- predictionRail);
+\draw[line] (pred2.south) -- (pred2.south |- predictionRail);
+\draw[line] (predN.south) -- (predN.south |- predictionRail);
+\draw[line]
+    (pred1.south |- predictionRail) -- (predN.south |- predictionRail);
+\draw[ar] (predictionRail) -- (vote.north);
+
+\node[outbox, minimum width=12.0cm, minimum height=2.8cm,
+      mainfont]
+    (agg) at (0,-22.5) {Majority Vote\\or Probability Average};
+\draw[ar] (vote.south) -- (agg.north);
+
+\node[finalbox, minimum width=10.5cm, minimum height=2.8cm,
+      mainfont]
+    (out) at (0,-26.3) {Final Prediction\\Resistant / Susceptible};
+\draw[ar] (agg.south) -- (out.north);
+
+\end{tikzpicture}

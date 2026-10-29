@@ -1,0 +1,37 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "trilens-amr"
+version = "1.0.0"
+description = "Genomic antimicrobial resistance prediction in E. coli under lineage and cohort shift"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [
+    { name = "Faiaz Abrar Zaman Pronoy" },
+    { name = "Pranto Roy" },
+    { name = "Sinthia Khandoker" },
+    { name = "Shantanu Barua" },
+    { name = "Md. Jahirul Islam Zishan" },
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["trilens*", "pipeline*"]
+
+[tool.setuptools.package-data]
+trilens = ["data/reference/*.csv"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+
+extend-exclude = ["kaggle/notebooks"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I"]

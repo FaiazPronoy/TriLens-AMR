@@ -1,0 +1,9 @@
+drug,pd_name,R,S,I,ND,tested
+AMP,ampicillin,3835,4204,18,1587,9644
+CIP,ciprofloxacin,1482,6473,158,762,8892
+AMC,amoxicillin-clavulanic acid,888,5640,436,2019,8983
+SXT,trimethoprim-sulfamethoxazole,1440,5928,1,1563,8932
+GEN,gentamicin,1226,6399,107,2087,9819
+CTX,cefotaxime,733,291,21,9,1054
+CAZ,ceftazidime,972,2617,108,2097,5795
+CRO,ceftriaxone,1510,5568,11,25,7114

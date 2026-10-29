@@ -1,0 +1,29 @@
+import shutil
+import subprocess
+from pathlib import Path
+
+import pytest
+
+ROOT = Path(__file__).resolve().parents[1]
+NEEDED = [
+    "results/data_inventory/genome_ids.csv",
+    "results/data_inventory/strain_table.csv",
+    "results/data_inventory/labels16.csv",
+    "results/data_inventory/covariates.csv",
+    "results/data_inventory/pd_amr_joined.tsv.gz",
+    "results/data_inventory/pd_amr_joined.json",
+    "results/data_inventory/ncbi_ast_ecoli.tsv.gz",
+    "results/data_inventory/eucast_v16_1_enterobacterales.csv",
+    "results/fold_splits/st_grouped_5fold.json",
+    "results/fold_splits/random_5fold.json",
+    "results/splits/country_uk_to_norway.json",
+    "results/splits/country_norway_to_uk.json",
+    "results/splits/time_norway_2013.json",
+]
+
+
+@pytest.mark.skipif(shutil.which("git") is None or not (ROOT.parent / ".git").exists(), reason="not a git checkout")
+def test_notebook_inputs_are_tracked():
+    tracked = set(subprocess.run(["git", "ls-files"], cwd=ROOT, capture_output=True, text=True).stdout.split())
+    missing = [f for f in NEEDED if f not in tracked]
+    assert not missing, f"not committed (check .gitignore): {missing}"

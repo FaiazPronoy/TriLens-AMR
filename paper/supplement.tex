@@ -1,0 +1,427 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=2.4cm]{geometry}
+\usepackage[T1]{fontenc}
+\IfFileExists{lmodern.sty}{\usepackage{lmodern}}{}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs,tabularx}
+\usepackage{graphicx,xcolor}
+\usepackage[numbers,sort&compress]{natbib}
+\usepackage[hidelinks]{hyperref}
+\usepackage{caption}
+\captionsetup{font=small,labelfont=bf}
+\newcommand{\todo}[1]{\textcolor{red}{[TODO: #1]}}
+\newcommand{\figbox}[4]{%
+  \fbox{\parbox[c][#2][c]{0.94\linewidth}{\centering\small
+  \textbf{#1}\\[4pt]\begin{minipage}{0.86\linewidth}\raggedright #3\\[3pt]
+  \textit{Data:} \texttt{#4}\end{minipage}}}}
+\newcommand{\Ecoli}{\textit{E.~coli}}
+\newcommand{\nap}{nAP}
+\renewcommand{\thesection}{S\arabic{section}}
+\renewcommand{\thetable}{S\arabic{table}}
+\renewcommand{\thefigure}{S\arabic{figure}}
+\renewcommand{\theequation}{S\arabic{equation}}
+
+\title{Supplementary Data\\[2pt]
+\large Genomic antimicrobial resistance prediction under lineage and cohort shift}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Supplementary Methods: the TriLens architecture}
+
+This section gives the full specification summarised in the main text. Each component produces a
+raw score $z$, converted to a probability by the logistic sigmoid
+\begin{equation}
+\sigma(z) = \frac{1}{1 + \exp(-z)}.
+\label{eq:sigmoid}
+\end{equation}
+
+\subsection{Arrays passed to the model}
+Preprocessing produces six arrays over the 6,962 strains: SNP blocks by gene
+($6{,}962 \times 5{,}000 \times 64$, mutation patterns inside genes); gene presence/absence
+($6{,}962 \times 32{,}441$, genes acquired from elsewhere); per-gene statistics
+($6{,}962 \times 5{,}000 \times 4$, coarse gene-level variation); a phylogroup one-hot
+($6{,}962 \times 8$); the label matrix ($6{,}962 \times 7$); and its mask
+($6{,}962 \times 7$). The collection is wide and short --- more features than strains even after
+reduction --- and patchy, with coverage from 49\% to 87\% and prevalence from 0.12 to 0.50 by drug,
+which is why no averaged score over the panel is reported without the per-drug values beside it.
+
+\subsection{Gated attention}
+All three branches face the same problem: a strain carries thousands of genes, few matter for any
+one drug, and which ones matter changes with the drug. Each therefore pools with the gated attention
+of Ilse et al.\ \cite{ilse2018attention}, an attention variant \cite{vaswani2017attention} for bags
+in which few items are informative. Each element $h$ receives a relevance score
+\begin{equation}
+e = w^\top \big(\tanh(V h) \odot \sigma(U h)\big),
+\label{eq:gated_attn}
+\end{equation}
+with $U$, $V$ and $w$ learned and $\odot$ the elementwise product. The two branches serve different
+purposes: $\tanh$ proposes how valuable the element looks, in $[-1, 1]$, and $\sigma$ gates how much
+of that proposal passes, in $[0, 1]$, so an element that looks informative can still be suppressed
+--- which ordinary attention cannot do. Scores are normalised by a softmax and the pooled summary is
+the weighted sum of elements.
+
+\subsection{Branch A: the motif encoder}
+Branch A reads the SNP blocks, of shape $(G, L)$ with $G = 5{,}000$ genes and $L = 64$ positions.
+It looks for short local motifs of mutations inside a gene, on the reasoning that one mutation is
+usually silent while two or three close together are more likely to alter the protein. Two stacked
+convolutions run inside each gene,
+\begin{equation}
+h_g = \mathrm{ReLU}\!\left(\mathrm{Conv1d}_{16 \to 32}\big(\mathrm{ReLU}(\mathrm{Conv1d}_{1 \to 16}(x_g))\big)\right),
+\label{eq:branchA}
+\end{equation}
+with windows of width three and dropout between layers, so the first layer learns 16 simple patterns
+and the second 32 compound ones. Masked max-pooling then reduces each gene to a fixed-length vector
+by keeping, per learned pattern, the strongest response anywhere in that gene, with padding
+positions excluded. The per-gene vectors are pooled across genes by \eqref{eq:gated_attn} to give
+$z_A \in \mathbb{R}^{64}$ and per-drug scores $\ell_A \in \mathbb{R}^{7}$.
+
+Confining convolution to gene blocks follows a measured result rather than an argument. A plain
+one-dimensional convolutional network over the whole pan-genome variant sequence,
+\begin{equation}
+h^{(l)} = \mathrm{MaxPool}\!\left(\mathrm{ReLU}\!\left(\mathrm{BN}\!\left(\mathrm{Conv1d}_l\!\left(h^{(l-1)}\right)\right)\right)\right),
+\label{eq:naive_cnn}
+\end{equation}
+with four layers of widths 9, 7, 5, 3 and channel sizes 64, 96, 128, 128, the last reduced by global
+average pooling and a linear readout, scored 0.775 average precision for ciprofloxacin on the
+training collection and 0.632 after the variant order was shuffled, a drop of 0.143; on the Giessen
+collection, whose variants are ordered along a single reference, the drop was 0.180. Pan-genome
+column order is therefore not meaningless, but it is also not the biological locality a convolution
+assumes, and within a gene sequence order is real. Branch A convolves only there.
+
+\subsection{Branch B: the gene attention module}
+Branch B reads the presence/absence profile, a binary vector over 32,441 loci, to catch resistance
+conferred by an arriving gene rather than a mutation. Each locus has a learned embedding, allowed to
+act only if the strain carries it,
+\begin{equation}
+\tilde{e}_k = x_k \, E_k, \qquad k = 1, \dots, G_{\mathrm{pa}},
+\label{eq:branchB_embed}
+\end{equation}
+where $E_k \in \mathbb{R}^{d_{\mathrm{token}}}$ is the embedding of locus $k$ and
+$x_k \in \{0, 1\}$ its presence. Absent loci contribute the zero vector, and their attention scores
+are additionally set to $-\infty$ before the softmax, which drives their weight to exactly zero and
+reaches the same conclusion twice.
+
+\paragraph{Why \eqref{eq:gated_attn} cannot be applied directly.} Gated attention scores each item
+from its own representation. For any locus the strain carries, that representation is
+$\tilde{e}_k = E_k$ --- the same vector in every strain --- so the score is strain-independent, the
+softmax merely renormalises over whichever loci the strain happens to carry, and the branch
+collapses to a global ranking of loci by presence. It cannot express that a locus matters for a
+particular isolate, which is the whole point of attending here. The other two branches do not have
+this defect, because their inputs already vary by strain. This is the only place in the design where
+we alter the mechanism rather than the data it reads.
+
+\paragraph{Strain conditioning.} We condition the score on the mean embedding of the loci the strain
+actually carries,
+\begin{equation}
+c = \frac{1}{\max(n_b, 1)} \sum_{k=1}^{G_{\mathrm{pa}}} \tilde{e}_k,
+\qquad n_b = \sum_k x_k,
+\label{eq:branchB_ctx}
+\end{equation}
+so that each locus is scored in the company it keeps,
+\begin{equation}
+s_k = w^\top\Big(\tanh\big(V \tilde{e}_k + V_c\, c\big) \odot
+\sigma\big(U \tilde{e}_k + U_c\, c\big)\Big),
+\label{eq:branchB_score}
+\end{equation}
+with $V_c$ and $U_c$ added projections. A sum of two projections equals one projection on the
+concatenation $[\tilde{e}_k;\, c]$, but broadcasting $c$ avoids realising a tensor of size
+$B \times 32{,}441 \times 2 d_{\mathrm{token}}$, which at this number of loci is the difference
+between affordable and not; the extra cost is two
+$d_{\mathrm{token}} \times d_{\mathrm{attn}}$ matrices. The attention sum over 32,441 loci is
+accumulated in single precision, because at half precision the round-off is large enough to disrupt
+training. The attended embeddings are pooled and projected,
+\begin{equation}
+z_B^{\mathrm{pre}} = \sum_{k=1}^{G_{\mathrm{pa}}} a_k\, \tilde{e}_k,
+\qquad
+z_B = \mathrm{GELU}\!\left(W_B\, z_B^{\mathrm{pre}} + b_B\right) \in \mathbb{R}^{64},
+\label{eq:branchB_out}
+\end{equation}
+with $\ell_B \in \mathbb{R}^{7}$ read off $z_B$ by seven independent linear heads. The main text
+ablates \eqref{eq:branchB_ctx}--\eqref{eq:branchB_score} and reports the result as a trade rather
+than an improvement.
+
+A dense layer over 32,441 inputs would need tens of thousands of weights per unit against about
+5,000 training strains and would overfit immediately; attention keeps the parameter count fixed as
+the number of loci grows, since the same small scoring function is applied to each locus, and its
+weights are readable, which is what the interpretability analysis in the main text reads.
+
+\subsection{Branch C: the cross-antibiotic module}
+Branch C reads the per-gene statistics, of shape $(G, 4)$, and exploits relations between the drugs
+rather than extracting a new kind of genomic signal. Two drugs of one class are often resisted by
+one mechanism, so evidence from a well-represented drug can help a poorly represented one; with
+seven independent models, gentamicin, which has few resistant strains, has little to learn from.
+
+Our own data support that reasoning only in part (Figure~\ref{fig:coresistance}). The two
+cephalosporins are by far the most strongly associated pair, at $\phi = 0.84$, and nothing else
+approaches it --- which is the shared-mechanism account exactly. Below that pair, class membership
+stops predicting association: ampicillin pairs with trimethoprim--sulfamethoxazole at 0.55, across
+two unrelated classes, as strongly as with amoxicillin--clavulanic acid at 0.54 within its own, and
+ciprofloxacin, which has no same-class partner, sits at 0.51 and 0.52 with the two cephalosporins.
+Resistance genes on one plasmid or integron travel together whether or not they target the same
+drug, and this collection shows both patterns at once. The values are also not a ranking: some pairs
+are measured on 235 strains (AMC and SXT) and others on 6,030 (CIP and GEN).
+
+That shapes the design. A module exchanging information only within classes would catch the
+cephalosporin link and no cross-class link, so the class-specific heads are followed by a refinement
+step free to learn relations the hierarchy does not contain. Each gene's four statistics pass
+through a small per-gene perceptron, gated attention pools across genes to
+$z_C \in \mathbb{R}^{64}$, and the pooled representation splits into one projection per drug class
+(penicillins AMP and AMC; cephalosporins CTX and CAZ; fluoroquinolone CIP; aminoglycoside GEN;
+folate-pathway inhibitor SXT),
+\begin{equation}
+t = \mathrm{GELU}(W_t z_C + b_t), \qquad
+u_g = \mathrm{GELU}(W_g t + b_g),
+\label{eq:branchC_trunk}
+\end{equation}
+with $t \in \mathbb{R}^{32}$ shared across all seven drugs and $u_g \in \mathbb{R}^{16}$ specific to
+class $g$. Each drug reads an initial score from its own class projection,
+\begin{equation}
+\ell^{\mathrm{init}}_{C,a} = w_a^\top u_{g(a)} + b_a,
+\label{eq:branchC_logit}
+\end{equation}
+and a co-resistance refinement lets one drug's prediction modulate a related one's,
+\begin{equation}
+r = \mathrm{MLP}\!\left(\left[z_C \, ; \, \ell^{\mathrm{init}}_{C}\right]\right),
+\qquad
+\ell_C = \ell^{\mathrm{init}}_{C} + \alpha\, r,
+\label{eq:branchC_cores}
+\end{equation}
+with $\alpha$ a learned scalar initialised at 0.1, so the model ignores the step until the data
+support it and no spurious drug-to-drug relation is baked in at the start. The shared trunk is what
+multi-task learning is for; the per-class branches limit how far a misleading pattern in the trunk
+can propagate.
+
+\begin{figure}[t]\centering
+\figbox{Figure S1. Co-resistance}{6cm}{Pairwise co-resistance ($\phi$) between the seven
+antibiotics, each cell computed on the strains labelled for both drugs, with $n$ shown in the cell.
+Lines separate drug classes. The two cephalosporins reach 0.84; cross-class pairs reach
+0.55.}{results/data\_inventory/strain\_table.csv}
+\caption{\textbf{Co-resistance is only partly explained by drug class.} \todo{caption}}
+\label{fig:coresistance}
+\end{figure}
+
+\subsection{The mixture-of-experts gate}
+Averaging the three branches would assume they are equally useful, and they are not: where
+resistance comes from an acquired gene, branch B should dominate and branch A has almost nothing to
+read, and the reverse holds for a point mutation in a target enzyme. A fixed average drowns the
+stronger opinion in two weaker ones. The gate \cite{jacobs1991moe,shazeer2017moe} therefore learns
+the weights, per strain and per drug. The three summaries are concatenated into
+$z = [z_A; z_B; z_C] \in \mathbb{R}^{192}$ and passed through a small network and a softmax,
+\begin{equation}
+g = \mathrm{softmax}\big(\mathrm{MLP}([z_A; z_B; z_C])\big), \qquad g \in \mathbb{R}^{B \times 7 \times 3},
+\label{eq:moe_gate}
+\end{equation}
+so that for each drug the three weights are non-negative and sum to one, and the fused score is
+\begin{equation}
+\ell^{\mathrm{fin}}_{a} = \sum_{e=1}^{3} g_{a,e}\,\ell_{e,a},
+\qquad
+p^{\mathrm{neu}}_{a} = \sigma\!\left(\ell^{\mathrm{fin}}_{a}\right).
+\label{eq:fusion}
+\end{equation}
+
+Such a gate has a characteristic failure mode. Early in training one branch is slightly ahead by
+chance; the gate shifts weight to it; the larger gradient makes it learn faster; after a few epochs
+the other two have stopped training and the model has silently become a single-branch network. We
+measure the gate's spread for each drug by its Shannon entropy,
+\begin{equation}
+H(g_a) = -\sum_{e=1}^{3} g_{a,e} \log g_{a,e},
+\label{eq:gate_entropy}
+\end{equation}
+largest when the three weights are equal and smallest when the gate has collapsed, and add to the
+loss
+\begin{equation}
+\mathcal{L}_{\mathrm{ent}}
+  = -\frac{\lambda_{\mathrm{ent}}}{7} \sum_{a=1}^{7} H(g_a),
+\label{eq:entropy_reg}
+\end{equation}
+with $\lambda_{\mathrm{ent}} = 0.01$, which is minimised by a gate that spreads its weight while
+leaving it free to favour one branch where the evidence supports it. We track the mean weight of
+each branch during training and raise $\lambda_{\mathrm{ent}}$ automatically if any branch falls
+below a threshold. Each branch also carries an auxiliary loss on its own scores, without which a
+branch the gate currently ignores receives almost no gradient and stops improving. The objective is
+therefore binary cross-entropy on the fused scores, plus \eqref{eq:entropy_reg}, plus the auxiliary
+terms, computed over observed labels only.
+
+\subsection{The stacking meta-learner}
+The decision is made by a per-drug logistic regression over the neural probability and the five
+classical out-of-fold probabilities, which is stacked generalisation in Wolpert's sense
+\cite{wolpert1992stacked}. For drug $a$,
+\begin{equation}
+\phi_a = \left[\,p^{\mathrm{neu}}_a,\; p^{(1)}_a,\; \dots,\; p^{(5)}_a\,\right],
+\qquad
+\eta_a = w_a^\top \phi_a + b_a,
+\qquad
+\hat{p}_a = \sigma(\eta_a),
+\label{eq:meta}
+\end{equation}
+with an $L_2$ penalty and $C = 1$, and the call is $\hat{y}_a = \mathbf{1}[\hat{p}_a > 0.5]$. One
+meta-learner per drug is deliberate: the drugs rely on different base learners, and a shared
+meta-learner would force one trade-off on all seven. Unlike a fixed average, the weights are
+learned, which is the difference between averaging six opinions and weighting six opinions by their
+track records.
+
+A neural meta-learner was also tested: a small feed-forward layer producing one token per drug, a
+four-head self-attention layer letting the seven tokens exchange information, and a separate
+decoding head per drug. It was aimed at exactly the co-resistance structure a per-drug linear model
+cannot represent, and it scored lower --- 0.825 against 0.850 average precision on the random split.
+The input dimension is not the problem; folding the neural embedding into the meta-features widens
+the vector to 170 dimensions, but only about 5,000 strains sit behind it, and an attention layer
+with seven decoding heads fits noise at that size. The linear meta-learner is also directly
+readable, which the deeper one is not.
+
+\section{Supplementary Methods: the presence/absence matrix repair}
+
+The release stores the 32,441 pan-genome loci as a PLINK file whose two allele letters are not
+documented. The first matrix built from it took the first allele of each locus as presence, which in
+practice recorded the minor allele: the average strain carried 3,709 loci (median 3,331, range
+0--8,333), and no locus rose above a prevalence of 0.504, which is impossible for a matrix that
+contains a core genome. Inverting the whole matrix does not fix this either, because the allele order
+differs between loci (2/1 at 21,853 loci, 1/2 at 7,664, and a single letter at the remaining 2,924).
+
+We therefore resolved the letter for presence against an external reference. On the 3,643 loci that
+the ECOR reference collection marks as core, letter 2 gives a median prevalence of 1.0 and letter 1
+gives 0.0, so letter 2 means present. Rebuilding in that orientation flipped 10,511 loci and left
+21,930 unchanged, with no locus inconsistent; 2,924 loci are monomorphic, and no cell is missing or
+heterozygous. Three checks support the result: the core genes \textit{gyrA}, \textit{parC},
+\textit{rpoB} and \textit{recA} reach prevalence 1.0; locus prevalence correlates with ECOR reference
+frequencies at $\rho = 0.689$; and of the 3,643 expected core loci, 0.1\% fall below 50\% prevalence.
+After the rebuild the average strain carries 11,846 loci (median 11,802, range 9,569--18,620). The
+catalogue holds 18,494 coding and 13,947 intergenic loci, so this count is higher than the gene
+content of one genome. The core-gene check is now run automatically on every matrix build, because the wrong
+reading raises no error: the model trains normally on the wrong matrix, and since this view carries
+most of the gate's weight, everything downstream would be affected without any visible sign.
+
+Of the 6,962 strains, 6,949 appear in the PLINK sample list. The remaining 13 (0.19\%) are carried
+as all-zero vectors, which conflates a missing record with an empty accessory genome; the correct
+handling is to extend the label mask to this view for those rows. At 0.19\% of the collection,
+distributed across partitions in proportion, the effect is below the resolution of the intervals
+reported, so we record the defect rather than publishing a corrected set of results.
+
+A separate repair concerns the SNP matrix. A contiguous block of 95 columns (indices
+169,213--169,307, spanning two genes) held 90,436 cells outside the valid range 0--3; 117,598 cells
+across 48 columns were rewritten, all inside that block, after which the matrix range is 0--3.
+
+\section{Supplementary Methods: variant filtering and gene selection}
+
+Table~\ref{tab:variants} records the variant-level filtering. We read 2,451,184 variants, matching
+the figure the authoring group reports, which confirmed the file was being read correctly before
+anything was built on it. The frequency filter alone removed 76\%, most of them present in two or
+three strains; a pattern seen in so few strains cannot be expected to hold in a new one.
+
+\begin{table}[t]\centering\small
+\caption{Variant filtering during construction of the SNP matrix.}
+\label{tab:variants}
+\begin{tabular}{lr}
+\toprule
+Stage & Variants \\
+\midrule
+Streamed from the variant file & 2,451,184 \\
+Removed: insertion or deletion & 43,799 \\
+Removed: minor allele frequency below 1\% & 1,871,946 \\
+\midrule
+Kept & 535,439 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Gene-level reduction was a modelling necessity rather than an optimisation: 535,439 features over
+6,962 strains is about 77 candidate features per strain. Because the model reads the genome at the
+gene level, reduction is at the gene level too. The variability filter keeps genes with at least
+five SNPs in the training partition of the split being fitted (18,975 $\rightarrow$ 13,799 on the
+random split), since fewer variable positions cannot support a within-gene pattern. The importance
+filter then ranks genes by summed gradient-boosting gain over the seven per-drug models, each
+trained on that drug's top 50,000 $\chi^2$-filtered SNPs, and keeps the top 5,000. Both filters are
+refitted from scratch for each split; had test labels been visible during ranking, they would have
+changed which features exist and every score would have been optimistic by an unknown amount.
+
+The retained 5,000 genes carry 262,225 SNPs, 49.0\% of the filtered variants and 10.7\% of those
+originally streamed. Gene sizes vary widely --- smallest 5 SNPs, median 32, mean 52, largest 717 ---
+which fixed the block length at 64: about 28\% of selected genes are truncated and the rest padded
+and masked, with an average of 35 real positions per block. A longer block would waste memory on
+most genes and a shorter one would cut the median gene.
+
+\section{Supplementary Results}
+
+\subsection{Threshold tuning on the internal splits}
+Table~\ref{tab:thresholds} gives the per-drug thresholds fitted on the validation partition and
+their effect on the random-split test partition. Neither objective rescues the clinical numbers:
+maximising $F_2$ lowers the mean very major error rate from 0.241 to 0.133 while raising the mean
+major error rate from 0.055 to 0.141, and constraining the major error rate to the 3\% benchmark
+pushes the very major error rate to 0.308. No drug meets both limits at any threshold tested.
+
+\begin{table}[t]\centering\small
+\caption{Per-drug thresholds fitted on validation and applied to the random-split test partition.
+VME, very major error; ME, major error.}
+\label{tab:thresholds}
+\begin{tabular}{lrrrrrrrr}
+\toprule
+ & \multicolumn{2}{c}{At 0.5} & \multicolumn{3}{c}{Maximising $F_2$} & \multicolumn{3}{c}{ME capped at 3\%} \\
+Drug & VME & ME & thr. & VME & ME & thr. & VME & ME \\
+\midrule
+AMP & 0.107 & 0.099 & 0.16 & 0.044 & 0.255 & 0.88 & 0.363 & 0.022 \\
+CIP & 0.071 & 0.015 & 0.13 & 0.045 & 0.029 & 0.10 & 0.045 & 0.035 \\
+AMC & 0.394 & 0.105 & 0.12 & 0.080 & 0.418 & 0.77 & 0.669 & 0.033 \\
+SXT & 0.218 & 0.086 & 0.37 & 0.182 & 0.114 & 0.77 & 0.412 & 0.028 \\
+GEN & 0.415 & 0.023 & 0.22 & 0.319 & 0.049 & 0.21 & 0.319 & 0.051 \\
+CTX & 0.190 & 0.026 & 0.11 & 0.095 & 0.050 & 0.18 & 0.124 & 0.041 \\
+CAZ & 0.291 & 0.034 & 0.10 & 0.164 & 0.075 & 0.30 & 0.227 & 0.047 \\
+\midrule
+Mean & 0.241 & 0.055 & --- & 0.133 & 0.141 & --- & 0.308 & 0.037 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Near-duplicate removal on the random split}
+Removing the 47 test strains within 0.5\% SNP divergence of a training strain changed the mean
+average precision from 0.850 to 0.846 ($-0.005$). Per drug: AMP $-0.000$, CIP $-0.002$,
+AMC $+0.008$, SXT $+0.000$, GEN $-0.003$, CTX $-0.012$, CAZ $-0.023$. The effect is small and not
+directional. On the lineage holdout no test strain was flagged, so the deduplicated and raw holdout
+numbers are identical.
+
+\subsection{Split integrity checks}
+All three splits are disjoint and complete over the 6,962 strains. On the lineage holdout, 240
+training and 103 test sequence types share none; validation and test share none; and all 475 strains
+without a sequence type are outside the test partition. For each split, the saved predictions of
+every run reported in the main text were verified to carry that split's exact training, validation
+and test indices in the same order, and the neural and classical arms were verified to cover the
+same strains in the same order before stacking. No test genome is identical to a training genome on
+the filtered SNPs in any split.
+
+\subsection{Phylogroup composition}
+B2 accounts for 3,542 strains (50.9\%), unassigned 1,697 (24.4\%), D 723 (10.4\%), A 317 (4.6\%),
+F 307 (4.4\%), B1 258 (3.7\%), C 114 (1.6\%) and E 4 (0.06\%). Three properties limit what can be
+read from any phylogroup analysis: B2 alone is over half the collection, so a phylogroup split is
+largely B2 against the rest; nearly a quarter of strains have no assignment, so the unassigned group
+is not a group; and phylogroup E has four members, too few for any per-group estimate. On the
+phylogroup-stratified split, a 70/15/15 allocation places at most one E strain in the test
+partition, so that group is present by construction and carries no evidential weight.
+
+\subsection{Per-drug results for the pre-registered experiments}
+The per-drug tables for every pre-registered experiment are in the code repository, next to the
+document that fixed each test before its data were read.
+
+\begin{table}[h]\centering\small
+\begin{tabular}{lll}
+\toprule
+Experiment & Pre-registration document & Per-drug results \\
+\midrule
+W6 & \texttt{docs/preregistration/w06\_determinant\_rescue.md} & \texttt{results/determinant\_rescue/} \\
+W7 & \texttt{docs/preregistration/w07\_assembly\_size\_within\_lineage.md} & \texttt{results/diagnostics/} \\
+W8 & \texttt{docs/preregistration/w08\_external\_cohort.md} & \texttt{results/external\_cohort/} \\
+W9 & \texttt{docs/preregistration/w09\_seed\_stability.md} & \texttt{results/seed\_stability/} \\
+W10 & \texttt{docs/preregistration/w10\_coverage\_and\_rule.md} & \texttt{results/coverage\_and\_rule/} \\
+W11 & \texttt{docs/preregistration/w11\_external\_robustness.md} & \texttt{results/external\_robustness/} \\
+W12 & \texttt{docs/preregistration/w12\_assembly\_size\_mechanism.md} & \texttt{results/assembly\_size\_mechanism/} \\
+W13 & \texttt{docs/preregistration/w13\_second\_species\_and\_mic.md} & \texttt{results/campylobacter/}, \texttt{results/mic\_harmonisation/} \\
+W14 & \texttt{docs/preregistration/w14\_linear\_model\_and\_clinical\_errors.md} & \texttt{results/linear\_model\_and\_clinical\_errors/} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\bibliographystyle{unsrtnat}
+\bibliography{refs}
+
+\end{document}

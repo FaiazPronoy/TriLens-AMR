@@ -1,0 +1,310 @@
+\RequirePackage{fix-cm}
+\PassOptionsToPackage{table}{xcolor}
+\documentclass[12pt,oneside,openany]{report}
+
+\usepackage[a4paper,width=150mm,top=25mm,bottom=25mm]{geometry}
+\usepackage[english]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{csquotes}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsfonts}
+\usepackage{graphicx}
+\usepackage[table]{xcolor}
+\usepackage{pdflscape}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{array}
+\usepackage{longtable}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{adjustbox}
+\usepackage{float}
+\usepackage{placeins}
+\usepackage{standalone}
+\usepackage{tikz}
+\usepackage{pgffor}
+\usepackage[nottoc]{tocbibind}
+\usepackage[normalem]{ulem}
+\usepackage{chngcntr}
+\usepackage{nomencl}
+\usepackage{hyperref}
+
+\pagestyle{plain}
+\graphicspath{{images/}}
+\counterwithout{equation}{chapter}
+\setlength{\parindent}{0em}
+\setcounter{secnumdepth}{3}
+\setcounter{tocdepth}{3}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=black,
+    filecolor=magenta,
+    urlcolor=black,
+    citecolor=black,
+}
+\urlstyle{same}
+
+\renewcommand{\nompreamble}{The following list describes the symbols and abbreviations used in this research.}
+\makenomenclature
+\providecommand*{\nomlabel}[1]{#1\hfil}
+\renewcommand*{\nomlabel}[1]{\textbf{#1}\hfil}
+\setlength{\nomitemsep}{0pt}
+
+\newcommand{\fignote}[1]{%
+  \par\vspace{0.35em}%
+  \noindent\parbox{\textwidth}{\footnotesize\textit{Note:} #1}\par}
+
+\renewcommand{\arraystretch}{1.1}
+\setlength{\tabcolsep}{5pt}
+\setlength{\heavyrulewidth}{0.9pt}
+\setlength{\lightrulewidth}{0.5pt}
+\setlength{\aboverulesep}{2pt}
+\setlength{\belowrulesep}{2pt}
+
+\definecolor{tblhead}{gray}{0.88}
+\definecolor{tblalt}{gray}{0.965}
+\newcommand{\headrow}{\rowcolor{tblhead}}
+\newcommand{\na}{\textcolor{black}{N/A}}
+
+\renewcommand{\topfraction}{0.72}
+\renewcommand{\bottomfraction}{0.40}
+\renewcommand{\textfraction}{0.25}
+\renewcommand{\floatpagefraction}{0.70}
+\setcounter{topnumber}{1}
+\setcounter{bottomnumber}{1}
+\setcounter{totalnumber}{2}
+
+\usetikzlibrary{arrows.meta,calc,positioning,fit,backgrounds,decorations.pathreplacing}
+
+\makeatletter
+\AddToHook{env/longtable/begin}{%
+  \let\@expl@@@mark@update@singlecol@structures@@\relax
+}
+\makeatother
+
+\definecolor{primary}{HTML}{1F6F8B}
+\definecolor{accent}{HTML}{D1601A}
+\definecolor{support1}{HTML}{4A9D7C}
+\definecolor{support2}{HTML}{C9A227}
+\definecolor{neutralc}{HTML}{7F8C8D}
+\definecolor{ink}{HTML}{1A1A1A}
+\definecolor{surfaceA}{HTML}{EAF2F5}
+\definecolor{surfaceB}{HTML}{FBEEE4}
+\definecolor{surfaceC}{HTML}{EDF5F1}
+\definecolor{rulegrey}{HTML}{C8CFD3}
+
+\definecolor{navy}{HTML}{14495B}
+\definecolor{blueedge}{HTML}{1F6F8B}
+\definecolor{bluefill}{HTML}{EAF2F5}
+\definecolor{greenedge}{HTML}{4A9D7C}
+\definecolor{greenfill}{HTML}{EDF5F1}
+\definecolor{orangeedge}{HTML}{C9A227}
+\definecolor{orangefill}{HTML}{FAF3DC}
+\definecolor{rededge}{HTML}{D1601A}
+\definecolor{redfill}{HTML}{FBEEE4}
+\definecolor{purpleedge}{HTML}{7F8C8D}
+\definecolor{purplefill}{HTML}{EFF1F1}
+\definecolor{tealedge}{HTML}{4A9D7C}
+\definecolor{grayfill}{HTML}{F2F4F4}
+
+\definecolor{cin}{HTML}{BFD9E2}
+\definecolor{cexp}{HTML}{C4E0D4}
+\definecolor{cpool}{HTML}{F0CDB2}
+\definecolor{cattn}{HTML}{EDE0B4}
+\definecolor{cgate}{HTML}{E8C98A}
+\definecolor{cmeta}{HTML}{A8C4CD}
+\definecolor{cout}{HTML}{9FC0B2}
+
+\tikzset{
+  every node/.style={font=\sffamily},
+  >={Stealth[length=5mm,width=4mm]},
+  line/.style={draw=black!90,line width=2.2pt},
+  arrow/.style={->,draw=black!90,line width=3.4pt},
+  orangeArrow/.style={->,draw=orangeedge,line width=3.4pt},
+  redArrow/.style={->,draw=rededge,line width=3.4pt},
+  greenArrow/.style={->,draw=greenedge,line width=3.4pt},
+  dashedPanel/.style={rounded corners=2.2mm,dashed,line width=.8pt,inner sep=0pt},
+  panelTitle/.style={font=\bfseries\large},
+  card/.style={rounded corners=1mm,draw=#1,line width=.62pt,fill=white,align=center},
+}
+
+\newcommand{\PNBlock}[7]{%
+  \node[draw=#6,fill=#5,rounded corners=.45mm,line width=.70pt,
+    minimum width=#3,minimum height=#4,align=center,font=\small] (#1) at #2 {#7};
+  \coordinate (#1-topback) at ([xshift=2.2mm,yshift=2.2mm]#1.north east);
+  \coordinate (#1-rightback) at ([xshift=2.2mm,yshift=2.2mm]#1.south east);
+  \coordinate (#1-leftback) at ([xshift=2.2mm,yshift=2.2mm]#1.north west);
+  \draw[draw=#6,fill=#5!78,line width=.58pt] (#1.north east)--(#1-topback)--(#1-rightback)--(#1.south east)--cycle;
+  \draw[draw=#6,fill=#5!65,line width=.58pt] (#1.north west)--(#1-leftback)--(#1-topback)--(#1.north east)--cycle;
+}
+\newcommand{\PNCaption}[2]{\node[font=\footnotesize,anchor=north] at ([yshift=-1.7mm]#1.south) {#2};}
+\newcommand{\DNA}[2]{\begin{scope}[shift={#1},scale=#2]
+  \draw[blueedge,line width=1.15pt] (0,0) .. controls (.93,.55) and (.93,1.65) .. (0,2.20);
+  \draw[orangeedge,line width=1.15pt] (.84,0) .. controls (-.09,.55) and (-.09,1.65) .. (.84,2.20);
+  \foreach \yy in {.20,.52,.84,1.16,1.48,1.80}{\draw[navy,line width=.48pt] (.08,\yy)--(.76,{\yy+.14});}\end{scope}}
+\newcommand{\Bacteria}[2]{\begin{scope}[shift={#1},scale=#2]
+  \fill[purpleedge!25] (0,0) ellipse (0.54 and 0.28);\draw[purpleedge,line width=.85pt] (0,0) ellipse (0.54 and 0.28);
+  \foreach \a in {15,55,...,335}{\draw[purpleedge,line width=.45pt] (0,0)--++(\a:.43);}
+  \foreach \x/\y in {-.24/.08,-.05/-.06,.18/.09,.29/-.08}{\fill[purpleedge] (\x,\y) circle (.035);}\end{scope}}
+\newcommand{\Broom}[2]{\begin{scope}[shift={#1},scale=#2]
+  \draw[greenedge,line width=1.3pt] (.45,.08)--(1.05,1.48);\fill[greenedge] (.08,0)--(.72,0)--(.55,.38)--(.22,.38)--cycle;
+  \draw[greenedge,line width=.45pt] (.16,.06)--(.62,.06);\end{scope}}
+\newcommand{\Bars}[2]{\begin{scope}[shift={#1},scale=#2]
+  \draw[navy,line width=.65pt] (0,0)--(0,1.03)--(1.25,1.03);\fill[navy] (.17,0) rectangle (.38,.35);
+  \fill[navy] (.52,0) rectangle (.73,.78);\fill[navy] (.88,0) rectangle (1.09,.56);\end{scope}}
+\newcommand{\Funnel}[2]{\begin{scope}[shift={#1},scale=#2]
+  \fill[navy] (0,1.15)--(1.35,1.15)--(.82,.58)--(.82,0)--(.52,.15)--(.52,.58)--cycle;\end{scope}}
+\newcommand{\GradCap}[2]{\begin{scope}[shift={#1},scale=#2]
+  \fill[navy] (0,.65)--(.75,1.02)--(1.50,.65)--(.75,.30)--cycle;
+  \draw[navy,line width=.6pt] (.27,.56)--(.27,.20) .. controls (.68,.02) and (.98,.02) .. (1.24,.20)--(1.24,.56);
+  \draw[navy,line width=.55pt] (1.50,.65)--(1.73,.36);\fill[navy] (1.73,.34) circle (.065);\end{scope}}
+\newcommand{\Clipboard}[2]{\begin{scope}[shift={#1},scale=#2]
+  \draw[navy,line width=.7pt,rounded corners=.25mm] (0,0) rectangle (.90,1.14);
+  \draw[navy,line width=.55pt,rounded corners=.18mm] (.26,1.14) rectangle (.64,1.30);
+  \draw[navy,line width=.70pt] (.16,.75)--(.34,.56)--(.69,.92);\draw[navy,line width=.38pt] (.18,.26)--(.70,.26);\end{scope}}
+\newcommand{\Target}[2]{\begin{scope}[shift={#1},scale=#2]
+  \draw[greenedge,line width=1.0pt] (0,0) circle (.50);\draw[greenedge,line width=1.0pt] (0,0) circle (.29);
+  \draw[->,greenedge,line width=1.25pt] (-.42,-.28)--(.40,.40);\end{scope}}
+\newcommand{\SearchIcon}[2]{\begin{scope}[shift={#1},scale=#2]
+  \draw[purpleedge,line width=.9pt] (0,0) circle (.45);\fill[purpleedge] (-.22,-.12) rectangle (-.08,.15);
+  \fill[purpleedge] (0,-.12) rectangle (.14,.36);\fill[purpleedge] (.22,-.12) rectangle (.36,.08);
+  \draw[purpleedge,line width=1pt] (.32,-.32)--(.72,-.72);\draw[purpleedge,line width=1pt] (.65,-.65) circle (.10);\end{scope}}
+\newcommand{\blk}[6]{%
+ \pgfmathsetmacro{\ox}{0.30*#5}\pgfmathsetmacro{\oy}{0.30*#5}
+ \fill[#6,fill opacity=0.45] (#1,#2-#4/2) rectangle (#1+#3,#2+#4/2);
+ \fill[#6!60!black,fill opacity=0.45] (#1,#2+#4/2)--(#1+\ox,#2+#4/2+\oy)--(#1+#3+\ox,#2+#4/2+\oy)--(#1+#3,#2+#4/2)--cycle;
+ \fill[#6!80!black,fill opacity=0.45] (#1+#3,#2+#4/2)--(#1+#3+\ox,#2+#4/2+\oy)--(#1+#3+\ox,#2-#4/2+\oy)--(#1+#3,#2-#4/2)--cycle;
+ \draw[line width=0.32mm] (#1,#2-#4/2) rectangle (#1+#3,#2+#4/2);
+ \draw[line width=0.32mm] (#1,#2+#4/2)--(#1+\ox,#2+#4/2+\oy)--(#1+#3+\ox,#2+#4/2+\oy)--(#1+#3,#2+#4/2);
+ \draw[line width=0.32mm] (#1+#3+\ox,#2+#4/2+\oy)--(#1+#3+\ox,#2-#4/2+\oy)--(#1+#3,#2-#4/2);}
+
+\widowpenalty=10000
+\clubpenalty=10000
+\displaywidowpenalty=10000
+\brokenpenalty=10000
+
+\usepackage[backend=biber,style=ieee,sorting=ynt]{biblatex}
+\addbibresource{bibliography/references.bib}
+
+\let\cleardoublepage=\clearpage
+
+\begin{document}
+\raggedbottom
+
+\thispagestyle{empty}
+\input{core/titlepage}
+\cleardoublepage
+
+\pagenumbering{roman}
+
+\phantomsection
+\addcontentsline{toc}{chapter}{Declaration}
+\input{core/declaration}
+
+\phantomsection
+\addcontentsline{toc}{chapter}{Approval}
+\input{core/approval}
+
+\phantomsection
+\addcontentsline{toc}{chapter}{Abstract}
+\input{core/abstract}
+
+\cleardoublepage
+\phantomsection
+\begingroup
+\input{core/acknowledgement}
+\endgroup
+
+\renewcommand{\contentsname}{Table of Contents}
+\cleardoublepage
+\phantomsection
+\addcontentsline{toc}{chapter}{Table of Contents}
+\tableofcontents
+
+\begingroup
+\sloppy
+\listoffigures
+\endgroup
+
+\listoftables
+
+\clearpage
+\phantomsection
+\addcontentsline{toc}{chapter}{Nomenclature}
+\begingroup
+\makeatletter
+\def\@makeschapterhead#1{%
+  \vspace*{5\p@}%
+  {\parindent \z@ \raggedright \normalfont
+   \interlinepenalty\@M
+   \Huge \bfseries #1\par\nobreak
+   \vskip 25\p@}}
+\makeatother
+\printnomenclature
+\endgroup
+\cleardoublepage
+
+\nomenclature{AMR}{Antimicrobial Resistance}
+\nomenclature{SNP}{Single Nucleotide Polymorphism}
+\nomenclature{AMP}{Ampicillin (penicillin)}
+\nomenclature{AMC}{Amoxicillin with clavulanic acid (penicillin)}
+\nomenclature{CIP}{Ciprofloxacin (fluoroquinolone)}
+\nomenclature{CTX}{Cefotaxime (cephalosporin)}
+\nomenclature{CAZ}{Ceftazidime (cephalosporin)}
+\nomenclature{GEN}{Gentamicin (aminoglycoside)}
+\nomenclature{SXT}{Trimethoprim with sulfamethoxazole (folate pathway inhibitor)}
+\nomenclature{MoE}{Mixture-of-Experts}
+\nomenclature{PR-AUC}{Area Under the Precision-Recall Curve}
+\nomenclature{ROC-AUC}{Area Under the Receiver Operating Characteristic Curve}
+\nomenclature{MCC}{Matthews Correlation Coefficient}
+\nomenclature{F1}{F1 Score (harmonic mean of precision and recall)}
+\nomenclature{F2}{F2 Score (recall-weighted harmonic mean of precision and recall)}
+\nomenclature{VME}{Very Major Error (a resistant isolate called susceptible)}
+\nomenclature{ME}{Major Error (a susceptible isolate called resistant)}
+\nomenclature{CA}{Categorical Agreement}
+\nomenclature{CLSI}{Clinical and Laboratory Standards Institute}
+\nomenclature{EUCAST}{European Committee on Antimicrobial Susceptibility Testing}
+\nomenclature{XGBoost}{Extreme Gradient Boosting}
+\nomenclature{LightGBM}{Light Gradient Boosting Machine}
+\nomenclature{SHAP}{SHapley Additive exPlanations}
+\nomenclature{OOF}{Out-Of-Fold (predictions)}
+\nomenclature{MLST}{Multi-Locus Sequence Typing}
+\nomenclature{ST}{Sequence Type}
+\nomenclature{WGS}{Whole Genome Sequencing}
+\nomenclature{CNN}{Convolutional Neural Network}
+\nomenclature{CI}{Confidence Interval}
+\nomenclature{GPU}{Graphics Processing Unit}
+
+\pagenumbering{arabic}
+\setlength{\parskip}{1em}
+\hbadness=10000
+\hfuzz=3pt
+
+\chapter{Introduction}
+\label{ch:intro}
+\input{chapters/chapter_1.tex}
+
+\chapter{Literature Review}
+\label{ch:lit}
+\input{chapters/chapter_2.tex}
+
+\chapter{Requirements, Impacts and Constraints}
+\label{ch:req}
+\input{chapters/chapter_3.tex}
+
+\chapter{Proposed Methodology}
+\label{ch:method}
+\input{chapters/chapter_4.tex}
+
+\input{chapters/chapter_5.tex}
+
+\input{chapters/chapter_6.tex}
+
+\clearpage
+\phantomsection
+\addcontentsline{toc}{chapter}{Bibliography}
+\printbibliography
+
+\end{document}

@@ -1,0 +1,20 @@
+{
+ "clindamycin_23s_in_rule": "yes",
+ "isolates": 4426,
+ "model_minus_rule": -0.0055662532455509894,
+ "ci": [
+  -0.01745098511632771,
+  0.00416922476554616
+ ],
+ "pass_rule": "delta >= 0.05 and ci_low > 0",
+ "primary_pass": false,
+ "model_minus_rule_three_classes": -0.0066,
+ "length_within_cluster_concordance": 0.5947,
+ "w12_pass_rule": "length mean >= 0.55",
+ "w12_pass": true,
+ "mean_nap": {
+  "meta": 0.1156,
+  "model": 0.9219,
+  "rule": 0.9275
+ }
+}

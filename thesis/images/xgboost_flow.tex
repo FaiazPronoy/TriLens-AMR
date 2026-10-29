@@ -1,0 +1,125 @@
+\begin{tikzpicture}[
+  font=\sffamily,
+  >={Stealth[length=2.4mm]},
+  flow/.style={->,draw=black!70,line width=1.05pt},
+  title/.style={font=\bfseries\small,align=center},
+  label/.style={font=\scriptsize,align=center,text=black!80},
+  panel/.style={rounded corners=2.5pt,line width=.9pt,align=center,
+                minimum height=36mm,inner sep=4pt,fill opacity=.45},
+  tree/.style={circle,draw=xgbgreen,fill=xgbgreenlight,line width=.8pt,
+               minimum size=10mm,inner sep=0pt},
+  split/.style={circle,draw=xgbdark,fill=xgbgreen,minimum size=2.2mm,
+                inner sep=0pt},
+  leaf/.style={circle,draw=xgbdark,fill=white,minimum size=1.7mm,
+               inner sep=0pt}
+]
+
+\definecolor{xgbblue}{RGB}{33,102,220}
+\definecolor{xgbbluelight}{RGB}{223,235,253}
+\definecolor{xgborange}{RGB}{235,139,27}
+\definecolor{xgborangelight}{RGB}{255,239,215}
+\definecolor{xgbgreen}{RGB}{31,168,102}
+\definecolor{xgbgreenlight}{RGB}{218,244,231}
+\definecolor{xgbdark}{RGB}{20,110,66}
+\definecolor{xgbpurple}{RGB}{128,65,180}
+\definecolor{xgbpurplelight}{RGB}{239,226,249}
+\definecolor{xgbred}{RGB}{211,55,55}
+
+\node[panel,draw=xgbblue,fill=xgbbluelight,minimum width=38mm] (data) {};
+\node[title,text=xgbblue!70!black,anchor=north] at ([yshift=-2mm]data.north)
+  {Training data};
+\begin{scope}[shift={([xshift=-5mm,yshift=7mm]data.center)}]
+  \foreach \r in {0,...,4}{
+    \foreach \c in {0,...,3}{
+      \pgfmathtruncatemacro{\on}{mod(2*\r+\c,3)==0 ? 1 : 0}
+      \ifnum\on=1
+        \fill[xgbblue] (\c*2.5mm,-\r*2.2mm) rectangle ++(2.5mm,-2.2mm);
+      \else
+        \fill[white] (\c*2.5mm,-\r*2.2mm) rectangle ++(2.5mm,-2.2mm);
+      \fi
+    }
+  }
+  \draw[xgbblue,line width=.35pt] (0,0) grid[xstep=2.5mm,ystep=2.2mm] (10mm,-11mm);
+\end{scope}
+\node[label,anchor=south] at ([yshift=1mm]data.south)
+  {6,962 strains\\$X$: 5,000 genes $\times$ 4 stats\\$y$: R/S label};
+
+\node[panel,draw=xgborange,fill=xgborangelight,minimum width=42mm,
+      right=8mm of data] (cv) {};
+\node[title,text=xgborange!70!black,anchor=north] at ([yshift=-2mm]cv.north)
+  {5-fold CV};
+\begin{scope}[shift={([xshift=-10mm,yshift=7mm]cv.center)}]
+  \foreach \r in {0,...,4}{
+    \foreach \c in {0,...,4}{
+      \ifnum\r=\c
+        \fill[xgborange] (\c*4mm,-\r*2.5mm) rectangle ++(4mm,-2mm);
+      \else
+        \fill[xgbgreen!45] (\c*4mm,-\r*2.5mm) rectangle ++(4mm,-2mm);
+      \fi
+      \draw[white,line width=.25pt] (\c*4mm,-\r*2.5mm) rectangle ++(4mm,-2mm);
+    }
+  }
+\end{scope}
+\node[label,anchor=south] at ([yshift=1mm]cv.south)
+  {train on 4 folds; predict 1\\\texttt{scale\_pos\_weight}\\$=N_-/N_+$};
+
+\node[panel,draw=xgbgreen,fill=xgbgreenlight,minimum width=76mm,
+      right=8mm of cv] (boost) {};
+\node[title,text=xgbdark,anchor=north] at ([yshift=-2mm]boost.north)
+  {Gradient boosting: 1500 trees};
+
+\node[tree] (t1) at ([xshift=-23mm,yshift=1mm]boost.center) {};
+\node[tree] (t2) at ([xshift=-6mm,yshift=1mm]boost.center) {};
+\node[font=\small] at ([xshift=9mm,yshift=1mm]boost.center) {$\cdots$};
+\node[tree] (tn) at ([xshift=23mm,yshift=1mm]boost.center) {};
+\foreach \t in {t1,t2,tn}{
+  \node[split] (\t-r) at ([yshift=2.1mm]\t.center) {};
+  \node[leaf] (\t-l) at ([xshift=-2.3mm,yshift=-2.2mm]\t.center) {};
+  \node[leaf] (\t-q) at ([xshift=2.3mm,yshift=-2.2mm]\t.center) {};
+  \draw[xgbdark,line width=.45pt] (\t-r)--(\t-l) (\t-r)--(\t-q);
+}
+\node[label,below=.7mm of t1] {tree 1};
+\node[label,below=.7mm of t2] {tree 2};
+\node[label,below=.7mm of tn] {tree 1500};
+\node[font=\small,text=xgbdark] at ($(t1)!0.5!(t2)$) {$+$};
+\node[font=\small,text=xgbdark] at ($(t2)!0.5!(tn)+(1mm,0)$) {$+$};
+\node[label,anchor=south] at ([yshift=1.5mm]boost.south)
+  {residual correction; each tree adds $\eta f_t(x)$, $\eta=0.05$};
+
+\node[circle,fill=black!75,text=white,minimum size=10mm,font=\large,
+      below=15mm of boost] (sum) {$\sum$};
+\node[label,anchor=west] at ([xshift=2mm]sum.east)
+  {$F(x)=\sum_t\eta f_t(x)$};
+
+\node[panel,draw=xgbpurple,fill=xgbpurplelight,minimum width=40mm,
+      minimum height=28mm,left=10mm of sum] (sig) {};
+\node[title,text=xgbpurple,anchor=north] at ([yshift=-2mm]sig.north) {Sigmoid};
+\node[font=\small] at ([yshift=-.1cm]sig.center)
+  {$\displaystyle \sigma(F)=\frac{1}{1+e^{-F}}$};
+\node[label,anchor=south] at ([yshift=-0.02cm]sig.south)
+  {convert score\\to probability};
+
+\begin{scope}[shift={([xshift=-60mm,yshift=-2.5mm]sig.west)}]
+  \node[font=\normalsize\bfseries,align=center,text=xgbpurple!80!black]
+    at (20mm,10.5mm)
+    {Out-of-fold resistance probability};
+  \shade[left color=xgbgreen,right color=xgbred]
+    (0,0) rectangle (40mm,4mm);
+  \draw[black!55,line width=.7pt] (0,0) rectangle (40mm,4mm);
+  \draw[black!85,line width=1.3pt] (20mm,-1.8mm)--(20mm,6.2mm);
+  \node[font=\small,align=center] at (20mm,-4.5mm) {threshold 0.5};
+  \node[font=\small,anchor=east] at (-1.5mm,2mm) {0 (S)};
+  \node[font=\small,anchor=west] at (41.5mm,2mm) {1 (R)};
+  \fill[black] (30mm,2mm) circle (3pt);
+  \node[font=\normalsize\bfseries,anchor=south] at (30mm,4mm) {$P=0.71$};
+  \coordinate (prob-south-east) at (40mm,0);
+  \coordinate (prob-route) at (46mm,-7mm);
+\end{scope}
+
+\draw[flow] (data.east)--(cv.west);
+\draw[flow] (cv.east)--(boost.west);
+\draw[flow] (boost.south)--(sum.north);
+\draw[flow] (sum.west)--(sig.east);
+\draw[flow] (sig.west)--++(-5mm,0) |- (prob-route) -| (prob-south-east);
+
+\end{tikzpicture}

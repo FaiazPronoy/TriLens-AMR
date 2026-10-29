@@ -1,0 +1,14 @@
+name: gene_selection
+description: Rank genes by gradient-boosting gain and keep the 5,000 most informative ones.
+filtering: {min_snps_per_gene: 5, xgb_top_k_per_ab: 1500, final_gene_cap: 5000}
+prefilter: {top_k: 50000, min_variance: 1.0e-06}
+xgb_params: {n_estimators: 500, max_depth: 4, learning_rate: 0.1, subsample: 0.8, colsample_bytree: 1.0, colsample_bynode: 0.5,
+  min_child_weight: 1, tree_method: hist, device: cuda, early_stopping_rounds: 30, eval_metric: aucpr}
+antibiotics: [AMP, CIP, AMC, SXT, GEN, CTX, CAZ]
+memory: {use_sparse: false, chunk_size: 50000}
+output_dir: ${paths.results_dir}/gene_selection
+output_pkl: ${paths.processed_dir}/arcadia_v2_gene_filtered.pkl
+evaluation: {bootstrap_n: 100, bootstrap_seed: 42}
+wandb:
+  project: amr-phylogene-mtl
+  tags: [gene_selection]

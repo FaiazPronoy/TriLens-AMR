@@ -1,0 +1,118 @@
+data:
+  name: arcadia
+  paths:
+    master_pkl: ${paths.processed_dir}/arcadia_v2_master_features.pkl
+    snp_matrix_pkl: ${paths.processed_dir}/arcadia_v2_snp_matrix.pkl
+  col_names:
+    X_train: X_pca_train
+    X_val: X_pca_val
+    X_test: X_pca_test
+    'Y': 'Y'
+    label_mask: label_mask
+    label_names: label_names
+    random_split: random_split
+    phylogeny_split: phylogeny_split
+    phylogroup: phylogroup_onehot
+    genome_names: genome_names
+  antibiotics:
+  - AMP
+  - CIP
+  - AMC
+  - SXT
+  - GEN
+  - CTX
+  - CAZ
+  common_with_giessen:
+  - CIP
+  - CTX
+  - GEN
+  - CAZ
+  n_samples: 6962
+  n_pca_features: 1024
+  n_snp_features: 535439
+  n_phylogroups: 8
+  split: random
+  vocab_size: 5
+  padding_idx: 4
+  arcadia:
+    split_type: random
+trainer:
+  _target_: lightning.pytorch.Trainer
+  accelerator: gpu
+  devices: 1
+  precision: 16-mixed
+  max_epochs: 50
+  min_epochs: 5
+  deterministic: true
+  benchmark: false
+  log_every_n_steps: 10
+  enable_progress_bar: true
+  enable_model_summary: true
+  check_val_every_n_epoch: 1
+  num_sanity_val_steps: 2
+  gradient_clip_val: 1.0
+  accumulate_grad_batches: 1
+model:
+  name: plain_cnn
+  type: cnn
+  vocab_size: 5
+  padding_idx: 4
+  embed_dim: 32
+  dropout: 0.4
+experiment:
+  model:
+    name: plain_cnn
+    type: cnn
+    vocab_size: 5
+    padding_idx: 4
+    embed_dim: 32
+    dropout: 0.4
+  name: position_shuffle_test
+  description: A plain convolutional network on the variant sequence, before and after the column order is shuffled.
+  antibiotics:
+  - CIP
+  datasets:
+  - arcadia
+  - giessen
+  shuffle_seed: 42
+  output_dir: ${paths.results_dir}/position_shuffle_test/runs
+  training:
+    max_epochs: 30
+    min_epochs: 5
+    early_stop_patience: 8
+    early_stop_metric: val/pr_auc
+    early_stop_mode: max
+    batch_size_arcadia: 16
+    batch_size_giessen: 32
+    num_workers: 4
+    learning_rate: 0.001
+    weight_decay: 0.0001
+    gradient_clip: 1.0
+    precision: 16-mixed
+    scheduler_t_max: 30
+  evaluation:
+    bootstrap_n: 1000
+    bootstrap_seed: 42
+  wandb:
+    project: amr-phylogene-mtl
+    tags:
+    - position_shuffle_test
+    - shuffle
+    - shuffling
+seed: 42
+project_root: ${oc.env:TRILENS_ROOT,.}
+paths:
+  data_dir: ${project_root}/data
+  processed_dir: ${project_root}/data/processed
+  results_dir: ${project_root}/results
+  checkpoints_dir: ${project_root}/checkpoints
+  logs_dir: ${project_root}/logs
+  arcadia_master_pkl: ${project_root}/data/processed/arcadia_v2_master_features.pkl
+  arcadia_snp_matrix_pkl: ${project_root}/data/processed/arcadia_v2_snp_matrix.pkl
+  giessen_data_csv: ${project_root}/data/Giessen_dataset/cip_ctx_ctz_gen_multi_data.csv
+  giessen_pheno_csv: ${project_root}/data/Giessen_dataset/cip_ctx_ctz_gen_pheno.csv
+wandb:
+  project: amr-phylogene-mtl
+  entity: null
+  mode: ${oc.env:WANDB_MODE,offline}
+  log_model: false

@@ -1,0 +1,6 @@
+name: tabnet_phylogroup
+gene_stats: [mean, var, n_nonref, max]
+split_key: phylogeny_split
+tabnet: {n_d: 16, n_a: 16, n_steps: 4, gamma: 1.3, lambda_sparse: 0.001, seed: 42}
+training: {max_epochs: 150, patience: 20, batch_size: 256, virtual_batch_size: 128}
+output_dir: ${paths.results_dir}/tabnet_phylogroup

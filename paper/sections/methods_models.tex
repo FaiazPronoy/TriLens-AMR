@@ -1,0 +1,210 @@
+\subsection*{The TriLens stack}
+The model named in this paper's analyses, TriLens, reads the three genomic views through three
+branches and joins them with five classical learners. Its full specification, including every
+equation, is in Supplementary Methods; the design rationale and the parts that matter for reading
+the results are summarised here.
+
+The motivation is that a resistance mechanism takes more than one genomic form. A point mutation in
+a target enzyme is invisible to a presence/absence profile, because the gene is present in
+resistant and susceptible strains alike; an acquired plasmid gene is invisible to a mutation-based
+view, because it is not a mutation but an arrival. Rather than choose, the model reads all three
+views and learns per drug how much each is worth.
+
+\textbf{Three branches.} A \emph{motif encoder} reads the SNP blocks with two stacked
+one-dimensional convolutions (width 3, 16 then 32 channels) inside each gene, masked max-pooling
+over positions, and gated attention \cite{ilse2018attention} over genes. Convolution is confined to
+gene blocks for a measured reason: a plain convolutional network over the whole pan-genome variant
+sequence scored 0.775 average precision for ciprofloxacin and 0.632 after the variant order was
+shuffled on the same data, so pan-genome position is not meaningless, but within a gene sequence
+order is biologically real and that is where the motif encoder works. A \emph{gene attention
+module} reads the presence/absence profile, assigns each locus a learned embedding gated by its
+presence, and pools with gated attention. A \emph{cross-antibiotic module} reads the per-gene
+statistics, pools them, splits the pooled representation into one projection per drug class, and
+adds a co-resistance refinement term initialised near zero. Each branch emits a 64-dimensional
+summary and seven per-drug scores.
+
+\textbf{Strain conditioning.} On a presence/absence vector, standard gated attention is degenerate:
+the scored item for any locus the strain carries is that locus's embedding, identical across
+strains, so the score is strain-independent and the softmax merely renormalises over whichever loci
+the strain happens to have. The lens then collapses to a global gene ranking and cannot express
+that a locus matters for a particular isolate. We condition the score on the mean embedding of the
+loci the strain actually carries, which restores per-sample behaviour at the cost of two projection
+matrices, and ablate the term in the Results. The attention sum over 32,441 loci is accumulated in
+single precision; at half precision the round-off disrupts training.
+
+\textbf{Gate.} The three summaries are concatenated and passed through a small network and a softmax
+to give, for each strain and each drug, three weights that sum to one; the fused score is the
+weighted sum of the branch scores. A Shannon-entropy term on the gate, with an auxiliary loss on
+each branch, is included because without them the gate concentrates on whichever branch is
+momentarily ahead and the other two stop receiving gradient.
+
+\textbf{Classical arm and meta-learner.} Five base learners run on the gene features: XGBoost on
+gene-aggregated features, XGBoost on a $\chi^2$-prefiltered raw SNP matrix, LightGBM
+\cite{ke2017lightgbm}, random forest \cite{breiman2001rf} and logistic regression. They were chosen
+to fail differently, which is what a stacking ensemble exploits: two boosting implementations that
+grow trees differently, a low-variance averaged forest, a linear model that cannot invent
+interactions, and one learner reading single variants rather than gene summaries. Each is trained
+in five-fold cross-validation and contributes out-of-fold predictions, so no base prediction is
+made by a model that saw the strain. An $L_2$-penalised logistic regression per drug ($C = 1$)
+combines the neural probability with the five classical ones \cite{wolpert1992stacked}, and a fixed
+threshold of 0.5 turns the result into a call. All seven drugs are predicted in one pass.
+
+A neural meta-learner (one token per drug, four-head self-attention, per-drug decoding heads) was
+also tested and scored lower (0.825 against 0.850 average precision on the random split) on about
+5,000 training rows, so the linear meta-learner is used and its weights are readable.
+
+Class imbalance is handled by weighting resistant and susceptible samples inversely to frequency
+(\texttt{scale\_pos\_weight} in the boosting learners, balanced class weights in the others,
+positive class weighting in the neural loss). The neural branches, gate and fusion are trained
+jointly with AdamW, learning rate $10^{-3}$ on a cosine schedule, weight decay $10^{-4}$, batch
+size 16, gradient clipping at norm 1.0, up to 50 epochs with early stopping after 8 epochs without
+improvement in validation mean average precision. Table~\ref{tab:hyper} lists the settings.
+
+\subsection*{The simpler models compared against it}
+\textbf{Gradient boosting on determinant calls.} XGBoost \cite{chen2016xgboost} with fixed settings
+(400 trees, depth 6, learning rate 0.05, subsample 0.8, column subsample 0.5), no tuning, one model
+per drug. ``Acquired-only'' uses the acquired-gene columns; ``all calls'' adds point mutations.
+
+\textbf{Sparse linear model.} $L_1$-penalised logistic regression (scikit-learn
+\cite{pedregosa2011sklearn}, liblinear, $C = 1$) on the same binary features, with no tuning.
+
+\textbf{Determinant rule.} A strain is called resistant if it carries a determinant from a fixed
+per-drug list (Table~\ref{tab:rule}), written from known mechanisms before any rule score was
+computed. It needs no training.
+
+\textbf{Assembly arm.} Histogram gradient boosting on assembly length, contig count and N50 only.
+
+\textbf{External baselines.} TabNet \cite{arik2021tabnet} on the same gene-aggregated features; an
+XGBoost model on 1,024 principal components; and a null model using only the eight-way phylogroup
+label.
+
+\subsection*{Evaluation splits}
+Three splits partition the training collection, at 70/15/15 with a fixed seed (42), and the test
+partition is untouched until final evaluation.
+
+The \emph{random split} (4,872/1,045/1,045) stratifies on the ampicillin label. It is the setting
+most published work uses, and related strains fall on both sides.
+
+The \emph{phylogroup-stratified split} (same sizes) balances the eight-way phylogroup across
+partitions. We include it to make a distinction explicit: every phylogroup appears on both sides,
+so it does not test an unseen lineage, only the effect of the stratification variable. We built it
+before recognising that it could not answer our question.
+
+The \emph{sequence-type lineage holdout} (4,836/1,081/1,045) assigns whole sequence types. Types
+were taken from the metadata's sequence-type field, joined on the sequencing accession carried by
+both tables rather than on row position, since joining by row would silently mislabel every
+strain's lineage. A type was called for 6,487 strains (93.2\%) across 458 types. Two rules were
+fixed before any result was seen: a strain without a type goes to training, as an unlabelled group
+cannot be held out safely; and any type holding over 5\% of the collection goes to training, so
+that no test set is dominated by one clone. Four types met the second rule (ST73, with 884 strains
+or nearly one in eight, ST131, ST95, ST69). The remaining 454 types were allocated whole by a
+seeded permutation walk. No sequence type appears in more than one partition, verified rather than
+assumed, and no strain without a type is in the test partition. Because whole groups move together,
+the partition sizes are not round. The gene selection is refitted on each split's training
+partition; the holdout's gene set overlaps the random split's by less than half.
+
+Two further consequences of taking the types as given: the scheme resolves clones but not clonal
+complexes, so two single-locus variants can still be separated across partitions and the holdout is
+a lower bound on lineage novelty; and any upstream typing error propagates undetected.
+
+For the pre-registered experiments we also used ST-grouped five-fold cross-validation (each type
+whole in one fold), random five-fold cross-validation, two country splits (United
+Kingdom $\rightarrow$ Norway and the reverse) and a temporal split within Norway (training before
+2013, test from 2013).
+
+\subsection*{The external Giessen collection}
+A second, independent \Ecoli{} collection from the University of Giessen \cite{ren2022giessen}
+provides a cross-collection comparison of the method rather than of a model: Giessen variants are
+ordered along a single reference genome while the training collection uses a pan-genome, the two
+feature spaces do not overlap, so no model can be carried across. We use the 809 isolates with
+complete results for the four shared drugs, described by 60,936 SNP positions, split 647/81/81
+stratified on ciprofloxacin. Giessen phenotypes are interpreted against EUCAST breakpoints and the
+training phenotypes against a different standard, and breakpoints differ for the same drug, so
+label definition and model behaviour cannot be separated in this comparison; prevalence is also two
+to three times higher for every shared drug (Table~\ref{tab:cohorts}).
+
+\subsection*{Metrics and uncertainty}
+The primary metric for the three internal splits is the area under the precision--recall curve
+(average precision), which does not reward majority-class prediction; we also report the Matthews
+correlation coefficient, $F_1$, $F_2$ (weighting recall four times precision) and accuracy, each
+per drug, at the fixed 0.5 threshold.
+
+Because test prevalence differs between splits, drugs and cohorts, the pre-registered experiments
+report prevalence-normalised average precision, $\mathrm{nAP} = (\mathrm{AP} - \pi)/(1 - \pi)$,
+where $\pi$ is the test prevalence: 0 is the score of a random ranking and 1 a perfect one.
+Within-lineage discrimination is the mean, over sequence types containing both phenotypes, of the
+AUROC inside each type; a score that is constant within a type gets exactly 0.5.
+
+Intervals on the three internal splits are 95\% percentile bootstrap intervals over the test set
+(1,000 resamples). In the pre-registered experiments they are 95\% paired bootstrap intervals
+(2,000 replicates) resampling whole clusters: sequence types internally, BioProjects externally,
+SNP clusters in \textit{Campylobacter}. A test-set bootstrap covers which strains fall in the test
+partition and not training variability; the seed-stability experiment addresses the latter directly
+for the stack's holdout margin, and differences of a few thousandths elsewhere are reported as
+directions rather than effects.
+
+\subsection*{Near-duplicate audit}
+Bacterial collections contain near-identical strains, and a copy on each side of a split would let
+a model score by recognition. We computed the Hamming distance from each test strain to its nearest
+training strain. On the random split the closest pair differed at 0.26\% of SNP positions and 47 of
+1,045 test strains lay within 0.5\% of a training strain; on the lineage holdout none did. The
+0.5\% cut is a working threshold, corresponding to roughly 2,700 differing positions on the
+535,439-position matrix, an order of magnitude below the typical separation of two strains of the
+same sequence type here. We report the score with those strains removed rather than resting on the
+cut. No test genome is identical to a training genome on the filtered SNPs in any of the three
+splits.
+
+\subsection*{External cohort}
+The NCBI Pathogen Detection \Ecoli{}/\textit{Shigella} isolate table (PDG000000004.6395) was
+filtered to isolates with submitted susceptibility results, called with AMRFinderPlus 4.2.7, and
+not matching any of our strains by run, BioSample or assembly accession. The primary cohort uses
+the same database version as training (10,232 isolates in 62 BioProjects); all 4.2.7 isolates
+(10,876) form a sensitivity analysis. Models were trained once on all called training strains and
+applied unchanged, with external genes absent from training dropped. CTX was tested on only 1,054
+external isolates, 70\% resistant, and is reported separately from the primary mean.
+
+\subsection*{MIC harmonisation}
+MICs, measurement signs and testing standards for the external cohort were exported from the
+Pathogen Detection AST browser (171,750 rows; all 10,232 isolates matched by PDT accession).
+Censored values became intervals ($\le v \mapsto (0, v]$; $< v \mapsto (0, v/2]$;
+$\ge v \mapsto [v, \infty)$; $> v \mapsto [2v, \infty)$), and an isolate was labelled with the
+EUCAST v16.1 Enterobacterales breakpoints \cite{eucast2026v161} only when the whole interval fell
+on one side of a breakpoint. Trimethoprim--sulfamethoxazole values reported as the sulfamethoxazole
+component (19 times a trimethoprim dilution) were divided by 19. CTX had fewer than 1,000 MICs and
+was not analysed.
+
+\subsection*{Second species}
+All 107 organism folders in Pathogen Detection were screened with a pre-registered gate: at least
+2,000 isolates with susceptibility results and AMRFinderPlus 4.2.7 calls, at least three drugs with
+100 resistant and 100 susceptible isolates, SNP-cluster membership for at least 80\% of isolates
+across at least 50 clusters, and assembly statistics for at least 80\%. One organism passed,
+\textit{Campylobacter} (4,426 isolates). Its determinant rule (gyrA point mutations for
+ciprofloxacin and nalidixic acid; tet genes for tetracycline; 23S rRNA point mutations or erm genes
+for clindamycin) was taken from the literature before any score was computed
+\cite{zhao2016campylobacter,iovine2013campylobacter}. Folds were grouped by SNP cluster.
+
+\subsection*{Clinical error rates}
+Following the FDA guidance for susceptibility-testing systems \cite{fda2009ast}, a major error is a
+susceptible isolate called resistant (as a share of susceptible isolates), a very major error a
+resistant isolate called susceptible (as a share of resistant isolates), and categorical agreement
+the share of correct calls. Learned models were called resistant at a score of 0.5, fixed in
+advance. The guidance's benchmarks (categorical agreement $> 89.9\%$, major error $< 3\%$, upper
+95\% Clopper--Pearson limit of very major error $< 7.5\%$) are reported as context only: they were
+written for phenotypic devices verified against a reference method on a challenge panel enriched
+for near-breakpoint isolates, not for retrospective genomic prediction on a convenience collection,
+and our two-category comparison is not the quantity the guidance defines. Collapsing intermediate
+into resistant can only raise our apparent very major error rate relative to the standard
+definition, so the direction of that bias is against us.
+
+To test whether the clinical shortfall is a matter of where the cut sits, we also fitted per-drug
+thresholds on the validation partition, once maximising $F_2$ and once constraining the major error
+rate, and applied them to the test partition.
+
+\subsection*{Pre-registration}
+Each experiment (W6--W14) has a document stating its question, design, endpoint and pass rule,
+committed to a public repository with a timestamp before its data were read; later amendments are
+dated and were also committed before the data they concern. The three-split evaluation, the
+architecture ablations and the Giessen comparison predate this scheme and are reported as
+exploratory analyses of a fixed pipeline rather than as pre-registered tests.
+Table~\ref{tab:prereg} lists every pre-registered endpoint and its outcome, including those that
+failed.

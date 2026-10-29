@@ -1,0 +1,98 @@
+{
+  "arcadia_CIP_orig": {
+    "predictions_npz": "/tmp/trilens/code/results/position_shuffle_test/shuffle/arcadia_CIP_orig_predictions.npz",
+    "metrics": {
+      "pr_auc": 0.7750965195323811,
+      "roc_auc": 0.9146663261831801,
+      "f1": 0.627318718381113,
+      "f2": 0.7834877843302444,
+      "precision": 0.4708860759493671,
+      "recall": 0.9393939393939394,
+      "mcc": 0.5376568655470527,
+      "acc": 0.7571428571428571,
+      "brier": 0.14634404496691725,
+      "sens_at_90_spec": 0.7373737373737373
+    },
+    "pr_auc_ci": [
+      0.7192259736067023,
+      0.8285246642067399
+    ],
+    "mcc_ci": [
+      0.49243583806732494,
+      0.5820712309901132
+    ],
+    "best_ckpt": "/tmp/trilens/code/results/position_shuffle_test/shuffle/ckpts/arcadia_CIP_naive_orig_best.ckpt"
+  },
+  "arcadia_CIP_shuf": {
+    "predictions_npz": "/tmp/trilens/code/results/position_shuffle_test/shuffle/arcadia_CIP_shuf_predictions.npz",
+    "metrics": {
+      "pr_auc": 0.6322464919473735,
+      "roc_auc": 0.7590086255816593,
+      "f1": 0.5404040404040404,
+      "f2": 0.5404040404040404,
+      "precision": 0.5404040404040404,
+      "recall": 0.5404040404040404,
+      "mcc": 0.41259505163999544,
+      "acc": 0.8,
+      "brier": 0.15395133530297664,
+      "sens_at_90_spec": 0.48484848484848486
+    },
+    "pr_auc_ci": [
+      0.5722037176835447,
+      0.6910292047729252
+    ],
+    "mcc_ci": [
+      0.34258779315841426,
+      0.47657762356189576
+    ],
+    "best_ckpt": "/tmp/trilens/code/results/position_shuffle_test/shuffle/ckpts/arcadia_CIP_naive_shuf_best.ckpt"
+  },
+  "giessen_CIP_orig": {
+    "predictions_npz": "/tmp/trilens/code/results/position_shuffle_test/shuffle/giessen_CIP_orig_predictions.npz",
+    "metrics": {
+      "pr_auc": 0.8394700725057007,
+      "roc_auc": 0.8925824175824175,
+      "f1": 0.75,
+      "f2": 0.75,
+      "precision": 0.75,
+      "recall": 0.75,
+      "mcc": 0.5642857142857143,
+      "acc": 0.7868852459016393,
+      "brier": 0.1270802286195397,
+      "sens_at_90_spec": 0.6730769230769231
+    },
+    "pr_auc_ci": [
+      0.730889229782657,
+      0.9362743874015425
+    ],
+    "mcc_ci": [
+      0.40877123665042225,
+      0.7070844169036304
+    ],
+    "best_ckpt": "/tmp/trilens/code/results/position_shuffle_test/shuffle/ckpts/giessen_CIP_naive_orig_best.ckpt"
+  },
+  "giessen_CIP_shuf": {
+    "predictions_npz": "/tmp/trilens/code/results/position_shuffle_test/shuffle/giessen_CIP_shuf_predictions.npz",
+    "metrics": {
+      "pr_auc": 0.6597290824720344,
+      "roc_auc": 0.7228021978021979,
+      "f1": 0.208955223880597,
+      "f2": 0.15695067264573992,
+      "precision": 0.4666666666666667,
+      "recall": 0.1346153846153846,
+      "mcc": 0.030615651774538722,
+      "acc": 0.5655737704918032,
+      "brier": 0.260990695726788,
+      "sens_at_90_spec": 0.1346153846153846
+    },
+    "pr_auc_ci": [
+      0.5227926512665815,
+      0.7855982649813678
+    ],
+    "mcc_ci": [
+      -0.15564352772395765,
+      0.2103024149261432
+    ],
+    "best_ckpt": "/tmp/trilens/code/results/position_shuffle_test/shuffle/ckpts/giessen_CIP_naive_shuf_best.ckpt"
+  }
+}
