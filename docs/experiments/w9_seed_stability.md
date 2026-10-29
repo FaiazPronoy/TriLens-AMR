@@ -34,3 +34,25 @@ Stack minus classical, mean nAP over the seven drugs, per seed, with its ST-clus
 
 Also reported, not tested: per-seed neural-only nAP and within-ST concordance, and the across-seed
 SD of the delta.
+
+## Result (read 2026-10-29, Kaggle run of `lineage_seeds` at commit 0511f94; model code identical to HEAD)
+
+**Primary: pass, by the pre-registered rule.** Stack − classical, mean nAP over seven drugs,
+ST-clustered CI (2,000 replicates):
+
+| seed | stack − classical | 95% CI | stack nAP | neural-only nAP |
+|---|---|---|---|---|
+| 42 | +0.0279 | [0.0057, 0.0515] | 0.584 | 0.435 |
+| 123 | +0.0195 | [0.0033, 0.0424] | 0.575 | 0.407 |
+| 456 | +0.0178 | [−0.0011, 0.0374] | 0.574 | 0.405 |
+
+Mean +0.0217, SD 0.0054; CI above zero in 2 of 3 seeds; classical arm 0.556 in all (fixed by
+design). Seed 42's stack was rebuilt here and reproduces the analysis notebook exactly (avg
+PR-AUC 0.6454; delta 0.0279 [0.0057, 0.0515]).
+
+**What the paper may say.** The full stack's lineage-holdout gain over the classical arm is
+**small (~+0.02 nAP), positive in every seed and seed-stable by the pre-registered rule**, with
+one seed's interval touching zero. The neural branch alone stays well below the classical arm in
+every seed (0.405–0.435 against 0.556). The architecture is therefore reported as contributing a
+small, reproducible increment when stacked, not as the source of the paper's findings — which
+W14 also shows: a sparse linear model on the determinant calls carries the transferable signal.
