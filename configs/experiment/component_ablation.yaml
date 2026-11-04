@@ -1,0 +1,3 @@
+name: component_ablation
+output_dir: ${paths.results_dir}/component_ablation
+existing_cache_dir: ${paths.results_dir}/trilens_stack_random/cache

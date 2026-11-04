@@ -1,0 +1,11 @@
+cells,group,feature,rho_vs_acquired_genes,n_strains,n_cells
+within_st,content,Size,0.32495009904788075,4033,62
+within_st,content,CDS,0.32704369149806384,4033,62
+within_st,content,GC.Content,0.10307511914794978,4033,62
+within_st,technical,Contigs,0.30910195203571683,4033,62
+within_st,technical,Contig.N50,-0.1845240428824779,4033,62
+within_st_study,content,Size,0.320710108594677,3951,75
+within_st_study,content,CDS,0.3217778957378053,3951,75
+within_st_study,content,GC.Content,0.08835815399766689,3951,75
+within_st_study,technical,Contigs,0.29274490865656516,3951,75
+within_st_study,technical,Contig.N50,-0.18544269936089453,3951,75

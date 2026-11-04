@@ -1,0 +1,168 @@
+\subsection*{Determinant calls rescue prediction on unseen lineages}
+
+The two-group pattern above is a statement about features as much as about lineages. For the three
+drugs that lose most under the holdout, resistance is usually conferred by an acquired gene, and a
+reference pan-genome catalogue represents such a gene only if a strain carrying it was in the
+reference. The pre-registered test of that reading replaces the catalogue with each strain's own
+determinant calls.
+
+With ST-grouped five-fold cross-validation, the catalogue alone reached a mean \nap{} of 0.450 over
+the three drugs with acquired determinants (CTX, CAZ, GEN). Adding the determinant calls raised it
+to 0.726, a difference of $+0.276$ [0.178, 0.328], while ciprofloxacin, whose determinants are
+point mutations the catalogue already carries, did not move ($-0.004$; Figure~\ref{fig:rescue}).
+The rescue held with intermediates excluded ($+0.293$), across all database versions ($+0.286$), on
+the country splits (UK $\rightarrow$ Norway 0.249 $\rightarrow$ 0.429; Norway $\rightarrow$ UK
+0.543 $\rightarrow$ 0.793), on the temporal split (0.449 $\rightarrow$ 0.670), and inside each
+country separately (United Kingdom $+0.256$ [0.119, 0.457]; Norway $+0.308$ [0.190, 0.363]). The
+calls alone scored as well as calls plus catalogue (0.730 against 0.726): for these drugs, on
+unseen lineages, the catalogue added nothing.
+
+The rescue is demonstrated on the 5,067 strains with both a catalogue profile and published calls,
+and one pre-registered check of that restriction failed. Asked whether the catalogue-only collapse
+is equally present in the 1,890 strains without calls, we found the catalogue scoring 0.641 there
+against 0.449 in the called strains, outside the $\pm0.10$ tolerance set in advance. Most of the
+uncalled strains (1,439) come from a single study, and within that stratum metadata alone predicts
+the cephalosporin phenotypes well (CTX \nap{} 0.735), which points to study-specific structure; the
+analysis was not designed to separate that from a genuine difference in the strains and we claim
+neither. The consequence for the paper is that the rescue is established on the called subset.
+
+\begin{figure}[t]\centering
+\figbox{Figure 4. The determinant rescue}{6.5cm}{Panel A: \nap{} per drug on ST-grouped 5-fold for
+catalogue, catalogue $+$ calls, calls only, and metadata. Panel B: catalogue against catalogue $+$
+calls (mean of CTX, CAZ, GEN) on every split, with the CIP control. Panel C: the same inside the
+United Kingdom and inside Norway.}{results/determinant\_rescue/paper\_ri/metrics.csv, deltas.csv;
+results/coverage\_and\_rule/part\_c.csv}
+\caption{\textbf{Isolate-specific determinant calls rescue prediction on unseen lineages.}
+\todo{caption}}\label{fig:rescue}
+\end{figure}
+
+\subsection*{Assembly size is a within-lineage proxy for accessory content}
+
+Assembly statistics held more signal than metadata on every split that moved populations, which
+raises the question of what they are measuring. Inside sequence types, assembly length correlated
+with the number of acquired resistance genes (within-ST Spearman $\rho = 0.325$; 4,033 strains, 62
+STs) and ranked resistant above susceptible strains of the same type (within-ST concordance
+0.552--0.676 across the seven drugs, where an ST-constant score would give exactly 0.5).
+
+A batch artefact would explain this as well as biology, so we conditioned on the submitting study
+too. Within (ST $\times$ study) cells the concordance of assembly length over the
+acquired-determinant drugs fell only from 0.613 to 0.592, and its correlation with acquired-gene
+count from 0.325 to 0.321 (Figure~\ref{fig:assembly}). The signal is carried by content statistics
+rather than technical ones: contig N50 stayed below 0.5 for every drug (0.383--0.490) and
+correlated negatively with acquired-gene count ($\rho = -0.185$), as expected if larger, more
+fragmented assemblies carry more plasmid DNA. The same pattern appeared in \textit{Campylobacter}
+for tetracycline, whose tet(O) gene is commonly plasmid-borne \cite{iovine2013campylobacter}
+(within-cluster concordance 0.832), and not for the chromosomal point-mutation drugs
+(0.450--0.549). The mean over its drugs, 0.595, met the pre-registered threshold while being
+carried almost entirely by one drug.
+
+This is real biology inside a collection and it is worthless outside one. On the external cohort a
+model on assembly statistics alone reached a mean \nap{} of 0.045.
+
+\begin{figure}[t]\centering
+\figbox{Figure 5. The assembly proxy}{7cm}{Panel A: within-ST and within-(ST$\times$study)
+concordance per assembly statistic and drug, as a heatmap, content statistics against technical
+ones. Panel B: assembly length against acquired-gene count, centred within ST. Panel C:
+\textit{Campylobacter} within-cluster concordance of length per drug, tetracycline against the
+point-mutation drugs. Panel D: assembly-arm \nap{}, internal against
+external.}{results/assembly\_size\_mechanism/*.csv;
+results/campylobacter/assembly\_within\_cluster.csv;
+results/external\_cohort/primary\_ri/metrics.csv}
+\caption{\textbf{Assembly statistics track accessory gene content within lineages and do not
+transfer.} \todo{caption}}\label{fig:assembly}
+\end{figure}
+
+\subsection*{Frozen models transfer to an external cohort}
+
+The external cohort differs from the training collection in every respect we could measure: 68\% of
+its isolates are from the United States, 57\% from food or animal sources, and its median
+collection year is 2019, against a two-country research collection spanning 2001--2017
+(Table~\ref{tab:cohorts}). Gradient boosting on all determinant calls, trained on our strains and
+applied unchanged, reached a mean \nap{} of 0.807 over six drugs, against 0.045 for the assembly
+arm: a pre-registered difference of $+0.762$ [0.676, 0.804] over 62 BioProjects
+(Figure~\ref{fig:external}). It held across all database versions ($+0.773$) and with intermediates
+excluded ($+0.753$). Dropping each of the nine BioProjects with at least 100 labelled isolates in
+turn left the difference between 0.723 and 0.777, with no interval below 0.643 and no overlap with
+zero. No external isolate matched any identifier of a training strain.
+
+\begin{figure}[t]\centering
+\figbox{Figure 6. External validation}{6.5cm}{Panel A: \nap{} per drug for all calls (XGBoost),
+acquired calls only, L1 logistic regression, the determinant rule and the assembly arm, on 10,232
+external isolates. Panel B: leave-one-BioProject-out estimates of the difference over the assembly
+arm and over the rule.}{results/external\_cohort/primary\_ri/metrics.csv;
+results/linear\_model\_and\_clinical\_errors/b\_metrics.csv; results/external\_robustness/leave\_one\_out.csv}
+\caption{\textbf{Frozen models on an external cohort.} \todo{caption}}\label{fig:external}
+\end{figure}
+
+\subsection*{A sparse linear model on determinant calls is enough where a model helps}
+
+Once the determinants are in the features, the baseline a model has to beat is not another model but
+the obvious rule: call a strain resistant when it carries a known determinant. On unseen lineages a
+learned model does beat it, by $+0.122$ [0.075, 0.197] mean \nap{} over CTX, CAZ and GEN, with every
+per-drug interval above zero.
+
+The learning that matters is not the flexible part. An $L_1$ logistic regression on the same
+features did as well as gradient boosting internally (difference $-0.011$ [$-0.026$, 0.007], inside
+the pre-registered equivalence margin of $\pm0.05$) and beat the rule by $+0.137$ [0.097, 0.203]
+(Figure~\ref{fig:rule}). Externally the ordering reverses. Gradient boosting beat the rule by only
+$+0.065$ [0.005, 0.140] and lost to it for GEN and CTX; the linear model beat the rule by $+0.104$
+[0.060, 0.166], was at or above it for every drug, and was ahead of gradient boosting on six of
+seven drugs (mean $+0.038$ [0.019, 0.063]; by the pre-registered margin of 0.05 this comparison is
+inconclusive, and we state the direction rather than claim the effect). The two drugs on which the
+rule beat gradient boosting are therefore failures of that model rather than of learning from
+determinant calls. External mean \nap{}: linear 0.849, gradient boosting 0.785, rule 0.755.
+
+Label heterogeneity hides part of the margin. Re-labelling the external isolates with EUCAST
+breakpoints from their MICs raised the margin of gradient boosting over the rule from $+0.065$ to
+$+0.123$ [0.081, 0.174]. Because EUCAST labels exist for more isolates than submitter calls, we
+repeated the comparison on the 35,367 isolate--drug pairs carrying both: the margin rose from
+$+0.064$ [$-0.009$, 0.159] to $+0.101$ [0.066, 0.158]. That comparison was exploratory, not
+pre-registered.
+
+The advantage of a model is not general, and the second species is where it ends. In
+\textit{Campylobacter}, where resistance to the four eligible drugs is explained by gyrA T86I,
+tet(O) and 23S rRNA mutations \cite{zhao2016campylobacter}, the rule reached a mean \nap{} of 0.928
+and gradient boosting 0.922; the pre-registered difference was $-0.006$ [$-0.017$, 0.004], a
+failure of the hypothesis that a model helps. Where the determinants are nearly sufficient, there
+is nothing left for a model to learn.
+
+\begin{figure}[t]\centering
+\figbox{Figure 7. Model versus rule}{7cm}{Forest plot of (model $-$ rule) mean \nap{} with
+intervals: \Ecoli{} unseen lineages (XGBoost, L1), \Ecoli{} external with submitter labels
+(XGBoost, L1), external with EUCAST labels on identical isolates, and \textit{Campylobacter}.
+Inset: per-drug external differences for XGBoost and L1.}{results/coverage\_and\_rule/deltas.csv;
+results/linear\_model\_and\_clinical\_errors/b\_deltas.csv; results/mic\_harmonisation/m1\_*.csv;
+results/campylobacter/deltas.csv}
+\caption{\textbf{When a learned model beats a determinant rule.} \todo{caption}}\label{fig:rule}
+\end{figure}
+
+\subsection*{Very major errors remain the unsolved problem}
+
+At the fixed threshold, with EUCAST labels, categorical agreement over the six external drugs was
+0.914 for gradient boosting, 0.938 for the linear model and 0.942 for the rule, and major error
+rates were 2.7\%, 1.7\% and 2.7\%. Very major error rates were 25.1\%, 18.7\% and 14.4\%: no
+approach met the regulatory benchmark, and only the rule for ciprofloxacin did so for a single drug
+(2.6\%, upper limit 3.5\%; Table~\ref{tab:clinical}, Figure~\ref{fig:clinical}). Paired and
+clustered by BioProject, the very major error rate of gradient boosting exceeded the rule's by 10.7
+points [3.2, 18.1] and the linear model's by 4.3 [0.6, 8.4], while major error rates were
+indistinguishable. Amoxicillin--clavulanic acid was the worst drug for every approach (very major
+error 35--50\%), as the uncatalogued variation in its resistance genes predicts
+\cite{lipworth2024uncatalogued}.
+
+So the learned models rank resistant isolates better than the rule and, at the pre-stated
+threshold, call fewer of them. This is the same operating-point problem the internal threshold sweep
+found, and we did not move the threshold after seeing it.
+
+Errors were more frequent near the breakpoint than far from it, but by less than the pre-registered
+factor of two (ratio 1.64 for gradient boosting, 1.87 for the rule), so that hypothesis failed as
+stated. The per-drug picture is more informative than the pooled ratio: for ciprofloxacin the
+model's errors were almost all within one dilution of the breakpoint, while for gentamicin 18.1\%
+were far from it, against 2.7\% for the rule.
+
+\begin{figure}[t]\centering
+\figbox{Figure 8. Clinical error rates}{6cm}{Per drug: very major and major error rates with
+Clopper--Pearson intervals for XGBoost, L1 and the rule, with the regulatory benchmarks as
+reference lines. Second panel: error rate near against far from the EUCAST
+breakpoint.}{results/linear\_model\_and\_clinical\_errors/a\_clinical.csv; results/mic\_harmonisation/m2\_per\_drug.csv}
+\caption{\textbf{Categorical errors on the external cohort.} \todo{caption}}\label{fig:clinical}
+\end{figure}

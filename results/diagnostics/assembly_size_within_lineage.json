@@ -1,0 +1,24 @@
+{
+ "strains": 5072,
+ "acquired_gene_columns": 85,
+ "chromosomal_genes_excluded": [
+  "acrF",
+  "blaEC",
+  "emrD",
+  "mdtM"
+ ],
+ "size_vs_acquired_within_st": {
+  "rho": 0.325,
+  "p": 8.055287230140735e-100,
+  "n": 4033
+ },
+ "mean_within_st_auroc": {
+  "assembly size": 0.611,
+  "acquired-gene count": 0.758
+ },
+ "mean_within_st_auroc_assembly_size": {
+  "acquired-determinant drugs": 0.613,
+  "chromosomal-determinant drugs": 0.59
+ },
+ "min_within_st_auroc_assembly_size": 0.552
+}

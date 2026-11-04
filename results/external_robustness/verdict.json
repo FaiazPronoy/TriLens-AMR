@@ -1,0 +1,31 @@
+{
+ "projects_tested": 9,
+ "min_labelled_primary": 100,
+ "overlap_isolates": 0,
+ "overlap_fraction": 0.0,
+ "our_id_columns_checked": [
+  "strain_index",
+  "genome_name",
+  "genome_id",
+  "sra",
+  "biosample",
+  "assembly_accession",
+  "contigs",
+  "size"
+ ],
+ "ap_minus_m_range": [
+  0.7225,
+  0.7766
+ ],
+ "ap_minus_m_min_ci_low": 0.6433,
+ "pass_rule": "every replicate: delta >= 0.1 and ci_low > 0; overlap fraction <= 0.01",
+ "ap_minus_r_range": [
+  0.037,
+  0.086
+ ],
+ "ap_minus_r_replicates_ci_above_zero": 6,
+ "ap_minus_r_replicates": 9,
+ "candidates_sha256": "0e2ccc692d7ffbed5ac7929c94760a4d9558692aa9db3a83f6341c3fb0fe9ec7",
+ "primary_pass": true,
+ "reading": "the external gain over the assembly arm does not depend on any one BioProject"
+}

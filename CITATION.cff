@@ -1,0 +1,28 @@
+cff-version: 1.2.0
+message: If you use this software, please cite it as below.
+title: "TriLens-AMR: genomic antimicrobial resistance prediction in E. coli under lineage and cohort shift"
+abstract: >-
+  Code, committed results and manuscript for a study of antibiotic resistance prediction from 6,962
+  Escherichia coli genomes and 7 antibiotics, including a three-view stacked model, three
+  evaluation splits, and pre-registered experiments on determinant calls, an external cohort and a
+  second species.
+type: software
+license: MIT
+version: 1.0.0
+repository-code: "https://github.com/FaiazPronoy/TriLens-AMR"
+keywords:
+  - antimicrobial resistance
+  - machine learning
+  - bacterial genomics
+  - Escherichia coli
+authors:
+  - family-names: Pronoy
+    given-names: Faiaz Abrar Zaman
+  - family-names: Roy
+    given-names: Pranto
+  - family-names: Khandoker
+    given-names: Sinthia
+  - family-names: Barua
+    given-names: Shantanu
+  - family-names: Islam Zishan
+    given-names: Md. Jahirul

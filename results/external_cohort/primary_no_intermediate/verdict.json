@@ -1,0 +1,19 @@
+{
+ "delta_AP_minus_M": 0.7526403781491199,
+ "ci": [
+  0.668382155849173,
+  0.8078791191853165
+ ],
+ "pass_rule": "delta >= 0.1 and ci_low > 0",
+ "primary_pass": true,
+ "external_isolates": 10232,
+ "bioprojects": 62,
+ "unseen_external_genes_dropped": 163,
+ "mean_nap": {
+  "A": 0.7497,
+  "AP": 0.7942,
+  "M": 0.0416,
+  "R": 0.7735
+ },
+ "reading": "supported: a model on our two-country strains transfers to external isolates beyond the assembly shortcut"
+}

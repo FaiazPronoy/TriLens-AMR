@@ -1,0 +1,87 @@
+value,antibiotic,n_tested,n_resistant,frac_resistant
+Norway,AMP,2964,1165,0.393
+United Kingdom,AMP,1308,744,0.569
+USA,AMP,224,219,0.978
+Thailand,AMP,141,141,1.0
+Kenya,AMP,44,33,0.75
+India,AMP,44,26,0.591
+Pakistan,AMP,34,30,0.882
+Germany,AMP,31,31,1.0
+Mali,AMP,31,20,0.645
+Mozambique,AMP,16,9,0.562
+Singapore,AMP,13,9,0.692
+Gambia,AMP,12,6,0.5
+Bangladesh,AMP,3,3,1.0
+unknown,AMP,3,3,1.0
+Norway,CIP,2963,337,0.114
+United Kingdom,CIP,2466,713,0.289
+USA,CIP,226,174,0.77
+Thailand,CIP,141,98,0.695
+India,CIP,44,7,0.159
+Kenya,CIP,44,0,0.0
+Pakistan,CIP,34,14,0.412
+Germany,CIP,31,29,0.935
+Mali,CIP,31,0,0.0
+Singapore,CIP,18,1,0.056
+Mozambique,CIP,16,0,0.0
+Gambia,CIP,12,0,0.0
+Bangladesh,CIP,3,1,0.333
+unknown,CIP,3,2,0.667
+Brazil,CIP,1,1,1.0
+United Kingdom,AMC,3375,982,0.291
+USA,AMC,218,140,0.642
+Thailand,AMC,141,55,0.39
+Germany,AMC,27,1,0.037
+Singapore,AMC,14,0,0.0
+unknown,AMC,2,1,0.5
+Norway,AMC,1,1,1.0
+Norway,SXT,2964,773,0.261
+USA,SXT,227,140,0.617
+India,SXT,44,22,0.5
+Kenya,SXT,44,39,0.886
+Pakistan,SXT,34,24,0.706
+Mali,SXT,31,17,0.548
+Singapore,SXT,24,9,0.375
+Mozambique,SXT,16,11,0.688
+United Kingdom,SXT,12,11,0.917
+Gambia,SXT,12,7,0.583
+Germany,SXT,4,3,0.75
+Bangladesh,SXT,3,2,0.667
+unknown,SXT,2,1,0.5
+Brazil,SXT,1,1,1.0
+Norway,GEN,2964,231,0.078
+United Kingdom,GEN,2464,252,0.102
+USA,GEN,225,86,0.382
+Thailand,GEN,141,108,0.766
+India,GEN,44,5,0.114
+Kenya,GEN,44,0,0.0
+Pakistan,GEN,34,9,0.265
+Germany,GEN,31,18,0.581
+Mali,GEN,31,0,0.0
+Singapore,GEN,24,1,0.042
+Mozambique,GEN,16,0,0.0
+Gambia,GEN,12,0,0.0
+Bangladesh,GEN,3,0,0.0
+unknown,GEN,3,0,0.0
+Brazil,GEN,1,0,0.0
+Norway,CTX,2765,151,0.055
+United Kingdom,CTX,2392,453,0.189
+Thailand,CTX,141,141,1.0
+USA,CTX,54,45,0.833
+Germany,CTX,31,31,1.0
+Singapore,CTX,24,2,0.083
+unknown,CTX,2,0,0.0
+Norway,CAZ,2963,148,0.05
+United Kingdom,CAZ,2454,353,0.144
+USA,CAZ,173,122,0.705
+Thailand,CAZ,141,100,0.709
+Kenya,CAZ,44,0,0.0
+India,CAZ,44,2,0.045
+Pakistan,CAZ,34,23,0.676
+Germany,CAZ,31,29,0.935
+Mali,CAZ,31,0,0.0
+Singapore,CAZ,24,2,0.083
+Mozambique,CAZ,16,0,0.0
+Gambia,CAZ,12,0,0.0
+Bangladesh,CAZ,3,0,0.0
+unknown,CAZ,3,1,0.333

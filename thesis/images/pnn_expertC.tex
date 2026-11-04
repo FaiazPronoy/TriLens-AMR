@@ -1,0 +1,23 @@
+\begin{tikzpicture}[font=\sffamily,>=Stealth,
+ ar/.style={-{Stealth[length=2.8mm]},line width=0.6mm,draw=orange!85!red}]
+\renewcommand{\scriptsize}{\fontsize{6.5}{7.6}\selectfont}
+\renewcommand{\tiny}{\fontsize{4.8}{5.6}\selectfont}
+
+\blk{0}{0}{1.1}{2.4}{0.5}{cin}
+\node[font=\scriptsize\bfseries,align=center] at (0.55,0) {Gene\\stats};
+\node[below,font=\tiny,text=black!60,align=center] at (0.55,-1.25) {$5000{\times}4$};
+\draw[ar] (1.25,0)--(2.0,0);
+\blk{2.0}{0}{1.4}{2.1}{0.5}{cexp}
+\node[font=\scriptsize\bfseries,align=center] at (2.72,0) {per-gene\\MLP};
+\draw[ar] (3.6,0)--(4.2,0);
+\blk{4.15}{0}{1.45}{1.9}{0.5}{cattn}
+\node[font=\scriptsize\bfseries,align=center] at (4.9,0) {attention\\pool};
+\draw[ar] (5.75,0)--(6.3,0);
+\blk{6.3}{0}{1.57}{2.0}{0.5}{cexp}
+\node[font=\scriptsize\bfseries,align=center] at (7.07,0) {drug-class\\heads};
+\node[below,font=\tiny,text=black!60,align=center] at (6.95,-1.05) {co-resistance};
+\draw[ar] (8,0)--(8.45,0);
+\blk{8.5}{0}{0.85}{1.2}{0.45}{cout}
+\node[font=\scriptsize\bfseries,align=center] at (8.92,0) {$z_C,\ell_C$};
+\node[below,font=\tiny,text=black!60,align=center] at (8.92,-0.65) {64 / 7};
+\end{tikzpicture}

@@ -1,0 +1,17 @@
+\begin{abstract}
+Models that predict antimicrobial resistance from bacterial genomes are usually evaluated on random
+splits, where related strains fall on both sides. We built a three-view stacked model (TriLens) for
+6,962 \textit{Escherichia coli} genomes and seven antibiotics, and used it, with simpler models and
+a determinant rule, to dissect what such an evaluation measures. On a random split the model
+reached an average precision of 0.850, ahead of every external baseline; strain metadata and
+assembly statistics alone reached 0.705. Holding out whole sequence types lowered it to 0.645, and
+correcting for the prevalence shift a holdout causes left a true gap of 0.118: three drugs lost at
+most 0.026 and four lost 0.152--0.239, with nothing between, while very major errors rose from 24\%
+to 56\%. In pre-registered experiments, replacing the pan-genome catalogue with each strain's
+AMRFinderPlus calls raised normalised average precision on unseen lineages from 0.450 to 0.726 for
+drugs with acquired determinants. Assembly size predicted resistance within lineages, through
+accessory gene content rather than batch, and carried no signal in 10,232 external isolates, where
+frozen models did transfer and a sparse logistic regression on determinant calls beat the rule by
+0.104 while gradient boosting transferred worse. In \textit{Campylobacter} no model beat the rule.
+Very major error rates exceeded regulatory benchmarks for every approach.
+\end{abstract}

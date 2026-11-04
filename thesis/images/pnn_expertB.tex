@@ -1,0 +1,21 @@
+\begin{tikzpicture}[font=\sffamily,>=Stealth,
+ ar/.style={-{Stealth[length=2.8mm]},line width=0.6mm,draw=orange!85!red}]
+\renewcommand{\scriptsize}{\fontsize{5.5}{6.5}\selectfont}
+\renewcommand{\tiny}{\fontsize{4.1}{4.8}\selectfont}
+
+\blk{0}{0}{1.1}{2.4}{0.5}{cin}
+\node[font=\scriptsize\bfseries,align=center] at (0.55,0) {Gene\\P/A};
+\node[below,font=\tiny,text=black!60,align=center] at (0.55,-1.25) {$32{,}441$};
+\draw[ar] (1.25,0)--(1.9,0);
+\blk{1.9}{0}{1.8}{2.1}{0.5}{cexp}
+\node[font=\scriptsize\bfseries,align=center] at (2.8,0) {learnable\\embeddings};
+\node[below,font=\tiny,text=black!60,align=center] at (3.0,-1.1) {present genes};
+\draw[ar] (3.85,0)--(4.48,0);
+\blk{4.48}{0}{1.42}{1.9}{0.5}{cattn}
+\node[font=\scriptsize\bfseries,align=center] at (5.18,0) {masked\\attention};
+\node[below,font=\tiny,text=black!60,align=center] at (5.15,-1.0) {absent $\to -\infty$};
+\draw[ar] (6.05,0)--(6.7,0);
+\blk{6.7}{0}{0.85}{1.2}{0.45}{cout}
+\node[font=\scriptsize\bfseries,align=center] at (7.12,0) {$z_B,\ell_B$};
+\node[below,font=\tiny,text=black!60,align=center] at (7.12,-0.65) {64 / 7};
+\end{tikzpicture}

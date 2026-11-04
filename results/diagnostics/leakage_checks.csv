@@ -1,0 +1,72 @@
+check,status,detail
+split random_split: disjoint and complete,PASS,"train 4872, val 1045, test 1045, unique 6962/6962"
+split phylogeny_split: disjoint and complete,PASS,"train 4872, val 1045, test 1045, unique 6962/6962"
+split mlst_lineage_holdout_split: disjoint and complete,PASS,"train 4836, val 1081, test 1045, unique 6962/6962"
+lineage holdout: no sequence type in both train and test,PASS,"240 train STs, 103 test STs, shared 0"
+lineage holdout: no sequence type in both val and test,PASS,shared 0
+lineage holdout: strains without a sequence type kept out of test,PASS,"475 strains without ST, 0 in test"
+arcadia_v2_gene_filtered.pkl: carries the same random_split,PASS,identical indices and order
+arcadia_v2_gene_filtered.pkl: SNP codes in 0..3,PASS,"min 0, max 3"
+arcadia_v2_gene_filtered.pkl: test genomes identical to a training genome (on the filtered SNPs),PASS,0 of 1045; near-duplicates are measured by near_duplicate_audit
+arcadia_v2_gene_filtered__phylogeny_clean.pkl: carries the same phylogeny_split,PASS,identical indices and order
+arcadia_v2_gene_filtered__phylogeny_clean.pkl: SNP codes in 0..3,PASS,"min 0, max 3"
+arcadia_v2_gene_filtered__phylogeny_clean.pkl: test genomes identical to a training genome (on the filtered SNPs),PASS,0 of 1045; near-duplicates are measured by near_duplicate_audit
+arcadia_v2_gene_filtered__mlst_holdout.pkl: carries the same mlst_lineage_holdout_split,PASS,identical indices and order
+arcadia_v2_gene_filtered__mlst_holdout.pkl: SNP codes in 0..3,PASS,"min 0, max 3"
+arcadia_v2_gene_filtered__mlst_holdout.pkl: test genomes identical to a training genome (on the filtered SNPs),PASS,0 of 1045; near-duplicates are measured by near_duplicate_audit
+classical_stack_random: test_indices = random_split,PASS,match
+classical_stack_random: train_indices = random_split,PASS,match
+classical_stack_random: val_indices = random_split,PASS,match
+trilens_stack_random: test_indices = random_split,PASS,match
+trilens_stack_random: train_indices = random_split,PASS,match
+trilens_stack_random: val_indices = random_split,PASS,match
+classical_stack_phylogroup: test_indices = phylogeny_split,PASS,match
+classical_stack_phylogroup: train_indices = phylogeny_split,PASS,match
+classical_stack_phylogroup: val_indices = phylogeny_split,PASS,match
+trilens_neural_phylogroup: test_indices = phylogeny_split,PASS,match
+trilens_neural_phylogroup: train_indices = phylogeny_split,PASS,match
+trilens_neural_phylogroup: val_indices = phylogeny_split,PASS,match
+classical_stack_lineage: test_indices = mlst_lineage_holdout_split,PASS,match
+classical_stack_lineage: train_indices = mlst_lineage_holdout_split,PASS,match
+classical_stack_lineage: val_indices = mlst_lineage_holdout_split,PASS,match
+trilens_neural_lineage: test_indices = mlst_lineage_holdout_split,PASS,match
+trilens_neural_lineage: train_indices = mlst_lineage_holdout_split,PASS,match
+trilens_neural_lineage: val_indices = mlst_lineage_holdout_split,PASS,match
+trilens_stack_lineage: test_indices = mlst_lineage_holdout_split,PASS,match
+trilens_stack_lineage: train_indices = mlst_lineage_holdout_split,PASS,match
+trilens_stack_lineage: val_indices = mlst_lineage_holdout_split,WARN,not in the file
+"trilens_stack_random + classical_stack_random: same strains, same order",PASS,match
+"trilens_neural_phylogroup + classical_stack_phylogroup: same strains, same order",PASS,match
+"trilens_neural_lineage + classical_stack_lineage: same strains, same order",PASS,match
+trilens_stack_random: validation probabilities come from the stack,PASS,yes
+standard/trilens_stack_random: test_indices = random_split,PASS,match
+standard/trilens_stack_random: train_indices = random_split,PASS,match
+standard/trilens_stack_random: val_indices = random_split,PASS,match
+standard/trilens_neural_phylogroup: test_indices = phylogeny_split,PASS,match
+standard/trilens_neural_phylogroup: train_indices = phylogeny_split,PASS,match
+standard/trilens_neural_phylogroup: val_indices = phylogeny_split,PASS,match
+standard/trilens_neural_lineage: test_indices = mlst_lineage_holdout_split,PASS,match
+standard/trilens_neural_lineage: train_indices = mlst_lineage_holdout_split,PASS,match
+standard/trilens_neural_lineage: val_indices = mlst_lineage_holdout_split,PASS,match
+"standard/trilens_stack_random + classical_stack_random: same strains, same order",PASS,match
+"standard/trilens_neural_phylogroup + classical_stack_phylogroup: same strains, same order",PASS,match
+"standard/trilens_neural_lineage + classical_stack_lineage: same strains, same order",PASS,match
+standard/trilens_stack_random: validation probabilities come from the stack,PASS,yes
+trilens_stack_random / XGB_gene: out-of-fold vs test PR-AUC,PASS,"OOF 0.8284, test 0.8380, gap -0.0096"
+trilens_stack_random / LGBM: out-of-fold vs test PR-AUC,PASS,"OOF 0.8187, test 0.8326, gap -0.0140"
+trilens_stack_random / RF: out-of-fold vs test PR-AUC,PASS,"OOF 0.7770, test 0.7807, gap -0.0037"
+trilens_stack_random / LogReg: out-of-fold vs test PR-AUC,PASS,"OOF 0.7795, test 0.7920, gap -0.0125"
+trilens_stack_random / XGB_raw: out-of-fold vs test PR-AUC,PASS,"OOF 0.8333, test 0.8420, gap -0.0087"
+trilens_stack_random / TriLens: out-of-fold vs test PR-AUC,PASS,"OOF 0.7592, test 0.7955, gap -0.0363"
+classical_stack_random / XGB-gene: out-of-fold vs test PR-AUC,PASS,"OOF 0.8284, test 0.8380, gap -0.0096"
+classical_stack_random / LGBM-gene: out-of-fold vs test PR-AUC,PASS,"OOF 0.8187, test 0.8326, gap -0.0140"
+classical_stack_random / RF-gene: out-of-fold vs test PR-AUC,PASS,"OOF 0.7770, test 0.7807, gap -0.0037"
+classical_stack_random / LogReg-gene: out-of-fold vs test PR-AUC,PASS,"OOF 0.7795, test 0.7920, gap -0.0125"
+classical_stack_random / XGB-raw-chi2: out-of-fold vs test PR-AUC,PASS,"OOF 0.8333, test 0.8420, gap -0.0087"
+classical_stack_random / GeneAttentionNet: out-of-fold vs test PR-AUC,PASS,"OOF 0.6949, test 0.7425, gap -0.0476"
+standard/trilens_stack_random / XGB_gene: out-of-fold vs test PR-AUC,PASS,"OOF 0.8284, test 0.8380, gap -0.0096"
+standard/trilens_stack_random / LGBM: out-of-fold vs test PR-AUC,PASS,"OOF 0.8187, test 0.8326, gap -0.0140"
+standard/trilens_stack_random / RF: out-of-fold vs test PR-AUC,PASS,"OOF 0.7770, test 0.7807, gap -0.0037"
+standard/trilens_stack_random / LogReg: out-of-fold vs test PR-AUC,PASS,"OOF 0.7795, test 0.7920, gap -0.0125"
+standard/trilens_stack_random / XGB_raw: out-of-fold vs test PR-AUC,PASS,"OOF 0.8333, test 0.8420, gap -0.0087"
+standard/trilens_stack_random / TriLens: out-of-fold vs test PR-AUC,PASS,"OOF 0.7554, test 0.8025, gap -0.0471"

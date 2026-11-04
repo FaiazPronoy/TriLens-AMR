@@ -1,0 +1,24 @@
+\begin{tikzpicture}[x=1.5cm, y=1.05cm]
+
+\foreach \y/\n/\f/\e/\lab in {%
+  0/2/redfill/rededge/{Partition by population structure},
+  -1/5/grayfill/neutralc/{Cross-validation or holdout, plus an independent external collection},
+  -2/3/grayfill/neutralc/{Cross-validation alone},
+  -3/4/grayfill/neutralc/{Random or stratified holdout, no external set}}{
+    \fill[\f] (0,\y-0.28) rectangle (\n,\y+0.28);
+    \draw[\e,line width=0.9pt] (0,\y-0.28) rectangle (\n,\y+0.28);
+    \node[anchor=west,font=\large\bfseries,text=black] at (\n+0.12,\y) {\n};
+    \node[anchor=east,font=\small,text=black,align=right,text width=6.2cm]
+      at (-0.20,\y) {\lab};
+}
+
+\draw[black,line width=0.9pt] (0,0.40) -- (0,-3.40);
+
+\draw[black!55,line width=0.9pt]
+  (5.75,-0.72) -- (6.00,-0.72) -- (6.00,-3.28) -- (5.75,-3.28);
+\node[anchor=west,font=\small,text=black,align=left,text width=3.5cm]
+  at (6.12,-2.00) {twelve of the fourteen do not hold a lineage out as their
+  primary design {\footnotesize(two of these report a supplementary
+  structure-aware check)}};
+
+\end{tikzpicture}

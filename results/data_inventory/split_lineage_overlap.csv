@@ -1,0 +1,4 @@
+split,n_test,test_with_known_st,test_st_seen_in_train,frac_test_st_seen_in_train,n_test_sts,n_test_sts_seen_in_train
+train United Kingdom -> test Norway,2964,2839,2664,0.938,255,135
+train Norway -> test United Kingdom,3387,3246,2940,0.906,284,135
+"Norway, train <= 2013 -> test > 2013",1146,1098,1030,0.938,152,96

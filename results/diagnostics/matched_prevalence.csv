@@ -1,0 +1,8 @@
+antibiotic,n_pos,n_neg,prev_train,prev_test,pr_auc_raw,pr_auc_matched,matched_lo,matched_hi,roc_auc,recovered,note
+AMP,300,401,0.5103,0.428,0.9074,0.9296,0.9196,0.9421,0.9324,0.0222,subsampled negatives
+CIP,132,781,0.2657,0.1446,0.9183,0.9493,0.9324,0.9648,0.9716,0.031,subsampled negatives
+AMC,145,395,0.3275,0.2685,0.5025,0.5645,0.5454,0.5906,0.6913,0.062,subsampled negatives
+SXT,142,375,0.2999,0.2747,0.8011,0.8175,0.8059,0.8371,0.9074,0.0164,subsampled negatives
+GEN,38,876,0.146,0.0416,0.2557,0.47,0.4065,0.5242,0.7258,0.2143,subsampled negatives
+CTX,71,737,0.1763,0.0879,0.6465,0.7522,0.7172,0.7879,0.8853,0.1057,subsampled negatives
+CAZ,43,869,0.153,0.0471,0.4863,0.6417,0.5968,0.6807,0.7803,0.1554,subsampled negatives

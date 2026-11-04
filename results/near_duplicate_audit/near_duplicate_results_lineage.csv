@@ -1,0 +1,8 @@
+split,antibiotic,pr_auc_before,pr_auc_after,delta,n_test_before,n_test_after
+mlst_lineage_holdout_split,AMP,0.9073666715585075,0.9073666715585075,0.0,701,701
+mlst_lineage_holdout_split,CIP,0.9183298132478332,0.9183298132478332,0.0,913,913
+mlst_lineage_holdout_split,AMC,0.5024880310163927,0.5024880310163927,0.0,540,540
+mlst_lineage_holdout_split,SXT,0.8011218816637574,0.8011218816637574,0.0,517,517
+mlst_lineage_holdout_split,GEN,0.2556684105784893,0.2556684105784893,0.0,914,914
+mlst_lineage_holdout_split,CTX,0.6464922747906517,0.6464922747906517,0.0,808,808
+mlst_lineage_holdout_split,CAZ,0.4862949338911877,0.4862949338911877,0.0,912,912

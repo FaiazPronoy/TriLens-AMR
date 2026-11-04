@@ -1,0 +1,72 @@
+{
+ "breakpoints": "eucast_v16_1_enterobacterales.csv",
+ "drugs": [
+  "AMP",
+  "CIP",
+  "AMC",
+  "SXT",
+  "GEN",
+  "CAZ"
+ ],
+ "m1": [
+  {
+   "labels": "submitter",
+   "comparison": "AP - M",
+   "delta": 0.7618,
+   "ci_low": 0.6763,
+   "ci_high": 0.8038,
+   "n_groups": 62
+  },
+  {
+   "labels": "submitter",
+   "comparison": "AP - R",
+   "delta": 0.0653,
+   "ci_low": 0.0053,
+   "ci_high": 0.1399,
+   "n_groups": 62
+  },
+  {
+   "labels": "eucast",
+   "comparison": "AP - M",
+   "delta": 0.7704,
+   "ci_low": 0.7204,
+   "ci_high": 0.813,
+   "n_groups": 89
+  },
+  {
+   "labels": "eucast",
+   "comparison": "AP - R",
+   "delta": 0.1226,
+   "ci_low": 0.081,
+   "ci_high": 0.1735,
+   "n_groups": 89
+  }
+ ],
+ "m2": {
+  "model": {
+   "ratio": 1.6367782730862346,
+   "ci": [
+    1.0484528627418308,
+    2.9574142220454513
+   ],
+   "near_error": 0.13770153730783652,
+   "far_error": 0.08412962193601994,
+   "n_near": 10668,
+   "n_far": 24070,
+   "concentrated": false
+  },
+  "rule": {
+   "ratio": 1.8699837243513213,
+   "ci": [
+    1.1525829051503684,
+    3.3930159531211377
+   ],
+   "near_error": 0.09120734908136482,
+   "far_error": 0.048774407976734525,
+   "n_near": 10668,
+   "n_far": 24070,
+   "concentrated": false
+  }
+ },
+ "m2_rule": "ratio >= 2.0 and ci_low > 1.0"
+}

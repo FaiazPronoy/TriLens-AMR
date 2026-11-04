@@ -1,0 +1,15 @@
+name: position_shuffle_test
+description: A plain convolutional network on the variant sequence, before and after the column order is shuffled.
+defaults:
+- {/model: plain_cnn}
+antibiotics: [CIP]
+datasets: [arcadia, giessen]
+shuffle_seed: 42
+output_dir: ${paths.results_dir}/position_shuffle_test/runs
+training: {max_epochs: 30, min_epochs: 5, early_stop_patience: 8, early_stop_metric: val/pr_auc, early_stop_mode: max,
+  batch_size_arcadia: 16, batch_size_giessen: 32, num_workers: 4, learning_rate: 0.001, weight_decay: 0.0001, gradient_clip: 1.0,
+  precision: 16-mixed, scheduler_t_max: 30}
+evaluation: {bootstrap_n: 1000, bootstrap_seed: 42}
+wandb:
+  project: amr-phylogene-mtl
+  tags: [position_shuffle_test]

@@ -1,0 +1,8 @@
+drug,S_le,R_gt,line,source
+AMP,8,8,ampicillin iv,EUCAST Clinical Breakpoint Tables v16.1 (valid from 2026-06-24) Enterobacterales; read from the official PDF 2026-10-29
+AMC,8,8,amoxicillin-clavulanic acid iv (clavulanate fixed at 2 mg/L),EUCAST Clinical Breakpoint Tables v16.1 (valid from 2026-06-24) Enterobacterales; read from the official PDF 2026-10-29
+CTX,1,2,cefotaxime (indications other than meningitis),EUCAST Clinical Breakpoint Tables v16.1 (valid from 2026-06-24) Enterobacterales; read from the official PDF 2026-10-29
+CAZ,1,4,ceftazidime,EUCAST Clinical Breakpoint Tables v16.1 (valid from 2026-06-24) Enterobacterales; read from the official PDF 2026-10-29
+CIP,0.25,0.5,ciprofloxacin (indications other than meningitis),EUCAST Clinical Breakpoint Tables v16.1 (valid from 2026-06-24) Enterobacterales; read from the official PDF 2026-10-29
+GEN,2,2,gentamicin (systemic: (2)/(2) in brackets; urinary origin: 2/2),EUCAST Clinical Breakpoint Tables v16.1 (valid from 2026-06-24) Enterobacterales; read from the official PDF 2026-10-29
+SXT,0.5,0.5,trimethoprim-sulfamethoxazole except Serratia (note 8: ratio 1:19; expressed as trimethoprim),EUCAST Clinical Breakpoint Tables v16.1 (valid from 2026-06-24) Enterobacterales; read from the official PDF 2026-10-29

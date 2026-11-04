@@ -1,0 +1,65 @@
+{
+ "bed": "/kaggle/input/datasets/faiazabrarzaman/arcadia-presenceabsence-v2-ecoli-rawdownload/Ecoli_AMR_GenotypePhenotype/Ecoli_AMR_GenotypePhenotype/presence_absence_data/presence_absence_all.bed",
+ "source": {
+  "source": "kaggle input",
+  "bed": "/kaggle/input/datasets/faiazabrarzaman/arcadia-presenceabsence-v2-ecoli-rawdownload/Ecoli_AMR_GenotypePhenotype/Ecoli_AMR_GenotypePhenotype/presence_absence_data/presence_absence_all.bed",
+  "sra": "/kaggle/input/datasets/faiazabrarzaman/arcadia-presenceabsence-v2-ecoli-rawdownload/Ecoli_AMR_GenotypePhenotype/Ecoli_AMR_GenotypePhenotype/phenotype_matrix/SRA_to_genome_name.csv",
+  "bed_md5": "17d2cf6ba72d122bd991ec56e61ecc47",
+  "bim_md5": "f4c13753fbd33892558b9d1aabb915ec"
+ },
+ "n_variants": 32441,
+ "n_fam": 7043,
+ "allele_letters": [
+  "1",
+  "2"
+ ],
+ "allele_order_counts": {
+  "0/1": 77,
+  "0/2": 2847,
+  "1/2": 7664,
+  "2/1": 21853
+ },
+ "monomorphic_loci": 2924,
+ "matched": 6949,
+ "missing_cells": 0,
+ "het_cells": 0,
+ "called_fraction": 1.0,
+ "cells_carrying_allele_0": 0,
+ "ecor_core_loci": 3643,
+ "core_median_prevalence_by_letter": {
+  "1": 0.0,
+  "2": 1.0
+ },
+ "present_letter": "2",
+ "loci_unchanged": 21930,
+ "loci_flipped": 10511,
+ "loci_constant": 0,
+ "loci_inconsistent": 0,
+ "example_inconsistent": [],
+ "spearman_prevalence_vs_ecor": 0.6889934183976352,
+ "core_median_prevalence": 1.0,
+ "core_fraction_below_50pct": 0.0010979961570134504,
+ "per_strain_loci": {
+  "mean": 11846.070369837387,
+  "median": 11802.0,
+  "min": 9569,
+  "max": 18620
+ },
+ "max_prevalence_old": 0.5041013095409411,
+ "max_prevalence_new": 1.0,
+ "named_core_genes": {
+  "gyrA": [
+   1.0
+  ],
+  "parC": [
+   1.0
+  ],
+  "rpoB": [
+   1.0
+  ],
+  "recA": [
+   1.0
+  ]
+ },
+ "status": "repaired"
+}

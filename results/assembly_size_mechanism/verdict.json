@@ -1,0 +1,22 @@
+{
+ "size_within_st": 0.6132,
+ "drugs_reported_within_st": 5,
+ "size_within_st_study": 0.5916,
+ "drugs_reported_within_st_study": 5,
+ "min_cells": 10,
+ "min_pairs": 100,
+ "pass_rule": "mean Size concordance over ['AMC', 'SXT', 'GEN', 'CTX', 'CAZ'] within (ST x study) >= 0.55",
+ "group_means_within_st_study": {
+  "content": 0.5541,
+  "technical": 0.5314
+ },
+ "size_rho_vs_acquired_within_st": [
+  0.325
+ ],
+ "size_rho_vs_acquired_within_st_study": [
+  0.3207
+ ],
+ "survives_study_conditioning": true,
+ "reading": "the within-lineage assembly signal survives conditioning on the submitting study: assembly size behaves as a proxy for accessory content, not as a study artefact",
+ "drop_from_conditioning": 0.0216
+}

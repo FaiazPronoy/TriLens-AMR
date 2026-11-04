@@ -1,0 +1,9 @@
+antibiotic,random_split_full_stack,phylogroup_stratified_clean,mlst_lineage_holdout
+AMP,,,0.9074
+CIP,,,0.9183
+AMC,,,0.5025
+SXT,,,0.8011
+GEN,,,0.2557
+CTX,,,0.6465
+CAZ,,,0.4863
+AVERAGE,,,0.6454

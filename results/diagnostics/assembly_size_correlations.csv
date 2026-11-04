@@ -1,0 +1,23 @@
+scope,group,feature,n,rho,p
+all strains,-,Size,5072,0.352,5.2919384254470094e-148
+all strains,-,CDS,5072,0.343,4.305415883764961e-140
+all strains,-,Contigs,5072,0.345,1.7439461624119863e-141
+all strains,-,Contig.N50,5072,-0.278,2.003759459155957e-90
+all strains,-,GC.Content,5072,0.15,5.352387949823977e-27
+within ST,62 groups,Size,4033,0.325,8.055287230140735e-100
+within ST,62 groups,CDS,4033,0.327,3.6847225358532326e-101
+within ST,62 groups,Contigs,4033,0.309,5.092944606857388e-90
+within ST,62 groups,Contig.N50,4033,-0.185,3.213931804981707e-32
+within ST,62 groups,GC.Content,4033,0.103,5.332924579329438e-11
+within phylogroup,7 groups,Size,5070,0.337,1.2932607650319362e-134
+within phylogroup,7 groups,CDS,5070,0.338,4.205927912285161e-136
+within phylogroup,7 groups,Contigs,5070,0.308,1.4342928083715711e-111
+within phylogroup,7 groups,Contig.N50,5070,-0.247,2.4119898150989374e-71
+within phylogroup,7 groups,GC.Content,5070,0.108,1.6019208994491786e-14
+one phylogroup,A,Size,185,0.106,0.1495482395977975
+one phylogroup,B1,Size,161,0.539,1.6419999170429742e-13
+one phylogroup,B2,Size,2438,0.319,6.004941172819296e-59
+one phylogroup,C,Size,114,0.212,0.023854436450476538
+one phylogroup,D,Size,593,0.424,3.1081705293881653e-27
+one phylogroup,F,Size,150,0.431,3.5428190626863474e-08
+one phylogroup,Unknown,Size,1429,0.374,1.0123106163041279e-48

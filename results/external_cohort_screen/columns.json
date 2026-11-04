@@ -1,0 +1,1 @@
+["Run", "biosample_acc", "bioproject_acc", "bioproject_center", "target_acc", "asm_acc", "geo_loc_name", "collection_date", "epi_type", "isolation_source", "host", "asm_stats_length_bp", "asm_stats_n_contig", "asm_stats_contig_n50", "AST_phenotypes", "AMR_genotypes", "amrfinder_version", "refgene_db_version", "amrfinder_analysis_type", "number_drugs_tested"]

@@ -1,0 +1,11 @@
+measure,standard,conditioned,change
+"Random split, full stack",0.8526,0.8502,-0.0025
+Phylogroup-stratified split,0.8568,0.8561,-0.0007
+"Lineage holdout, full stack",0.6399,0.6454,0.0055
+"Lineage holdout, classical alone",0.6221,0.6221,0.0
+"Holdout, neural branches alone",0.5108,0.52,0.0091
+Mean very major error rate,0.2393,0.2409,0.0016
+Resistance genes by attention,1.0,0.0,-1.0
+U_res of attended genes,0.0466,0.0211,-0.0255
+U_ST of attended genes,0.2772,0.4299,0.1527
+Enrichment on one assembly,20.47,4.7,-15.77

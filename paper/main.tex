@@ -1,0 +1,44 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=2.4cm]{geometry}
+\usepackage[T1]{fontenc}
+\IfFileExists{lmodern.sty}{\usepackage{lmodern}}{}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs,tabularx,multirow}
+\usepackage{graphicx,xcolor}
+\usepackage[numbers,sort&compress]{natbib}
+\usepackage[hidelinks]{hyperref}
+\usepackage{caption}
+\captionsetup{font=small,labelfont=bf}
+
+\newcommand{\todo}[1]{\textcolor{red}{[TODO: #1]}}
+\newcommand{\figbox}[4]{%
+  \fbox{\parbox[c][#2][c]{0.94\linewidth}{\centering\small
+  \textbf{#1}\\[4pt]\begin{minipage}{0.86\linewidth}\raggedright #3\\[3pt]
+  \textit{Data:} \texttt{#4}\end{minipage}}}}
+\newcommand{\Ecoli}{\textit{E.~coli}}
+\newcommand{\nap}{nAP}
+
+\title{Genomic antimicrobial resistance prediction under lineage and cohort shift: a three-view
+model, the shortcuts it reveals, and when a learned model beats a determinant rule}
+\author{\todo{Authors and affiliations; corresponding e-mail; ORCID}}
+\date{}
+
+\begin{document}
+\maketitle
+
+\input{sections/abstract}
+\input{sections/intro}
+\input{sections/methods_data}
+\input{sections/methods_models}
+\input{sections/results_internal}
+\input{sections/results_prereg}
+\input{sections/results_arch}
+\input{sections/discussion}
+\input{sections/backmatter}
+\input{sections/tables}
+
+\clearpage
+\bibliographystyle{unsrtnat}
+\bibliography{refs}
+
+\end{document}

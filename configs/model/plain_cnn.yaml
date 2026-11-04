@@ -1,0 +1,1 @@
+{name: plain_cnn, type: cnn, vocab_size: 5, padding_idx: 4, embed_dim: 32, dropout: 0.4}

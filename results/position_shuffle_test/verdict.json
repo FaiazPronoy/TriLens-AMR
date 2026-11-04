@@ -1,0 +1,10 @@
+{
+  "verdict": "INCONCLUSIVE",
+  "arcadia_avg_drop": 0.14285002758500764,
+  "giessen_avg_drop": 0.17974099003366628,
+  "per_dataset_drops": {
+    "arcadia_CIP": 0.14285002758500764,
+    "giessen_CIP": 0.17974099003366628
+  },
+  "criterion": "Giessen drop >= 0.05 and Arcadia drop <= 0.02"
+}

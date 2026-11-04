@@ -1,0 +1,1169 @@
+{
+ "Acinetobacter": {
+  "file": "PDG000000010.1987.reference_target.cluster_list.tsv",
+  "columns": [
+   "PDS_acc",
+   "target_acc",
+   "biosample_acc",
+   "gencoll_acc"
+  ],
+  "target_column": "target_acc",
+  "cluster_column": "PDS_acc"
+ },
+ "Aeromonas": {
+  "file": "PDG000000068.312.reference_target.cluster_list.tsv",
+  "columns": [
+   "PDS_acc",
+   "target_acc",
+   "biosample_acc",
+   "gencoll_acc"
+  ],
+  "target_column": "target_acc",
+  "cluster_column": "PDS_acc"
+ },
+ "Aeromonas_salmonicida": {
+  "file": "PDG000000077.185.reference_target.cluster_list.tsv",
+  "columns": [
+   "PDS_acc",
+   "target_acc",
+   "biosample_acc",
+   "gencoll_acc"
+  ],
+  "target_column": "target_acc",
+  "cluster_column": "PDS_acc"
+ },
+ "Aeromonas_sobria": {
+  "file": "PDG000000082.26.reference_target.cluster_list.tsv",
+  "columns": [
+   "PDS_acc",
+   "target_acc",
+   "biosample_acc",
+   "gencoll_acc"
+  ],
+  "target_column": "target_acc",
+  "cluster_column": "PDS_acc"
+ },
+ "Aeromonas_veronii": {
+  "file": "PDG000000076.214.reference_target.cluster_list.tsv",
+  "columns": [
+   "PDS_acc",
+   "target_acc",
+   "biosample_acc",
+   "gencoll_acc"
+  ],
+  "target_column": "target_acc",
+  "cluster_column": "PDS_acc"
+ },
+ "Bacillus_cereus_group": {
+  "file": "PDG000000088.778.reference_target.cluster_list.tsv",
+  "columns": [
+   "PDS_acc",
+   "target_acc",
+   "biosample_acc",
+   "gencoll_acc"
+  ],
+  "target_column": "target_acc",
+  "cluster_column": "PDS_acc"
+ },
+ "Bacillus_inaquosorum": {
+  "file": "PDG000000145.13.reference_target.cluster_list.tsv",
+  "columns": [
+   "PDS_acc",
+   "target_acc",
+   "biosample_acc",
+   "gencoll_acc"
+  ],
+  "target_column": "target_acc",
+  "cluster_column": "PDS_acc"
+ },
+ "BioProject_Hierarchy": null,
+ "Burkholderia_cepacia_complex": {
+  "file": "PDG000000094.262.reference_target.cluster_list.tsv",
+  "columns": [
+   "PDS_acc",
+   "target_acc",
+   "biosample_acc",
+   "gencoll_acc"
+  ],
+  "target_column": "target_acc",
+  "cluster_column": "PDS_acc"
+ },
+ "Burkholderia_mallei": {
+  "file": "PDG000000143.4.reference_target.cluster_list.tsv",
+  "columns": [
+   "PDS_acc",
+   "target_acc",
+   "biosample_acc",
+   "gencoll_acc"
+  ],
+  "target_column": "target_acc",
+  "cluster_column": "PDS_acc"
+ },
+ "Burkholderia_pseudomallei": {
+  "file": "PDG000000148.11.reference_target.cluster_list.tsv",
+  "columns": [
+   "PDS_acc",
+   "target_acc",
+   "biosample_acc",
+   "gencoll_acc"
+  ],
+  "target_column": "target_acc",
+  "cluster_column": "PDS_acc"
+ },
+ "Campylobacter": {
+  "file": "PDG000000003.2936.reference_target.cluster_list.tsv",
+  "columns": [
+   "PDS_acc",
+   "target_acc",
+   "biosample_acc",
+   "gencoll_acc"
+  ],
+  "target_column": "target_acc",
+  "cluster_column": "PDS_acc"
+ },
+ "Candidozyma_auris": {
+  "file": "PDG000000067.722.reference_target.cluster_list.tsv",
+  "columns": [
+   "PDS_acc",
+   "target_acc",
+   "biosample_acc",
+   "gencoll_acc"
+  ],
+  "target_column": "target_acc",
+  "cluster_column": "PDS_acc"
+ },
+ "Citrobacter_freundii": {
+  "file": "PDG000000039.1346.reference_target.cluster_list.tsv",
+  "columns": [
+   "PDS_acc",
+   "target_acc",
+   "biosample_acc",
+   "gencoll_acc"
+  ],
+  "target_column": "target_acc",
+  "cluster_column": "PDS_acc"
+ },
+ "Citrobacter_portucalensis": {
+  "file": "PDG000000147.22.reference_target.cluster_list.tsv",
+  "columns": [
+   "PDS_acc",
+   "target_acc",
+   "biosample_acc",
+   "gencoll_acc"
+  ],
+  "target_column": "target_acc",
+  "cluster_column": "PDS_acc"
+ },
+ "Clostridioides_difficile": {
+  "file": "PDG000000045.858.reference_target.cluster_list.tsv",
+  "columns": [
+   "PDS_acc",
+   "target_acc",
+   "biosample_acc",
+   "gencoll_acc"
+  ],
+  "target_column": "target_acc",
+  "cluster_column": "PDS_acc"
+ },
+ "Clostridium_botulinum": {
+  "file": "PDG000000059.240.reference_target.cluster_list.tsv",
+  "columns": [
+   "PDS_acc",
+   "target_acc",
+   "biosample_acc",
+   "gencoll_acc"
+  ],
+  "target_column": "target_acc",
+  "cluster_column": "PDS_acc"
+ },
+ "Clostridium_perfringens": {
+  "file": "PDG000000061.377.reference_target.cluster_list.tsv",
+  "columns": [
+   "PDS_acc",
+   "target_acc",
+   "biosample_acc",
+   "gencoll_acc"
+  ],
+  "target_column": "target_acc",
+  "cluster_column": "PDS_acc"
+ },
+ "Corynebacterium_striatum": {
+  "file": "PDG000000064.117.reference_target.cluster_list.tsv",
+  "columns": [
+   "PDS_acc",
+   "target_acc",
+   "biosample_acc",
+   "gencoll_acc"
+  ],
+  "target_column": "target_acc",
+  "cluster_column": "PDS_acc"
+ },
+ "Cronobacter": {
+  "file": "PDG000000043.482.reference_target.cluster_list.tsv",
+  "columns": [
+   "PDS_acc",
+   "target_acc",
+   "biosample_acc",
+   "gencoll_acc"
+  ],
+  "target_column": "target_acc",
+  "cluster_column": "PDS_acc"
+ },
+ "Edwardsiella_ictaluri": {
+  "file": "PDG000000079.58.reference_target.cluster_list.tsv",
+  "columns": [
+   "PDS_acc",
+   "target_acc",
+   "biosample_acc",
+   "gencoll_acc"
+  ],
+  "target_column": "target_acc",
+  "cluster_column": "PDS_acc"
+ },
+ "Edwardsiella_piscicida": {
+  "file": "PDG000000080.60.reference_target.cluster_list.tsv",
+  "columns": [
+   "PDS_acc",
+   "target_acc",
+   "biosample_acc",
+   "gencoll_acc"
+  ],
+  "target_column": "target_acc",
+  "cluster_column": "PDS_acc"
+ },
+ "Edwardsiella_tarda": {
+  "file": "PDG000000081.54.reference_target.cluster_list.tsv",
+  "columns": [
+   "PDS_acc",
+   "target_acc",
+   "biosample_acc",
+   "gencoll_acc"
+  ],
+  "target_column": "target_acc",
+  "cluster_column": "PDS_acc"
+ },
+ "Elizabethkingia": {
+  "file": "PDG000000014.218.reference_target.cluster_list.tsv",
+  "columns": [
+   "PDS_acc",
+   "target_acc",
+   "biosample_acc",
+   "gencoll_acc"
+  ],
+  "target_column": "target_acc",
+  "cluster_column": "PDS_acc"
+ },
+ "Enterobacter_asburiae": {
+  "file": "PDG000000106.329.reference_target.cluster_list.tsv",
+  "columns": [
+   "PDS_acc",
+   "target_acc",
+   "biosample_acc",
+   "gencoll_acc"
+  ],
+  "target_column": "target_acc",
+  "cluster_column": "PDS_acc"
+ },
+ "Enterobacter_bugandensis": {
+  "file": "PDG000000111.164.reference_target.cluster_list.tsv",
+  "columns": [
+   "PDS_acc",
+   "target_acc",
+   "biosample_acc",
+   "gencoll_acc"
+  ],
+  "target_column": "target_acc",
+  "cluster_column": "PDS_acc"
+ },
+ "Enterobacter_cancerogenus": {
+  "file": "PDG000000107.47.reference_target.cluster_list.tsv",
+  "columns": [
+   "PDS_acc",
+   "target_acc",
+   "biosample_acc",
+   "gencoll_acc"
+  ],
+  "target_column": "target_acc",
+  "cluster_column": "PDS_acc"
+ },
+ "Enterobacter_chengduensis": {
+  "file": "PDG000000118.52.reference_target.cluster_list.tsv",
+  "columns": [
+   "PDS_acc",
+   "target_acc",
+   "biosample_acc",
+   "gencoll_acc"
+  ],
+  "target_column": "target_acc",
+  "cluster_column": "PDS_acc"
+ },
+ "Enterobacter_chuandaensis": {
+  "file": "PDG000000119.30.reference_target.cluster_list.tsv",
+  "columns": [
+   "PDS_acc",
+   "target_acc",
+   "biosample_acc",
+   "gencoll_acc"
+  ],
+  "target_column": "target_acc",
+  "cluster_column": "PDS_acc"
+ },
+ "Enterobacter_cloacae": {
+  "file": "PDG000000028.1451.reference_target.cluster_list.tsv",
+  "columns": [
+   "PDS_acc",
+   "target_acc",
+   "biosample_acc",
+   "gencoll_acc"
+  ],
+  "target_column": "target_acc",
+  "cluster_column": "PDS_acc"
+ },
+ "Enterobacter_hormaechei": {
+  "file": "PDG000000105.883.reference_target.cluster_list.tsv",
+  "columns": [
+   "PDS_acc",
+   "target_acc",
+   "biosample_acc",
+   "gencoll_acc"
+  ],
+  "target_column": "target_acc",
+  "cluster_column": "PDS_acc"
+ },
+ "Enterobacter_intestinihominis": {
+  "file": "PDG000000142.33.reference_target.cluster_list.tsv",
+  "columns": [
+   "PDS_acc",
+   "target_acc",
+   "biosample_acc",
+   "gencoll_acc"
+  ],
+  "target_column": "target_acc",
+  "cluster_column": "PDS_acc"
+ },
+ "Enterobacter_kobei": {
+  "file": "PDG000000108.333.reference_target.cluster_list.tsv",
+  "columns": [
+   "PDS_acc",
+   "target_acc",
+   "biosample_acc",
+   "gencoll_acc"
+  ],
+  "target_column": "target_acc",
+  "cluster_column": "PDS_acc"
+ },
+ "Enterobacter_ludwigii": {
+  "file": "PDG000000109.240.reference_target.cluster_list.tsv",
+  "columns": [
+   "PDS_acc",
+   "target_acc",
+   "biosample_acc",
+   "gencoll_acc"
+  ],
+  "target_column": "target_acc",
+  "cluster_column": "PDS_acc"
+ },
+ "Enterobacter_mori": {
+  "file": "PDG000000110.109.reference_target.cluster_list.tsv",
+  "columns": [
+   "PDS_acc",
+   "target_acc",
+   "biosample_acc",
+   "gencoll_acc"
+  ],
+  "target_column": "target_acc",
+  "cluster_column": "PDS_acc"
+ },
+ "Enterobacter_oligotrophicus": {
+  "file": "PDG000000121.13.reference_target.cluster_list.tsv",
+  "columns": [
+   "PDS_acc",
+   "target_acc",
+   "biosample_acc",
+   "gencoll_acc"
+  ],
+  "target_column": "target_acc",
+  "cluster_column": "PDS_acc"
+ },
+ "Enterobacter_quasiroggenkampii": {
+  "file": "PDG000000141.21.reference_target.cluster_list.tsv",
+  "columns": [
+   "PDS_acc",
+   "target_acc",
+   "biosample_acc",
+   "gencoll_acc"
+  ],
+  "target_column": "target_acc",
+  "cluster_column": "PDS_acc"
+ },
+ "Enterobacter_roggenkampii": {
+  "file": "PDG000000116.314.reference_target.cluster_list.tsv",
+  "columns": [
+   "PDS_acc",
+   "target_acc",
+   "biosample_acc",
+   "gencoll_acc"
+  ],
+  "target_column": "target_acc",
+  "cluster_column": "PDS_acc"
+ },
+ "Enterobacter_sichuanensis": {
+  "file": "PDG000000117.46.reference_target.cluster_list.tsv",
+  "columns": [
+   "PDS_acc",
+   "target_acc",
+   "biosample_acc",
+   "gencoll_acc"
+  ],
+  "target_column": "target_acc",
+  "cluster_column": "PDS_acc"
+ },
+ "Enterobacter_soli": {
+  "file": "PDG000000112.44.reference_target.cluster_list.tsv",
+  "columns": [
+   "PDS_acc",
+   "target_acc",
+   "biosample_acc",
+   "gencoll_acc"
+  ],
+  "target_column": "target_acc",
+  "cluster_column": "PDS_acc"
+ },
+ "Enterococcus_faecalis": {
+  "file": "PDG000000072.874.reference_target.cluster_list.tsv",
+  "columns": [
+   "PDS_acc",
+   "target_acc",
+   "biosample_acc",
+   "gencoll_acc"
+  ],
+  "target_column": "target_acc",
+  "cluster_column": "PDS_acc"
+ },
+ "Enterococcus_faecium": {
+  "file": "PDG000000071.971.reference_target.cluster_list.tsv",
+  "columns": [
+   "PDS_acc",
+   "target_acc",
+   "biosample_acc",
+   "gencoll_acc"
+  ],
+  "target_column": "target_acc",
+  "cluster_column": "PDS_acc"
+ },
+ "Enterococcus_hirae": {
+  "file": "PDG000000122.136.reference_target.cluster_list.tsv",
+  "columns": [
+   "PDS_acc",
+   "target_acc",
+   "biosample_acc",
+   "gencoll_acc"
+  ],
+  "target_column": "target_acc",
+  "cluster_column": "PDS_acc"
+ },
+ "Flavobacterium_psychrophilum": {
+  "file": "PDG000000078.54.reference_target.cluster_list.tsv",
+  "columns": [
+   "PDS_acc",
+   "target_acc",
+   "biosample_acc",
+   "gencoll_acc"
+  ],
+  "target_column": "target_acc",
+  "cluster_column": "PDS_acc"
+ },
+ "Haemophilus_influenzae": {
+  "file": "PDG000000139.209.reference_target.cluster_list.tsv",
+  "columns": [
+   "PDS_acc",
+   "target_acc",
+   "biosample_acc",
+   "gencoll_acc"
+  ],
+  "target_column": "target_acc",
+  "cluster_column": "PDS_acc"
+ },
+ "Klebsiella": {
+  "file": "PDG000000012.2564.reference_target.cluster_list.tsv",
+  "columns": [
+   "PDS_acc",
+   "target_acc",
+   "biosample_acc",
+   "gencoll_acc"
+  ],
+  "target_column": "target_acc",
+  "cluster_column": "PDS_acc"
+ },
+ "Klebsiella_oxytoca": {
+  "file": "PDG000000030.1308.reference_target.cluster_list.tsv",
+  "columns": [
+   "PDS_acc",
+   "target_acc",
+   "biosample_acc",
+   "gencoll_acc"
+  ],
+  "target_column": "target_acc",
+  "cluster_column": "PDS_acc"
+ },
+ "Kluyvera_intermedia": {
+  "file": "PDG000000040.132.reference_target.cluster_list.tsv",
+  "columns": [
+   "PDS_acc",
+   "target_acc",
+   "biosample_acc",
+   "gencoll_acc"
+  ],
+  "target_column": "target_acc",
+  "cluster_column": "PDS_acc"
+ },
+ "Kosakonia_oryzendophytica": {
+  "file": "PDG000000113.11.reference_target.cluster_list.tsv",
+  "columns": [
+   "PDS_acc",
+   "target_acc",
+   "biosample_acc",
+   "gencoll_acc"
+  ],
+  "target_column": "target_acc",
+  "cluster_column": "PDS_acc"
+ },
+ "Kosakonia_oryziphila": {
+  "file": "PDG000000114.11.reference_target.cluster_list.tsv",
+  "columns": [
+   "PDS_acc",
+   "target_acc",
+   "biosample_acc",
+   "gencoll_acc"
+  ],
+  "target_column": "target_acc",
+  "cluster_column": "PDS_acc"
+ },
+ "Legionella_anisa": {
+  "file": "PDG000000123.59.reference_target.cluster_list.tsv",
+  "columns": [
+   "PDS_acc",
+   "target_acc",
+   "biosample_acc",
+   "gencoll_acc"
+  ],
+  "target_column": "target_acc",
+  "cluster_column": "PDS_acc"
+ },
+ "Legionella_bozemanae": {
+  "file": "PDG000000126.21.reference_target.cluster_list.tsv",
+  "columns": [
+   "PDS_acc",
+   "target_acc",
+   "biosample_acc",
+   "gencoll_acc"
+  ],
+  "target_column": "target_acc",
+  "cluster_column": "PDS_acc"
+ },
+ "Legionella_cherrii": {
+  "file": "PDG000000125.11.reference_target.cluster_list.tsv",
+  "columns": [
+   "PDS_acc",
+   "target_acc",
+   "biosample_acc",
+   "gencoll_acc"
+  ],
+  "target_column": "target_acc",
+  "cluster_column": "PDS_acc"
+ },
+ "Legionella_feeleii": {
+  "file": "PDG000000124.13.reference_target.cluster_list.tsv",
+  "columns": [
+   "PDS_acc",
+   "target_acc",
+   "biosample_acc",
+   "gencoll_acc"
+  ],
+  "target_column": "target_acc",
+  "cluster_column": "PDS_acc"
+ },
+ "Legionella_pneumophila": {
+  "file": "PDG000000026.668.reference_target.cluster_list.tsv",
+  "columns": [
+   "PDS_acc",
+   "target_acc",
+   "biosample_acc",
+   "gencoll_acc"
+  ],
+  "target_column": "target_acc",
+  "cluster_column": "PDS_acc"
+ },
+ "Listeria": {
+  "file": "PDG000000001.4964.reference_target.cluster_list.tsv",
+  "columns": [
+   "PDS_acc",
+   "target_acc",
+   "biosample_acc",
+   "gencoll_acc"
+  ],
+  "target_column": "target_acc",
+  "cluster_column": "PDS_acc"
+ },
+ "Listeria_innocua": {
+  "file": "PDG000000091.233.reference_target.cluster_list.tsv",
+  "columns": [
+   "PDS_acc",
+   "target_acc",
+   "biosample_acc",
+   "gencoll_acc"
+  ],
+  "target_column": "target_acc",
+  "cluster_column": "PDS_acc"
+ },
+ "Mannheimia_haemolytica": {
+  "file": "PDG000000101.100.reference_target.cluster_list.tsv",
+  "columns": [
+   "PDS_acc",
+   "target_acc",
+   "biosample_acc",
+   "gencoll_acc"
+  ],
+  "target_column": "target_acc",
+  "cluster_column": "PDS_acc"
+ },
+ "Morganella": {
+  "file": "PDG000000020.559.reference_target.cluster_list.tsv",
+  "columns": [
+   "PDS_acc",
+   "target_acc",
+   "biosample_acc",
+   "gencoll_acc"
+  ],
+  "target_column": "target_acc",
+  "cluster_column": "PDS_acc"
+ },
+ "Mycobacterium_tuberculosis": {
+  "file": "PDG000000034.492.reference_target.cluster_list.tsv",
+  "columns": [
+   "PDS_acc",
+   "target_acc",
+   "biosample_acc",
+   "gencoll_acc"
+  ],
+  "target_column": "target_acc",
+  "cluster_column": "PDS_acc"
+ },
+ "Neisseria_bacilliformis": {
+  "file": "PDG000000129.11.reference_target.cluster_list.tsv",
+  "columns": [
+   "PDS_acc",
+   "target_acc",
+   "biosample_acc",
+   "gencoll_acc"
+  ],
+  "target_column": "target_acc",
+  "cluster_column": "PDS_acc"
+ },
+ "Neisseria_cinerea": {
+  "file": "PDG000000130.18.reference_target.cluster_list.tsv",
+  "columns": [
+   "PDS_acc",
+   "target_acc",
+   "biosample_acc",
+   "gencoll_acc"
+  ],
+  "target_column": "target_acc",
+  "cluster_column": "PDS_acc"
+ },
+ "Neisseria_elongata": {
+  "file": "PDG000000131.14.reference_target.cluster_list.tsv",
+  "columns": [
+   "PDS_acc",
+   "target_acc",
+   "biosample_acc",
+   "gencoll_acc"
+  ],
+  "target_column": "target_acc",
+  "cluster_column": "PDS_acc"
+ },
+ "Neisseria_flava": {
+  "file": "PDG000000146.4.reference_target.cluster_list.tsv",
+  "columns": [
+   "PDS_acc",
+   "target_acc",
+   "biosample_acc",
+   "gencoll_acc"
+  ],
+  "target_column": "target_acc",
+  "cluster_column": "PDS_acc"
+ },
+ "Neisseria_gonorrhoeae": {
+  "file": "PDG000000032.715.reference_target.cluster_list.tsv",
+  "columns": [
+   "PDS_acc",
+   "target_acc",
+   "biosample_acc",
+   "gencoll_acc"
+  ],
+  "target_column": "target_acc",
+  "cluster_column": "PDS_acc"
+ },
+ "Neisseria_lactamica": {
+  "file": "PDG000000095.40.reference_target.cluster_list.tsv",
+  "columns": [
+   "PDS_acc",
+   "target_acc",
+   "biosample_acc",
+   "gencoll_acc"
+  ],
+  "target_column": "target_acc",
+  "cluster_column": "PDS_acc"
+ },
+ "Neisseria_meningitidis": {
+  "file": "PDG000000097.467.reference_target.cluster_list.tsv",
+  "columns": [
+   "PDS_acc",
+   "target_acc",
+   "biosample_acc",
+   "gencoll_acc"
+  ],
+  "target_column": "target_acc",
+  "cluster_column": "PDS_acc"
+ },
+ "Neisseria_oralis": {
+  "file": "PDG000000132.13.reference_target.cluster_list.tsv",
+  "columns": [
+   "PDS_acc",
+   "target_acc",
+   "biosample_acc",
+   "gencoll_acc"
+  ],
+  "target_column": "target_acc",
+  "cluster_column": "PDS_acc"
+ },
+ "Neisseria_perflava": {
+  "file": "PDG000000133.13.reference_target.cluster_list.tsv",
+  "columns": [
+   "PDS_acc",
+   "target_acc",
+   "biosample_acc",
+   "gencoll_acc"
+  ],
+  "target_column": "target_acc",
+  "cluster_column": "PDS_acc"
+ },
+ "Neisseria_polysaccharea": {
+  "file": "PDG000000096.37.reference_target.cluster_list.tsv",
+  "columns": [
+   "PDS_acc",
+   "target_acc",
+   "biosample_acc",
+   "gencoll_acc"
+  ],
+  "target_column": "target_acc",
+  "cluster_column": "PDS_acc"
+ },
+ "Neisseria_subflava": {
+  "file": "PDG000000134.30.reference_target.cluster_list.tsv",
+  "columns": [
+   "PDS_acc",
+   "target_acc",
+   "biosample_acc",
+   "gencoll_acc"
+  ],
+  "target_column": "target_acc",
+  "cluster_column": "PDS_acc"
+ },
+ "Neisseria_weaveri": {
+  "file": "PDG000000135.10.reference_target.cluster_list.tsv",
+  "columns": [
+   "PDS_acc",
+   "target_acc",
+   "biosample_acc",
+   "gencoll_acc"
+  ],
+  "target_column": "target_acc",
+  "cluster_column": "PDS_acc"
+ },
+ "Pasteurella_multocida": {
+  "file": "PDG000000102.175.reference_target.cluster_list.tsv",
+  "columns": [
+   "PDS_acc",
+   "target_acc",
+   "biosample_acc",
+   "gencoll_acc"
+  ],
+  "target_column": "target_acc",
+  "cluster_column": "PDS_acc"
+ },
+ "Photobacterium_damselae": {
+  "file": "PDG000000065.130.reference_target.cluster_list.tsv",
+  "columns": [
+   "PDS_acc",
+   "target_acc",
+   "biosample_acc",
+   "gencoll_acc"
+  ],
+  "target_column": "target_acc",
+  "cluster_column": "PDS_acc"
+ },
+ "Phytobacter_massiliensis": {
+  "file": "PDG000000115.15.reference_target.cluster_list.tsv",
+  "columns": [
+   "PDS_acc",
+   "target_acc",
+   "biosample_acc",
+   "gencoll_acc"
+  ],
+  "target_column": "target_acc",
+  "cluster_column": "PDS_acc"
+ },
+ "Pluralibacter_gergoviae": {
+  "file": "PDG000000092.86.reference_target.cluster_list.tsv",
+  "columns": [
+   "PDS_acc",
+   "target_acc",
+   "biosample_acc",
+   "gencoll_acc"
+  ],
+  "target_column": "target_acc",
+  "cluster_column": "PDS_acc"
+ },
+ "Providencia": {
+  "file": "PDG000000021.1272.reference_target.cluster_list.tsv",
+  "columns": [
+   "PDS_acc",
+   "target_acc",
+   "biosample_acc",
+   "gencoll_acc"
+  ],
+  "target_column": "target_acc",
+  "cluster_column": "PDS_acc"
+ },
+ "Pseudomonas_aeruginosa": {
+  "file": "PDG000000036.1824.reference_target.cluster_list.tsv",
+  "columns": [
+   "PDS_acc",
+   "target_acc",
+   "biosample_acc",
+   "gencoll_acc"
+  ],
+  "target_column": "target_acc",
+  "cluster_column": "PDS_acc"
+ },
+ "Pseudomonas_putida": {
+  "file": "PDG000000075.259.reference_target.cluster_list.tsv",
+  "columns": [
+   "PDS_acc",
+   "target_acc",
+   "biosample_acc",
+   "gencoll_acc"
+  ],
+  "target_column": "target_acc",
+  "cluster_column": "PDS_acc"
+ },
+ "Salmonella": {
+  "file": "PDG000000002.4276.reference_target.cluster_list.tsv",
+  "columns": [
+   "PDS_acc",
+   "target_acc",
+   "biosample_acc",
+   "gencoll_acc"
+  ],
+  "target_column": "target_acc",
+  "cluster_column": "PDS_acc"
+ },
+ "Serratia": {
+  "file": "PDG000000016.1066.reference_target.cluster_list.tsv",
+  "columns": [
+   "PDS_acc",
+   "target_acc",
+   "biosample_acc",
+   "gencoll_acc"
+  ],
+  "target_column": "target_acc",
+  "cluster_column": "PDS_acc"
+ },
+ "Shewanella_algae": {
+  "file": "PDG000000084.62.reference_target.cluster_list.tsv",
+  "columns": [
+   "PDS_acc",
+   "target_acc",
+   "biosample_acc",
+   "gencoll_acc"
+  ],
+  "target_column": "target_acc",
+  "cluster_column": "PDS_acc"
+ },
+ "Staphylococcus_aureus": {
+  "file": "PDG000000073.1318.reference_target.cluster_list.tsv",
+  "columns": [
+   "PDS_acc",
+   "target_acc",
+   "biosample_acc",
+   "gencoll_acc"
+  ],
+  "target_column": "target_acc",
+  "cluster_column": "PDS_acc"
+ },
+ "Staphylococcus_pseudintermedius": {
+  "file": "PDG000000042.541.reference_target.cluster_list.tsv",
+  "columns": [
+   "PDS_acc",
+   "target_acc",
+   "biosample_acc",
+   "gencoll_acc"
+  ],
+  "target_column": "target_acc",
+  "cluster_column": "PDS_acc"
+ },
+ "Stenotrophomonas_maltophilia": {
+  "file": "PDG000000093.300.reference_target.cluster_list.tsv",
+  "columns": [
+   "PDS_acc",
+   "target_acc",
+   "biosample_acc",
+   "gencoll_acc"
+  ],
+  "target_column": "target_acc",
+  "cluster_column": "PDS_acc"
+ },
+ "Streptococcus_agalactiae": {
+  "file": "PDG000000089.378.reference_target.cluster_list.tsv",
+  "columns": [
+   "PDS_acc",
+   "target_acc",
+   "biosample_acc",
+   "gencoll_acc"
+  ],
+  "target_column": "target_acc",
+  "cluster_column": "PDS_acc"
+ },
+ "Streptococcus_equi": {
+  "file": "PDG000000103.75.reference_target.cluster_list.tsv",
+  "columns": [
+   "PDS_acc",
+   "target_acc",
+   "biosample_acc",
+   "gencoll_acc"
+  ],
+  "target_column": "target_acc",
+  "cluster_column": "PDS_acc"
+ },
+ "Streptococcus_iniae": {
+  "file": "PDG000000085.34.reference_target.cluster_list.tsv",
+  "columns": [
+   "PDS_acc",
+   "target_acc",
+   "biosample_acc",
+   "gencoll_acc"
+  ],
+  "target_column": "target_acc",
+  "cluster_column": "PDS_acc"
+ },
+ "Streptococcus_mutans": {
+  "file": "PDG000000140.30.reference_target.cluster_list.tsv",
+  "columns": [
+   "PDS_acc",
+   "target_acc",
+   "biosample_acc",
+   "gencoll_acc"
+  ],
+  "target_column": "target_acc",
+  "cluster_column": "PDS_acc"
+ },
+ "Streptococcus_pneumoniae": {
+  "file": "PDG000000074.765.reference_target.cluster_list.tsv",
+  "columns": [
+   "PDS_acc",
+   "target_acc",
+   "biosample_acc",
+   "gencoll_acc"
+  ],
+  "target_column": "target_acc",
+  "cluster_column": "PDS_acc"
+ },
+ "Streptococcus_pyogenes": {
+  "file": "PDG000000090.720.reference_target.cluster_list.tsv",
+  "columns": [
+   "PDS_acc",
+   "target_acc",
+   "biosample_acc",
+   "gencoll_acc"
+  ],
+  "target_column": "target_acc",
+  "cluster_column": "PDS_acc"
+ },
+ "Streptococcus_suis": {
+  "file": "PDG000000100.194.reference_target.cluster_list.tsv",
+  "columns": [
+   "PDS_acc",
+   "target_acc",
+   "biosample_acc",
+   "gencoll_acc"
+  ],
+  "target_column": "target_acc",
+  "cluster_column": "PDS_acc"
+ },
+ "Treponema_pallidum": {
+  "file": "PDG000000104.43.reference_target.cluster_list.tsv",
+  "columns": [
+   "PDS_acc",
+   "target_acc",
+   "biosample_acc",
+   "gencoll_acc"
+  ],
+  "target_column": "target_acc",
+  "cluster_column": "PDS_acc"
+ },
+ "Vibrio_alginolyticus": {
+  "file": "PDG000000136.159.reference_target.cluster_list.tsv",
+  "columns": [
+   "PDS_acc",
+   "target_acc",
+   "biosample_acc",
+   "gencoll_acc"
+  ],
+  "target_column": "target_acc",
+  "cluster_column": "PDS_acc"
+ },
+ "Vibrio_antiquarius": {
+  "file": "PDG000000137.21.reference_target.cluster_list.tsv",
+  "columns": [
+   "PDS_acc",
+   "target_acc",
+   "biosample_acc",
+   "gencoll_acc"
+  ],
+  "target_column": "target_acc",
+  "cluster_column": "PDS_acc"
+ },
+ "Vibrio_cholerae": {
+  "file": "PDG000000055.1020.reference_target.cluster_list.tsv",
+  "columns": [
+   "PDS_acc",
+   "target_acc",
+   "biosample_acc",
+   "gencoll_acc"
+  ],
+  "target_column": "target_acc",
+  "cluster_column": "PDS_acc"
+ },
+ "Vibrio_diabolicus": {
+  "file": "PDG000000138.41.reference_target.cluster_list.tsv",
+  "columns": [
+   "PDS_acc",
+   "target_acc",
+   "biosample_acc",
+   "gencoll_acc"
+  ],
+  "target_column": "target_acc",
+  "cluster_column": "PDS_acc"
+ },
+ "Vibrio_fluvialis": {
+  "file": "PDG000000099.162.reference_target.cluster_list.tsv",
+  "columns": [
+   "PDS_acc",
+   "target_acc",
+   "biosample_acc",
+   "gencoll_acc"
+  ],
+  "target_column": "target_acc",
+  "cluster_column": "PDS_acc"
+ },
+ "Vibrio_harveyi": {
+  "file": "PDG000000083.164.reference_target.cluster_list.tsv",
+  "columns": [
+   "PDS_acc",
+   "target_acc",
+   "biosample_acc",
+   "gencoll_acc"
+  ],
+  "target_column": "target_acc",
+  "cluster_column": "PDS_acc"
+ },
+ "Vibrio_metoecus": {
+  "file": "PDG000000128.14.reference_target.cluster_list.tsv",
+  "columns": [
+   "PDS_acc",
+   "target_acc",
+   "biosample_acc",
+   "gencoll_acc"
+  ],
+  "target_column": "target_acc",
+  "cluster_column": "PDS_acc"
+ },
+ "Vibrio_metschnikovii": {
+  "file": "PDG000000098.65.reference_target.cluster_list.tsv",
+  "columns": [
+   "PDS_acc",
+   "target_acc",
+   "biosample_acc",
+   "gencoll_acc"
+  ],
+  "target_column": "target_acc",
+  "cluster_column": "PDS_acc"
+ },
+ "Vibrio_mimicus": {
+  "file": "PDG000000127.37.reference_target.cluster_list.tsv",
+  "columns": [
+   "PDS_acc",
+   "target_acc",
+   "biosample_acc",
+   "gencoll_acc"
+  ],
+  "target_column": "target_acc",
+  "cluster_column": "PDS_acc"
+ },
+ "Vibrio_owensii": {
+  "file": "PDG000000144.8.reference_target.cluster_list.tsv",
+  "columns": [
+   "PDS_acc",
+   "target_acc",
+   "biosample_acc",
+   "gencoll_acc"
+  ],
+  "target_column": "target_acc",
+  "cluster_column": "PDS_acc"
+ },
+ "Vibrio_parahaemolyticus": {
+  "file": "PDG000000023.1362.reference_target.cluster_list.tsv",
+  "columns": [
+   "PDS_acc",
+   "target_acc",
+   "biosample_acc",
+   "gencoll_acc"
+  ],
+  "target_column": "target_acc",
+  "cluster_column": "PDS_acc"
+ },
+ "Vibrio_vulnificus": {
+  "file": "PDG000000058.484.reference_target.cluster_list.tsv",
+  "columns": [
+   "PDS_acc",
+   "target_acc",
+   "biosample_acc",
+   "gencoll_acc"
+  ],
+  "target_column": "target_acc",
+  "cluster_column": "PDS_acc"
+ },
+ "Yersinia_enterocolitica": {
+  "file": "PDG000000087.748.reference_target.cluster_list.tsv",
+  "columns": [
+   "PDS_acc",
+   "target_acc",
+   "biosample_acc",
+   "gencoll_acc"
+  ],
+  "target_column": "target_acc",
+  "cluster_column": "PDS_acc"
+ },
+ "Yersinia_ruckeri": {
+  "file": "PDG000000086.41.reference_target.cluster_list.tsv",
+  "columns": [
+   "PDS_acc",
+   "target_acc",
+   "biosample_acc",
+   "gencoll_acc"
+  ],
+  "target_column": "target_acc",
+  "cluster_column": "PDS_acc"
+ }
+}

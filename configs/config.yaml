@@ -1,0 +1,20 @@
+defaults:
+  - model: plain_cnn
+  - experiment: ???
+  - _self_
+
+seed: 42
+project_root: ${oc.env:TRILENS_ROOT,.}
+
+paths:
+  data_dir: ${project_root}/data
+  processed_dir: ${project_root}/data/processed
+  results_dir: ${project_root}/results
+  arcadia_master_pkl: ${project_root}/data/processed/arcadia_v2_master_features.pkl
+  arcadia_snp_matrix_pkl: ${project_root}/data/processed/arcadia_v2_snp_matrix.pkl
+  giessen_data_csv: ${project_root}/data/Giessen_dataset/cip_ctx_ctz_gen_multi_data.csv
+  giessen_pheno_csv: ${project_root}/data/Giessen_dataset/cip_ctx_ctz_gen_pheno.csv
+
+data:
+  arcadia:
+    split_type: random
