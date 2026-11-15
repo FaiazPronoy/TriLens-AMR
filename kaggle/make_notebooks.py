@@ -535,6 +535,39 @@ STAGES = {
     ),
 }
 
+CALL_SHARDS = 3
+for k in range(CALL_SHARDS):
+    STAGES[f"stage19_assembly_calls_shard{k}"] = dict(
+        title=f"AMRFinderPlus calls from BV-BRC assemblies, shard {k} of {CALL_SHARDS}",
+        about=f"Calls every strain with strain_index % {CALL_SHARDS} == {k} (about 2,320 genomes, about 9 hours "
+        "at the pilot speed) with AMRFinderPlus 4.2.7 and database 2026-03-24.1. Each finished genome is kept; "
+        "the zip goes to the GitHub release about every 20 minutes. It stops starting new genomes after 10.5 "
+        "hours; if it says 'run this notebook again to continue', run it again and finished genomes are "
+        "skipped. Internet must be on. Run at most two shards at the same time, each from one account only.",
+        gpu=CPU,
+        cpu=True,
+        data=False,
+        needs=[],
+        writes=["determinant_calls"],
+        steps=[
+            step(
+                "Install the pinned AMRFinderPlus and database",
+                "step22a_fetch_assembly_calls --part install --root /tmp/amrfinder",
+            ),
+            step(
+                f"Fetch and call shard {k} of {CALL_SHARDS}",
+                f"step22a_fetch_assembly_calls --part fetch --shard {k} --of {CALL_SHARDS} --hours 10.5 "
+                "--workers 2 --threads 2 --amrfinder-root /tmp/amrfinder",
+                f"determinant_calls/shard_{k}/_DONE.json",
+            ),
+            step(
+                "Time per genome",
+                "step22a_fetch_assembly_calls --part summary --workers 2 "
+                f"--out results/determinant_calls/shard_{k}/summary.json",
+            ),
+        ],
+    )
+
 
 SETUP = r"""
 GITHUB_REPO = "FaiazPronoy/TriLens-AMR"
