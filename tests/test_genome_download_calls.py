@@ -125,3 +125,27 @@ def test_status_csv_survives_a_failure_first(env, monkeypatch):
     af.fetch(args(tmp, shard=0, workers=1))
     st = pd.read_csv(tmp / "calls" / "shard_0" / "status.csv")
     assert list(st.columns) == af.STATUS_COLUMNS and (st.status == "ok").sum() == 3
+
+
+def test_assembly_mismatch_is_refused(tmp_path, monkeypatch):
+    def dl(gid, dest, tries=3):
+        dest.write_text(">c1\nACGT\n>c2\nAC\n")
+        return "api"
+
+    monkeypatch.setattr(af, "download", dl)
+    out = tmp_path / "x.tsv.gz"
+    r = af.one("562.1", out, tmp_path, 1, expect=(2, 7))
+    assert r["status"] == "download_failed" and "assembly differs" in r["error"]
+    assert not out.exists() and not (tmp_path / "x.tsv.gz.part").exists()
+
+
+def test_fasta_stats(tmp_path):
+    f = tmp_path / "a.fna"
+    f.write_text(">c1 x\nACGT\nAC\n>c2\nACGTA\n")
+    assert af.fasta_stats(f) == (2, 11)
+
+
+def test_expected_reads_manifest_columns():
+    row = types.SimpleNamespace(contigs="119", size="4918873")
+    assert af.expected(row) == (119, 4918873)
+    assert af.expected(types.SimpleNamespace()) is None

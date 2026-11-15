@@ -505,6 +505,34 @@ STAGES = {
             )
         ],
     ),
+    "stage18_assembly_calls_pilot": dict(
+        title="Pilot: AMRFinderPlus calls from BV-BRC assemblies",
+        about="Installs AMRFinderPlus 4.2.7 with database 2026-03-24.1 (both pinned and checked), downloads about "
+        "20 assemblies (shard 0 of 350) from the BV-BRC API, checks each against the expected contig count and "
+        "length, calls them, and writes the median time per genome to determinant_calls/pilot_summary.json. "
+        "Internet must be on.",
+        gpu=CPU,
+        cpu=True,
+        data=False,
+        needs=[],
+        writes=["determinant_calls"],
+        steps=[
+            step(
+                "Install the pinned AMRFinderPlus and database",
+                "step22a_fetch_assembly_calls --part install --root /tmp/amrfinder",
+            ),
+            step(
+                "Fetch and call shard 0 of 350 (half an hour at most)",
+                "step22a_fetch_assembly_calls --part fetch --shard 0 --of 350 --hours 0.5 --workers 2 "
+                "--threads 2 --amrfinder-root /tmp/amrfinder",
+                "determinant_calls/shard_0/_DONE.json",
+            ),
+            step(
+                "Median time per genome",
+                "step22a_fetch_assembly_calls --part summary --workers 2",
+            ),
+        ],
+    ),
 }
 
 
@@ -517,6 +545,7 @@ WRITES = {writes}
 NEEDS = {needs}
 NEEDS_GPU = {needs_gpu}
 RESUME_OWN = {resume_own}
+NEEDS_DATA = {needs_data}
 
 import os, shutil, subprocess, sys, time, zipfile
 from pathlib import Path
@@ -565,38 +594,40 @@ if not WORK.exists():
     shutil.copytree(repo, WORK, ignore=lambda d, n: [x for x in n if (Path(d) == repo and x in
                     ("results", "data", "paper", "thesis", ".git")) or x == "__pycache__"])
 
-master = find_one("arcadia_v2_master_features.pkl")
-if master is None:
-    raise FileNotFoundError("add the dataset trilens-data (Add Input)")
 proc, giessen = WORK / "data" / "processed", WORK / "data" / "Giessen_dataset"
-proc.mkdir(parents=True, exist_ok=True)
-giessen.mkdir(parents=True, exist_ok=True)
-for f in sorted(master.parent.iterdir()):
-    if f.is_file():
-        dst = (giessen if f.name.startswith("cip_ctx_ctz_gen") else proc) / f.name
-        if not dst.exists():
+if NEEDS_DATA:
+    master = find_one("arcadia_v2_master_features.pkl")
+    if master is None:
+        raise FileNotFoundError("add the dataset trilens-data (Add Input)")
+    proc.mkdir(parents=True, exist_ok=True)
+    giessen.mkdir(parents=True, exist_ok=True)
+    for f in sorted(master.parent.iterdir()):
+        if f.is_file():
+            dst = (giessen if f.name.startswith("cip_ctx_ctz_gen") else proc) / f.name
+            if not dst.exists():
+                dst.symlink_to(f)
+    for rel in ("raw/strains_metadata.csv", "raw/pangenome/pangenome_cds.fa",
+                "raw/pangenome/gene_presence_absence.csv"):
+        f = find_one(Path(rel).name)
+        dst = WORK / "data" / rel
+        if f is not None and not dst.exists():
+            dst.parent.mkdir(parents=True, exist_ok=True)
             dst.symlink_to(f)
-for rel in ("raw/strains_metadata.csv", "raw/pangenome/pangenome_cds.fa", "raw/pangenome/gene_presence_absence.csv"):
-    f = find_one(Path(rel).name)
-    dst = WORK / "data" / rel
-    if f is not None and not dst.exists():
-        dst.parent.mkdir(parents=True, exist_ok=True)
-        dst.symlink_to(f)
 
-gene_filtered = proc / "arcadia_v2_gene_filtered.pkl"
-repaired = BASE / "repaired" / gene_filtered.name
-if gene_filtered.is_symlink() and Path(os.readlink(gene_filtered)) != repaired:
-    r = subprocess.run([sys.executable, "-m", "pipeline.step06_repair_snp_gene_blocks",
-                        "--src", str(gene_filtered.resolve()),
-                        "--snp", str((proc / "arcadia_v2_snp_matrix.pkl").resolve()),
-                        "--out", str(repaired), "--report", str(RES / "diagnostics" / "data_repair.json")],
-                       cwd=WORK, capture_output=True, text=True)
-    if r.returncode == 0:
-        gene_filtered.unlink()
-        gene_filtered.symlink_to(repaired)
-        print("data   : gene-filtered SNP blocks repaired")
-    elif r.returncode != 2:
-        raise RuntimeError("the SNP block repair refused the file:\n" + r.stdout[-2000:] + r.stderr[-2000:])
+    gene_filtered = proc / "arcadia_v2_gene_filtered.pkl"
+    repaired = BASE / "repaired" / gene_filtered.name
+    if gene_filtered.is_symlink() and Path(os.readlink(gene_filtered)) != repaired:
+        r = subprocess.run([sys.executable, "-m", "pipeline.step06_repair_snp_gene_blocks",
+                            "--src", str(gene_filtered.resolve()),
+                            "--snp", str((proc / "arcadia_v2_snp_matrix.pkl").resolve()),
+                            "--out", str(repaired), "--report", str(RES / "diagnostics" / "data_repair.json")],
+                           cwd=WORK, capture_output=True, text=True)
+        if r.returncode == 0:
+            gene_filtered.unlink()
+            gene_filtered.symlink_to(repaired)
+            print("data   : gene-filtered SNP blocks repaired")
+        elif r.returncode != 2:
+            raise RuntimeError("the SNP block repair refused the file:\n" + r.stdout[-2000:] + r.stderr[-2000:])
 
 RES.mkdir(parents=True, exist_ok=True)
 unfinished = set()
@@ -806,7 +837,9 @@ def notebook(name, st):
         "**Before you start**",
         "",
         f"1. Settings, Accelerator: **{st['gpu']}**. Settings, Internet: **On**.",
-        "2. Add Input: the dataset **trilens-data**. The code is cloned from GitHub.",
+        "2. Add Input: the dataset **trilens-data**. The code is cloned from GitHub."
+        if st.get("data", True)
+        else "2. No dataset is needed. The code is cloned from GitHub.",
         "3. Add-ons, Secrets: **GITHUB_TOKEN**, switched on for this notebook.",
         "4. **Save Version, Save & Run All (Commit)**. You can close the tab.",
         "",
@@ -833,6 +866,7 @@ def notebook(name, st):
                 needs=json.dumps(st["needs"]),
                 needs_gpu=str(not st.get("cpu", False)),
                 resume_own=str(st.get("resume", True)),
+                needs_data=str(st.get("data", True)),
             )
         ),
         code(HELPERS),
