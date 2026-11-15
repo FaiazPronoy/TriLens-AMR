@@ -283,7 +283,8 @@ def build(a):
 
 
 def summary(a):
-    st = pd.concat([pd.read_csv(f, dtype={"genome_id": str}) for f in sorted(Path(a.calls).glob("shard_*/status.csv"))])
+    files = sorted(Path(a.calls).glob("shard_*/status.csv"))
+    st = pd.concat([pd.read_csv(f, dtype={"genome_id": str, "error": str, "status": str}) for f in files])
     ok = st[st.status.eq("ok")].copy()
     ok["total_s"] = ok.download_s + ok.amrfinder_s
     out = {

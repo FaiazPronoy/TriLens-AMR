@@ -149,3 +149,28 @@ def test_expected_reads_manifest_columns():
     row = types.SimpleNamespace(contigs="119", size="4918873")
     assert af.expected(row) == (119, 4918873)
     assert af.expected(types.SimpleNamespace()) is None
+
+
+def test_summary_with_no_failures(tmp_path):
+    shard = tmp_path / "calls" / "shard_0"
+    shard.mkdir(parents=True)
+    rows = [
+        dict(
+            strain_index=i,
+            genome_id=f"562.{i}",
+            time="t",
+            status="ok",
+            scheme="api",
+            mb=5.0,
+            download_s=3.0,
+            amrfinder_s=30.0 + i,
+            error=None,
+        )
+        for i in range(3)
+    ]
+    pd.DataFrame(rows).reindex(columns=af.STATUS_COLUMNS).to_csv(shard / "status.csv", index=False)
+    (shard / "versions.json").write_text(json.dumps({"software": "4.2.7", "database": "d"}))
+    out = tmp_path / "s.json"
+    af.summary(types.SimpleNamespace(calls=str(tmp_path / "calls"), out=str(out), workers=2))
+    s = json.loads(out.read_text())
+    assert s["ok"] == 3 and s["failed"] == {} and s["median_total_s"] == 34.0
