@@ -1,0 +1,144 @@
+{
+ "software": "4.2.7",
+ "ncbi_strains": 5223,
+ "overlap": 5222,
+ "acquired": {
+  "strains": 5222,
+  "exact_share": 0.7666,
+  "median_jaccard": 1.0,
+  "calls_both": 33400,
+  "calls_only_ours": 1069,
+  "calls_only_ncbi": 280,
+  "pair_agreement": 0.9612,
+  "exact_share_by_mode": {
+   "COMBINED": 0.2481,
+   "NUCLEOTIDE": 0.9615
+  }
+ },
+ "acquired_without_emrD": {
+  "strains": 5222,
+  "exact_share": 0.9542,
+  "median_jaccard": 1.0,
+  "calls_both": 30403,
+  "calls_only_ours": 48,
+  "calls_only_ncbi": 280,
+  "pair_agreement": 0.9893,
+  "exact_share_by_mode": {
+   "COMBINED": 0.9348,
+   "NUCLEOTIDE": 0.9615
+  }
+ },
+ "point": {
+  "strains": 5222,
+  "exact_share": 0.996,
+  "median_jaccard": 1.0,
+  "calls_both": 10056,
+  "calls_only_ours": 11,
+  "calls_only_ncbi": 12,
+  "pair_agreement": 0.9977,
+  "exact_share_by_mode": {
+   "COMBINED": 0.993,
+   "NUCLEOTIDE": 0.9971
+  }
+ },
+ "key_genes": [
+  {
+   "gene": "blaTEM-1",
+   "ncbi": 1932,
+   "ours": 1897,
+   "both": 1897,
+   "kappa": 0.9856
+  },
+  {
+   "gene": "blaCTX-M-15",
+   "ncbi": 312,
+   "ours": 307,
+   "both": 306,
+   "kappa": 0.988
+  },
+  {
+   "gene": "blaCTX-M-14",
+   "ncbi": 101,
+   "ours": 98,
+   "both": 97,
+   "kappa": 0.9744
+  },
+  {
+   "gene": "blaCTX-M-27",
+   "ncbi": 62,
+   "ours": 62,
+   "both": 62,
+   "kappa": 1.0
+  },
+  {
+   "gene": "blaOXA-1",
+   "ncbi": 275,
+   "ours": 275,
+   "both": 274,
+   "kappa": 0.9962
+  },
+  {
+   "gene": "blaCMY-2",
+   "ncbi": 48,
+   "ours": 48,
+   "both": 47,
+   "kappa": 0.979
+  },
+  {
+   "gene": "aac(3)-IId",
+   "ncbi": 250,
+   "ours": 251,
+   "both": 250,
+   "kappa": 0.9979
+  },
+  {
+   "gene": "aac(3)-IIe",
+   "ncbi": 187,
+   "ours": 181,
+   "both": 181,
+   "kappa": 0.9831
+  },
+  {
+   "gene": "aac(6')-Ib-cr5",
+   "ncbi": 237,
+   "ours": 233,
+   "both": 233,
+   "kappa": 0.9911
+  },
+  {
+   "gene": "ant(2'')-Ia",
+   "ncbi": 32,
+   "ours": 31,
+   "both": 31,
+   "kappa": 0.984
+  },
+  {
+   "gene": "sul1",
+   "ncbi": 1103,
+   "ours": 1101,
+   "both": 1099,
+   "kappa": 0.9965
+  },
+  {
+   "gene": "sul2",
+   "ncbi": 1571,
+   "ours": 1535,
+   "both": 1532,
+   "kappa": 0.9808
+  },
+  {
+   "gene": "dfrA17",
+   "ncbi": 707,
+   "ours": 707,
+   "both": 707,
+   "kappa": 1.0
+  },
+  {
+   "gene": "qnrS1",
+   "ncbi": 117,
+   "ours": 116,
+   "both": 116,
+   "kappa": 0.9956
+  }
+ ]
+}

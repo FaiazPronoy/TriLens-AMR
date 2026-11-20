@@ -9,5 +9,6 @@ if __name__ == "__main__":
             "fetch": module("trilens.determinants.genome_download_calls", "fetch"),
             "summary": module("trilens.determinants.genome_download_calls", "summary"),
             "build": module("trilens.determinants.genome_download_calls", "build"),
+            "concordance": module("trilens.determinants.call_concordance"),
         },
     )

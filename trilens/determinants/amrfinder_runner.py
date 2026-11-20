@@ -12,6 +12,8 @@ import pandas as pd
 from trilens.data.strain_metadata import AB_NAMES, PROCESSED
 
 MIN_IDENTITY, MIN_COVERAGE = 90.0, 80.0
+POINT_SUBTYPES = {"POINT", "POINT_DISRUPT"}
+NOT_COUNTED_METHODS = {"PARTIALX", "PARTIALP", "PARTIAL_CONTIG_ENDX", "PARTIAL_CONTIG_ENDP", "INTERNAL_STOP", "HMM"}
 INTRINSIC_PREVALENCE = 0.95
 
 
@@ -47,7 +49,7 @@ def parse_hits(path):
     d["locus"] = prot.fillna(d.get("contig_id", pd.Series(np.nan, index=d.index)))
     for c in ("coverage", "identity"):
         d[c] = pd.to_numeric(d.get(c), errors="coerce")
-    d["is_point"] = d.get("subtype", "").astype(str).str.upper().eq("POINT")
+    d["is_point"] = d.get("subtype", "").astype(str).str.upper().isin(POINT_SUBTYPES)
     return d
 
 

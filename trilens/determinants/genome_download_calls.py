@@ -7,6 +7,7 @@ import os
 import shutil
 import subprocess
 import sys
+import tempfile
 import time
 import urllib.request
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -14,7 +15,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from trilens.determinants.amrfinder_runner import MIN_COVERAGE, MIN_IDENTITY, parse_hits
+from trilens.determinants.amrfinder_runner import MIN_COVERAGE, MIN_IDENTITY, NOT_COUNTED_METHODS, parse_hits
 
 ROOT = Path(__file__).resolve().parents[2]
 URLS = [
@@ -138,7 +139,7 @@ def fetch(a):
     out = Path(a.out) / f"shard_{a.shard}"
     tsv_dir = out / "tsv"
     tsv_dir.mkdir(parents=True, exist_ok=True)
-    tmp = Path("/tmp/arg_fetch")
+    tmp = Path(tempfile.gettempdir()) / "arg_fetch"
     tmp.mkdir(exist_ok=True)
     status_p = out / "status.csv"
     m = manifest()
@@ -244,7 +245,7 @@ def build(a):
             gid = p.name[: -len(".tsv.gz")]
             with gzip.open(p, "rt") as f:
                 text = f.read()
-            tmp = Path("/tmp/arg_build.tsv")
+            tmp = Path(tempfile.gettempdir()) / "arg_build.tsv"
             tmp.write_text(text)
             h = parse_hits(tmp)
             h.insert(0, "strain_index", int(m.loc[gid, "strain_index"]))
@@ -256,6 +257,8 @@ def build(a):
     long.to_csv(out / "hits_long.csv.gz", index=False)
 
     ok = long.dropna(subset=["symbol"])
+    if "method" in ok:
+        ok = ok[~ok["method"].astype(str).str.upper().isin(NOT_COUNTED_METHODS)]
     passed = ok[(ok.identity >= MIN_IDENTITY) & (ok.coverage >= MIN_COVERAGE)] if "identity" in ok else ok
     amr = passed[passed["type"].str.upper().eq("AMR")]
     acquired = amr[~amr.is_point]

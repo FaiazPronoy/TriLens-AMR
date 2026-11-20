@@ -174,3 +174,22 @@ def test_summary_with_no_failures(tmp_path):
     af.summary(types.SimpleNamespace(calls=str(tmp_path / "calls"), out=str(out), workers=2))
     s = json.loads(out.read_text())
     assert s["ok"] == 3 and s["failed"] == {} and s["median_total_s"] == 34.0
+
+
+def test_point_disrupt_counts_as_point_and_partials_are_dropped(tmp_path):
+    f = tmp_path / "t.tsv"
+    f.write_text(
+        HEADER
+        + row("cirA_Q56Ter", sub="POINT_DISRUPT")
+        + row("gyrA_S83L", sub="POINT")
+        + row("blaTEM-1").replace("EXACTX", "PARTIAL_CONTIG_ENDX")
+        + row("sul2")
+    )
+    h = af.parse_hits(f)
+    assert h.set_index("symbol").is_point.to_dict() == {
+        "cirA_Q56Ter": True,
+        "gyrA_S83L": True,
+        "blaTEM-1": False,
+        "sul2": False,
+    }
+    assert set(h[h["method"].isin(af.NOT_COUNTED_METHODS)].symbol) == {"blaTEM-1"}
