@@ -17,6 +17,7 @@ file as dated amendments, and the original text is never edited.
 | W12 | Is the assembly signal batch or biology? | [w12_assembly_size_mechanism](w12_assembly_size_mechanism.md) | `step24 --part mechanism` | `results/assembly_size_mechanism/` |
 | W13 | Do the findings hold in a second species and against MIC values? | [w13_second_species_and_mic](w13_second_species_and_mic.md) | `step28`, `step29` | `results/campylobacter/`, `results/mic_harmonisation/` |
 | W14 | What are the clinical error rates, and is a linear model enough? | [w14_linear_model_and_clinical_errors](w14_linear_model_and_clinical_errors.md) | `step30` | `results/linear_model_and_clinical_errors/` |
+| P2 | Evaluation freeze: tiers, folds, baselines and the rule for a model claim | [evaluation_freeze](evaluation_freeze.md) | (to be added) | `results/evaluation_folds/` |
 
 ## How to read a document
 
